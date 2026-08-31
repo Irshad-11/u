@@ -1,8 +1,8 @@
 [
   {
-    "title": "Calculator",
-    "description": "A simple and fast calculator for everyday mathematical operations.",
-    "link": "calculator.html"
+    "title": "Code & Explanation Database",
+    "description": "A store of Explanation along with code for train LLM",
+    "link": "code-db.html"
   },
   {
     "title": "JSON Formatter",
