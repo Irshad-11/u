@@ -1,0 +1,3919 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="A collection of lightweight browser-based utilities."
+    >
+
+    <title>Utility Collection</title>
+
+
+    <!-- =========================================================
+         FONTS
+    ========================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =========================================================
+         THREE.JS
+    ========================================================== -->
+
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+        defer
+    ></script>
+
+
+    <style>
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+            margin: 0;
+
+            min-height: 100vh;
+
+            background: #08090b;
+
+            color: #f1f3f5;
+
+            font-family: "Inter", sans-serif;
+
+            overflow-x: hidden;
+        }
+
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+
+        .visually-hidden {
+            position: absolute;
+
+            width: 1px;
+            height: 1px;
+
+            margin: -1px;
+            padding: 0;
+
+            overflow: hidden;
+
+            clip: rect(0 0 0 0);
+
+            white-space: nowrap;
+
+            border: 0;
+        }
+
+
+        /* =========================================================
+           THREE.JS BACKGROUND
+        ========================================================== */
+
+        #magnetic-field {
+
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            z-index: 0;
+
+            pointer-events: none;
+        }
+
+
+        /* =========================================================
+           BACKGROUND
+        ========================================================== */
+
+        .background {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1;
+
+            pointer-events: none;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(255, 255, 255, 0.045),
+                    transparent 38%
+                ),
+                #08090b;
+        }
+
+
+        .noise {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 2;
+
+            pointer-events: none;
+
+            opacity: 0.035;
+
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+        }
+
+
+        /* =========================================================
+           PAGE
+        ========================================================== */
+
+        .page {
+
+            position: relative;
+
+            z-index: 5;
+
+            width: min(
+                1200px,
+                calc(100% - 40px)
+            );
+
+            margin: 0 auto;
+
+            padding: 90px 0 100px;
+        }
+
+
+        /* =========================================================
+           TOP LINE
+        ========================================================== */
+
+        .top-line {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 70px;
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 11px;
+
+            letter-spacing: 0.12em;
+
+            text-transform: uppercase;
+
+            color:
+                rgba(255, 255, 255, 0.4);
+        }
+
+
+        .top-line-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .status-dot {
+
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: #c9ff73;
+
+            box-shadow:
+                0 0 10px
+                rgba(
+                    201,
+                    255,
+                    115,
+                    0.7
+                );
+        }
+
+
+        /* =========================================================
+           HERO
+        ========================================================== */
+
+        .hero {
+
+            max-width: 820px;
+
+            margin-bottom: 70px;
+        }
+
+
+        .eyebrow {
+
+            margin-bottom: 20px;
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 12px;
+
+            letter-spacing: 0.14em;
+
+            text-transform: uppercase;
+
+            color:
+                rgba(255, 255, 255, 0.42);
+        }
+
+
+        .hero h1 {
+
+            margin: 0;
+
+            font-size:
+                clamp(
+                    48px,
+                    8vw,
+                    96px
+                );
+
+            line-height: 0.95;
+
+            letter-spacing: -0.065em;
+
+            font-weight: 600;
+        }
+
+
+        .hero h1 span {
+
+            color:
+                rgba(255, 255, 255, 0.28);
+        }
+
+
+        .hero-description {
+
+            max-width: 570px;
+
+            margin: 28px 0 0;
+
+            font-size: 16px;
+
+            line-height: 1.7;
+
+            color:
+                rgba(255, 255, 255, 0.48);
+        }
+
+
+        /* =========================================================
+           TOOLBAR
+        ========================================================== */
+
+        .toolbar {
+
+            display: flex;
+
+            gap: 12px;
+
+            align-items: center;
+
+            margin-bottom: 32px;
+        }
+
+
+        .search {
+
+            position: relative;
+
+            flex: 1;
+        }
+
+
+        .search input {
+
+            width: 100%;
+
+            height: 48px;
+
+            padding: 0 18px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.09);
+
+            border-radius: 10px;
+
+            outline: none;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            color: white;
+
+            font-size: 13px;
+
+            transition:
+                border-color 180ms ease,
+                background 180ms ease;
+        }
+
+
+        .search input::placeholder {
+
+            color:
+                rgba(255, 255, 255, 0.3);
+        }
+
+
+        .search input:focus {
+
+            border-color:
+                rgba(255, 255, 255, 0.22);
+
+            background:
+                rgba(255, 255, 255, 0.05);
+        }
+
+
+        .sort {
+
+            height: 48px;
+
+            padding: 0 16px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.09);
+
+            border-radius: 10px;
+
+            outline: none;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            color:
+                rgba(255, 255, 255, 0.7);
+
+            cursor: pointer;
+        }
+
+
+        .sort option {
+
+            background: #111214;
+        }
+
+
+        /* =========================================================
+           SECTION HEADER
+        ========================================================== */
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+
+            padding-bottom: 14px;
+
+            border-bottom:
+                1px solid
+                rgba(255, 255, 255, 0.08);
+        }
+
+
+        .section-title {
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 12px;
+
+            letter-spacing: 0.1em;
+
+            text-transform: uppercase;
+
+            color:
+                rgba(255, 255, 255, 0.55);
+        }
+
+
+        .tool-count {
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 11px;
+
+            color:
+                rgba(255, 255, 255, 0.3);
+        }
+
+
+        /* =========================================================
+           GRID
+        ========================================================== */
+
+        .tools-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+
+            gap: 12px;
+        }
+
+
+        /* =========================================================
+           CARD
+        ========================================================== */
+
+        .tool-card {
+
+            --hue: 210;
+
+            --energy: 0;
+
+            position: relative;
+
+            min-height: 300px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            padding: 16px;
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                hsla(
+                    var(--hue),
+                    60%,
+                    70%,
+                    calc(
+                        0.08 +
+                        var(--energy) * 0.32
+                    )
+                );
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.05),
+                    rgba(255, 255, 255, 0.016)
+                );
+
+            box-shadow:
+                0 0
+                calc(
+                    var(--energy) * 46px
+                )
+                hsla(
+                    var(--hue),
+                    85%,
+                    65%,
+                    calc(
+                        var(--energy) * 0.22
+                    )
+                ),
+
+                inset 0 0 0 1px
+                rgba(255, 255, 255, 0.02);
+
+            backdrop-filter: blur(8px);
+
+            -webkit-backdrop-filter: blur(8px);
+
+            transition:
+                border-color 120ms linear,
+                box-shadow 120ms linear;
+        }
+
+
+        /* =========================================================
+           TITLE STAGE
+        ========================================================== */
+
+        .tool-stage {
+
+            position: relative;
+
+            height: 148px;
+
+            margin-bottom: 14px;
+
+            overflow: hidden;
+
+            border-radius: 10px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.07);
+
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+
+                    hsla(
+                        var(--hue),
+                        70%,
+                        60%,
+                        calc(
+                            0.05 +
+                            var(--energy) * 0.1
+                        )
+                    ),
+
+                    transparent 70%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.045),
+                    rgba(255, 255, 255, 0.01)
+                );
+
+            cursor: grab;
+
+            touch-action: none;
+
+            user-select: none;
+        }
+
+
+        .tool-stage::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 0;
+
+            opacity: 0.3;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(255, 255, 255, 0.04) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.04) 1px,
+                    transparent 1px
+                );
+
+            background-size: 14px 14px;
+        }
+
+
+        .tool-stage.is-grabbing {
+
+            cursor: grabbing;
+        }
+
+
+        /* =========================================================
+           LETTER
+        ========================================================== */
+
+        .letter {
+
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            z-index: 1;
+
+            display: block;
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-weight: 500;
+
+            line-height: 1;
+
+            color:
+                hsla(
+                    var(--hue),
+                    80%,
+                    78%,
+                    0.82
+                );
+
+            text-shadow:
+                0 0
+                calc(
+                    6px +
+                    var(--energy) * 16px
+                )
+                hsla(
+                    var(--hue),
+                    90%,
+                    65%,
+                    calc(
+                        0.25 +
+                        var(--energy) * 0.5
+                    )
+                );
+
+            white-space: pre;
+
+            pointer-events: none;
+
+            transform:
+                translate3d(
+                    var(--x),
+                    var(--y),
+                    0
+                )
+                translate(
+                    -50%,
+                    -50%
+                )
+                rotate(
+                    var(--r)
+                )
+                scale(
+                    var(--s, 1)
+                );
+
+            will-change: transform;
+        }
+
+
+        /* =========================================================
+           FAVORITE
+        ========================================================== */
+
+        .favorite-btn {
+
+            position: absolute;
+
+            top: 10px;
+            right: 10px;
+
+            z-index: 2;
+
+            width: 30px;
+            height: 30px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.1);
+
+            border-radius: 50%;
+
+            background:
+                rgba(8, 9, 11, 0.55);
+
+            color:
+                rgba(255, 255, 255, 0.4);
+
+            cursor: pointer;
+
+            transition:
+                color 180ms ease,
+                border-color 180ms ease,
+                background 180ms ease;
+        }
+
+
+        .favorite-btn:hover {
+
+            color: white;
+
+            border-color:
+                rgba(255, 255, 255, 0.25);
+        }
+
+
+        .favorite-btn.active {
+
+            color: #ffffff;
+
+            background:
+                hsla(
+                    var(--hue),
+                    70%,
+                    55%,
+                    0.28
+                );
+
+            border-color:
+                hsla(
+                    var(--hue),
+                    70%,
+                    70%,
+                    0.4
+                );
+        }
+
+
+        .heart {
+
+            width: 14px;
+            height: 14px;
+        }
+
+
+        /* =========================================================
+           CARD CONTENT
+        ========================================================== */
+
+        .card-content {
+
+            flex: 1;
+        }
+
+
+        .tool-description {
+
+            margin: 0;
+
+            font-size: 13px;
+
+            line-height: 1.65;
+
+            color:
+                rgba(255, 255, 255, 0.42);
+        }
+
+
+        /* =========================================================
+           CARD BOTTOM
+        ========================================================== */
+
+        .card-bottom {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-top: 16px;
+
+            padding-top: 14px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.07);
+        }
+
+
+        /* =========================================================
+           RATING
+        ========================================================== */
+
+        .rating {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 3px;
+        }
+
+
+        .star {
+
+            width: 15px;
+            height: 15px;
+
+            border: 0;
+
+            padding: 0;
+
+            background: none;
+
+            color:
+                rgba(255, 255, 255, 0.18);
+
+            cursor: pointer;
+
+            transition:
+                color 150ms ease,
+                transform 150ms ease;
+        }
+
+
+        .star:hover {
+
+            transform:
+                scale(1.12);
+        }
+
+
+        .star.active {
+
+            color:
+                rgba(255, 255, 255, 0.9);
+        }
+
+
+        .rating-value {
+
+            margin-left: 5px;
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 10px;
+
+            color:
+                rgba(255, 255, 255, 0.3);
+        }
+
+
+        /* =========================================================
+           OPEN BUTTON
+        ========================================================== */
+
+        .open-tool {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color:
+                rgba(255, 255, 255, 0.55);
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 10px;
+
+            letter-spacing: 0.08em;
+
+            text-decoration: none;
+
+            text-transform: uppercase;
+
+            transition:
+                color 180ms ease,
+                gap 180ms ease;
+        }
+
+
+        .open-tool:hover {
+
+            color: white;
+
+            gap: 12px;
+        }
+
+
+        /* =========================================================
+           EMPTY / ERROR
+        ========================================================== */
+
+        .empty {
+
+            grid-column: 1 / -1;
+
+            padding: 80px 20px;
+
+            text-align: center;
+
+            border:
+                1px dashed
+                rgba(255, 255, 255, 0.1);
+
+            border-radius: 14px;
+
+            color:
+                rgba(255, 255, 255, 0.35);
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================== */
+
+        footer {
+
+            margin-top: 90px;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.07);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            color:
+                rgba(255, 255, 255, 0.25);
+
+            font-family:
+                "DM Mono",
+                monospace;
+
+            font-size: 10px;
+
+            letter-spacing: 0.05em;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================== */
+
+        @media (max-width: 900px) {
+
+            .tools-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .page {
+
+                width:
+                    min(
+                        calc(100% - 24px),
+                        1200px
+                    );
+
+                padding-top: 50px;
+            }
+
+
+            .top-line {
+
+                margin-bottom: 50px;
+            }
+
+
+            .hero {
+
+                margin-bottom: 50px;
+            }
+
+
+            .toolbar {
+
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+
+            .tools-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            footer {
+
+                flex-direction: column;
+
+                gap: 10px;
+            }
+
+        }
+
+
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+
+                scroll-behavior: auto;
+            }
+
+
+            .letter {
+
+                transition: none !important;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================================
+         BACKGROUND
+    ========================================================== -->
+
+    <canvas id="magnetic-field"></canvas>
+
+    <div class="background"></div>
+
+    <div class="noise"></div>
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
+
+    <main class="page">
+
+
+        <!-- =====================================================
+             TOP BAR
+        ====================================================== -->
+
+        <div class="top-line">
+
+            <div class="top-line-left">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Utility Collection
+                </span>
+
+            </div>
+
+
+            <span>
+                Local / Browser
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             HERO
+        ====================================================== -->
+
+        <section class="hero">
+
+            <div class="eyebrow">
+                Current Tools
+            </div>
+
+
+            <h1>
+                Small tools.
+                <span>Useful things.</span>
+            </h1>
+
+
+            <p class="hero-description">
+                A collection of lightweight browser utilities.
+                Everything runs directly on your device.
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             TOOLBAR
+        ====================================================== -->
+
+        <section class="toolbar">
+
+
+            <div class="search">
+
+                <input
+                    id="search"
+                    type="search"
+                    placeholder="Search tools..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <select
+                id="sort"
+                class="sort"
+            >
+
+                <option value="default">
+                    Sort: Default
+                </option>
+
+                <option value="rating-desc">
+                    Rating: High → Low
+                </option>
+
+                <option value="rating-asc">
+                    Rating: Low → High
+                </option>
+
+                <option value="title-asc">
+                    Name: A → Z
+                </option>
+
+                <option value="title-desc">
+                    Name: Z → A
+                </option>
+
+                <option value="favorites">
+                    Favorites First
+                </option>
+
+            </select>
+
+        </section>
+
+
+        <!-- =====================================================
+             TOOLS
+        ====================================================== -->
+
+        <section>
+
+
+            <div class="section-header">
+
+                <span class="section-title">
+                    Current Tools
+                </span>
+
+
+                <span
+                    id="tool-count"
+                    class="tool-count"
+                >
+                    0 ITEMS
+                </span>
+
+            </div>
+
+
+            <div
+                id="tools-grid"
+                class="tools-grid"
+            ></div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
+        <footer>
+
+            <span>
+                UTILITY / COLLECTION
+            </span>
+
+
+            <span>
+                Built for the browser
+            </span>
+
+        </footer>
+
+
+    </main>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+
+        /* ========================================================
+           DATA
+           
+           IMPORTANT:
+           
+           No tool data is hardcoded here.
+
+           Everything comes from:
+
+               /utilities.json
+        ========================================================= */
+
+        let utilities = [];
+
+        let filteredUtilities = [];
+
+
+        /* ========================================================
+           DOM
+        ========================================================= */
+
+        const grid =
+            document.getElementById(
+                "tools-grid"
+            );
+
+
+        const searchInput =
+            document.getElementById(
+                "search"
+            );
+
+
+        const sortSelect =
+            document.getElementById(
+                "sort"
+            );
+
+
+        const toolCount =
+            document.getElementById(
+                "tool-count"
+            );
+
+
+        const reduceMotion =
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches;
+
+
+        /* ========================================================
+           LOCAL STORAGE
+        ========================================================= */
+
+        const STORAGE_RATINGS =
+            "utility_collection_ratings";
+
+
+        const STORAGE_FAVORITES =
+            "utility_collection_favorites";
+
+
+        function getRatings() {
+
+            try {
+
+                return JSON.parse(
+                    localStorage.getItem(
+                        STORAGE_RATINGS
+                    )
+                ) || {};
+
+            } catch {
+
+                return {};
+
+            }
+
+        }
+
+
+        function getFavorites() {
+
+            try {
+
+                return JSON.parse(
+                    localStorage.getItem(
+                        STORAGE_FAVORITES
+                    )
+                ) || {};
+
+            } catch {
+
+                return {};
+
+            }
+
+        }
+
+
+        /* ========================================================
+           SVG
+        ========================================================= */
+
+        function heartSVG() {
+
+            return `
+
+                <svg
+                    class="heart"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+
+                    <path
+                        d="
+                            M20.84 4.61
+                            a5.5 5.5 0 0 0-7.78 0
+                            L12 5.67
+                            l-1.06-1.06
+                            a5.5 5.5 0 0 0-7.78 7.78
+                            l1.06 1.06
+                            L12 21.23
+                            l7.78-7.78
+                            1.06-1.06
+                            a5.5 5.5 0 0 0 0-7.78z
+                        "
+                    />
+
+                </svg>
+
+            `;
+
+        }
+
+
+        function arrowSVG() {
+
+            return `
+
+                <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+
+                    <path d="M5 12h14"></path>
+
+                    <path d="m13 6 6 6-6 6"></path>
+
+                </svg>
+
+            `;
+
+        }
+
+
+        /* ========================================================
+           TITLE PHYSICS ENGINE
+        ========================================================= */
+
+        const engine = {
+
+            stages: [],
+
+
+            start() {
+
+                if (reduceMotion)
+                    return;
+
+
+                const step = () => {
+
+                    this.stages.forEach(
+                        stage =>
+                            stage.tick()
+                    );
+
+
+                    requestAnimationFrame(
+                        step
+                    );
+
+                };
+
+
+                requestAnimationFrame(
+                    step
+                );
+
+            }
+
+        };
+
+
+        /* ========================================================
+           LETTER BODY
+        ========================================================= */
+
+        function createLetterBody(
+            char,
+            baseX,
+            baseY,
+            isSpace
+        ) {
+
+            const el =
+                document.createElement(
+                    "span"
+                );
+
+
+            el.className =
+                "letter";
+
+
+            if (isSpace) {
+
+                el.style.width =
+                    "0px";
+
+            }
+
+
+            el.textContent =
+                char;
+
+
+            return {
+
+                el,
+
+                char,
+
+                baseX,
+
+                baseY,
+
+
+                /*
+                 * Start exactly at rest.
+                 */
+
+                x: baseX,
+
+                y: baseY,
+
+                oldX: baseX,
+
+                oldY: baseY,
+
+
+                grabbed: false
+
+            };
+
+        }
+
+
+        /* ========================================================
+           TITLE LAYOUT
+        ========================================================= */
+
+        function layoutTitle(
+            title,
+            fontPx
+        ) {
+
+            const words =
+                title
+                    .toUpperCase()
+                    .split(" ");
+
+
+            const charWidth =
+                fontPx * 0.6;
+
+
+            const lineHeight =
+                fontPx * 1.08;
+
+
+            const rows =
+                words.map(
+                    (
+                        word,
+                        rowIndex
+                    ) => {
+
+                        const rowWidth =
+                            word.length *
+                            charWidth;
+
+
+                        const startX =
+                            -rowWidth / 2;
+
+
+                        const y =
+                            (
+                                rowIndex -
+                                (
+                                    words.length - 1
+                                ) / 2
+                            ) *
+                            lineHeight;
+
+
+                        return word
+                            .split("")
+                            .map(
+                                (
+                                    char,
+                                    i
+                                ) => ({
+
+                                    char,
+
+                                    x:
+                                        startX +
+                                        i *
+                                        charWidth +
+                                        charWidth /
+                                        2,
+
+                                    y
+
+                                })
+                            );
+
+                    }
+                );
+
+
+            return rows.flat();
+
+        }
+
+
+        /* ========================================================
+           TITLE STAGE
+        ========================================================= */
+
+        function createTitleStage(
+            title,
+            index
+        ) {
+
+            const stage =
+                document.createElement(
+                    "div"
+                );
+
+
+            stage.className =
+                "tool-stage";
+
+
+            stage.setAttribute(
+                "role",
+                "img"
+            );
+
+
+            stage.setAttribute(
+                "aria-label",
+                title
+            );
+
+
+            const hiddenLabel =
+                document.createElement(
+                    "span"
+                );
+
+
+            hiddenLabel.className =
+                "visually-hidden";
+
+
+            hiddenLabel.textContent =
+                title;
+
+
+            stage.appendChild(
+                hiddenLabel
+            );
+
+
+            /*
+             * Calculate font size based
+             * on longest word.
+             */
+
+            const longestWord =
+                Math.max(
+                    ...title
+                        .split(" ")
+                        .map(
+                            word =>
+                                word.length
+                        )
+                );
+
+
+            const fontPx =
+                Math.max(
+                    18,
+
+                    Math.min(
+                        40,
+                        260 /
+                        longestWord
+                    )
+                );
+
+
+            const positions =
+                layoutTitle(
+                    title,
+                    fontPx
+                );
+
+
+            const letters =
+                positions.map(
+                    position =>
+                        createLetterBody(
+                            position.char,
+                            position.x,
+                            position.y,
+                            position.char === " "
+                        )
+                );
+
+
+            letters.forEach(
+                letter => {
+
+                    letter.el.style.fontSize =
+                        `${fontPx}px`;
+
+
+                    stage.appendChild(
+                        letter.el
+                    );
+
+                }
+            );
+
+
+            /* ====================================================
+               HUE
+            ==================================================== */
+
+            const hue =
+                (
+                    index *
+                    137.508
+                ) % 360;
+
+
+            /* ====================================================
+               INTERACTION STATE
+            ==================================================== */
+
+            let active = false;
+
+
+            function activate() {
+
+                if (reduceMotion)
+                    return;
+
+
+                active = true;
+
+            }
+
+
+            /* ====================================================
+               POINTER
+            ==================================================== */
+
+            const pointer = {
+
+                x: 9999,
+
+                y: 9999,
+
+                active: false
+
+            };
+
+
+            const physics = {
+
+                fieldRadius: 80,
+
+                fieldStrength: 0.011,
+
+                anchorSpring: 0.02,
+
+                gravity: 0.012,
+
+                damping: 0.965,
+
+                constraintIterations: 3
+
+            };
+
+
+            function stageCenter() {
+
+                const rect =
+                    stage.getBoundingClientRect();
+
+
+                return {
+
+                    left:
+                        rect.left,
+
+                    top:
+                        rect.top,
+
+                    cx:
+                        rect.left +
+                        rect.width /
+                        2,
+
+                    cy:
+                        rect.top +
+                        rect.height /
+                        2
+
+                };
+
+            }
+
+
+            function localFromEvent(
+                event
+            ) {
+
+                const center =
+                    stageCenter();
+
+
+                return {
+
+                    x:
+                        event.clientX -
+                        center.cx,
+
+                    y:
+                        event.clientY -
+                        center.cy
+
+                };
+
+            }
+
+
+            function nearestLetter(
+                local,
+                radius
+            ) {
+
+                let best = null;
+
+                let bestDist =
+                    radius;
+
+
+                letters.forEach(
+                    letter => {
+
+                        const dx =
+                            letter.x -
+                            local.x;
+
+
+                        const dy =
+                            letter.y -
+                            local.y;
+
+
+                        const dist =
+                            Math.sqrt(
+                                dx * dx +
+                                dy * dy
+                            );
+
+
+                        if (
+                            dist <
+                            bestDist
+                        ) {
+
+                            best =
+                                letter;
+
+                            bestDist =
+                                dist;
+
+                        }
+
+                    }
+                );
+
+
+                return best;
+
+            }
+
+
+            function applyImpulse(
+                letter,
+                vx,
+                vy
+            ) {
+
+                letter.oldX -= vx;
+
+                letter.oldY -= vy;
+
+            }
+
+
+            function ripple(local) {
+
+                activate();
+
+
+                letters.forEach(
+                    letter => {
+
+                        const dx =
+                            letter.x -
+                            local.x;
+
+
+                        const dy =
+                            letter.y -
+                            local.y;
+
+
+                        const dist =
+                            Math.sqrt(
+                                dx * dx +
+                                dy * dy
+                            ) || 1;
+
+
+                        const force =
+                            Math.max(
+                                0,
+                                1 -
+                                dist / 130
+                            ) * 6.5;
+
+
+                        applyImpulse(
+                            letter,
+
+                            (
+                                dx /
+                                dist
+                            ) *
+                            force,
+
+                            (
+                                dy /
+                                dist
+                            ) *
+                            force
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /* ====================================================
+               POINTER MOVE
+            ==================================================== */
+
+            stage.addEventListener(
+                "pointermove",
+                event => {
+
+                    activate();
+
+
+                    const local =
+                        localFromEvent(
+                            event
+                        );
+
+
+                    pointer.x =
+                        local.x;
+
+
+                    pointer.y =
+                        local.y;
+
+
+                    pointer.active =
+                        true;
+
+                }
+            );
+
+
+            stage.addEventListener(
+                "pointerleave",
+                () => {
+
+                    pointer.active =
+                        false;
+
+
+                    pointer.x =
+                        9999;
+
+
+                    pointer.y =
+                        9999;
+
+                }
+            );
+
+
+            /* ====================================================
+               POINTER DOWN
+            ==================================================== */
+
+            stage.addEventListener(
+                "pointerdown",
+                event => {
+
+                    activate();
+
+
+                    const local =
+                        localFromEvent(
+                            event
+                        );
+
+
+                    const grabbed =
+                        nearestLetter(
+                            local,
+                            26
+                        );
+
+
+                    if (grabbed) {
+
+                        stage.setPointerCapture(
+                            event.pointerId
+                        );
+
+
+                        stage.classList.add(
+                            "is-grabbing"
+                        );
+
+
+                        grabbed.grabbed =
+                            true;
+
+
+                        grabbed._lastLocal =
+                            local;
+
+
+                        stage._activeDrag =
+                            grabbed;
+
+                    } else {
+
+                        ripple(local);
+
+                    }
+
+                }
+            );
+
+
+            /* ====================================================
+               DRAG
+            ==================================================== */
+
+            stage.addEventListener(
+                "pointermove",
+                event => {
+
+                    const drag =
+                        stage._activeDrag;
+
+
+                    if (!drag)
+                        return;
+
+
+                    const local =
+                        localFromEvent(
+                            event
+                        );
+
+
+                    drag.oldX =
+                        drag.x;
+
+
+                    drag.oldY =
+                        drag.y;
+
+
+                    drag.x =
+                        local.x;
+
+
+                    drag.y =
+                        local.y;
+
+                }
+            );
+
+
+            /* ====================================================
+               RELEASE
+            ==================================================== */
+
+            function releaseDrag(
+                event
+            ) {
+
+                const drag =
+                    stage._activeDrag;
+
+
+                if (!drag)
+                    return;
+
+
+                drag.grabbed =
+                    false;
+
+
+                stage._activeDrag =
+                    null;
+
+
+                stage.classList.remove(
+                    "is-grabbing"
+                );
+
+
+                if (
+                    event &&
+                    event.pointerId !==
+                    undefined
+                ) {
+
+                    try {
+
+                        stage.releasePointerCapture(
+                            event.pointerId
+                        );
+
+                    } catch {}
+
+                }
+
+            }
+
+
+            stage.addEventListener(
+                "pointerup",
+                releaseDrag
+            );
+
+
+            stage.addEventListener(
+                "pointercancel",
+                releaseDrag
+            );
+
+
+            /* ====================================================
+               SIMULATION
+            ==================================================== */
+
+            let energy = 0;
+
+
+            function integrate() {
+
+                letters.forEach(
+                    letter => {
+
+                        if (
+                            letter.grabbed
+                        )
+                            return;
+
+
+                        let ax = 0;
+
+                        let ay = 0;
+
+
+                        /*
+                         * Spring toward original position.
+                         */
+
+                        ax +=
+                            (
+                                letter.baseX -
+                                letter.x
+                            ) *
+                            physics.anchorSpring;
+
+
+                        ay +=
+                            (
+                                letter.baseY -
+                                letter.y
+                            ) *
+                            physics.anchorSpring;
+
+
+                        /*
+                         * Gravity.
+                         */
+
+                        ay +=
+                            physics.gravity;
+
+
+                        /*
+                         * Magnetic cursor field.
+                         */
+
+                        if (
+                            pointer.active
+                        ) {
+
+                            const dx =
+                                pointer.x -
+                                letter.x;
+
+
+                            const dy =
+                                pointer.y -
+                                letter.y;
+
+
+                            const dist =
+                                Math.sqrt(
+                                    dx * dx +
+                                    dy * dy
+                                ) || 0.001;
+
+
+                            if (
+                                dist <
+                                physics.fieldRadius
+                            ) {
+
+                                const influence =
+                                    1 -
+                                    dist /
+                                    physics.fieldRadius;
+
+
+                                /*
+                                 * Tangential swirl.
+                                 */
+
+                                ax +=
+                                    (
+                                        -dy /
+                                        dist
+                                    ) *
+                                    influence *
+                                    physics.fieldStrength *
+                                    10;
+
+
+                                ay +=
+                                    (
+                                        dx /
+                                        dist
+                                    ) *
+                                    influence *
+                                    physics.fieldStrength *
+                                    10;
+
+
+                                /*
+                                 * Radial repulsion.
+                                 */
+
+                                ax +=
+                                    (
+                                        dx /
+                                        dist
+                                    ) *
+                                    influence *
+                                    0.03;
+
+
+                                ay +=
+                                    (
+                                        dy /
+                                        dist
+                                    ) *
+                                    influence *
+                                    0.03;
+
+                            }
+
+                        }
+
+
+                        const vx =
+                            (
+                                letter.x -
+                                letter.oldX
+                            ) *
+                            physics.damping;
+
+
+                        const vy =
+                            (
+                                letter.y -
+                                letter.oldY
+                            ) *
+                            physics.damping;
+
+
+                        letter.oldX =
+                            letter.x;
+
+
+                        letter.oldY =
+                            letter.y;
+
+
+                        letter.x +=
+                            vx + ax;
+
+
+                        letter.y +=
+                            vy + ay;
+
+                    }
+                );
+
+            }
+
+
+            /* ====================================================
+               CONSTRAINTS
+            ==================================================== */
+
+            function constrain() {
+
+                for (
+                    let iter = 0;
+
+                    iter <
+                    physics.constraintIterations;
+
+                    iter++
+                ) {
+
+                    for (
+                        let i = 0;
+
+                        i <
+                        letters.length - 1;
+
+                        i++
+                    ) {
+
+                        const a =
+                            letters[i];
+
+
+                        const b =
+                            letters[i + 1];
+
+
+                        const sameRow =
+                            a.baseY ===
+                            b.baseY;
+
+
+                        if (!sameRow)
+                            continue;
+
+
+                        const restLength =
+                            b.baseX -
+                            a.baseX;
+
+
+                        if (
+                            restLength <= 0
+                        )
+                            continue;
+
+
+                        const dx =
+                            b.x -
+                            a.x;
+
+
+                        const dy =
+                            b.y -
+                            a.y;
+
+
+                        const dist =
+                            Math.sqrt(
+                                dx * dx +
+                                dy * dy
+                            ) || 0.001;
+
+
+                        const diff =
+                            (
+                                dist -
+                                restLength
+                            ) /
+                            dist;
+
+
+                        const slack =
+                            diff > 0
+                                ? 0.5
+                                : 0.12;
+
+
+                        const offsetX =
+                            dx *
+                            diff *
+                            slack;
+
+
+                        const offsetY =
+                            dy *
+                            diff *
+                            slack;
+
+
+                        if (
+                            !a.grabbed
+                        ) {
+
+                            a.x +=
+                                offsetX *
+                                0.5;
+
+
+                            a.y +=
+                                offsetY *
+                                0.5;
+
+                        }
+
+
+                        if (
+                            !b.grabbed
+                        ) {
+
+                            b.x -=
+                                offsetX *
+                                0.5;
+
+
+                            b.y -=
+                                offsetY *
+                                0.5;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+            /* ====================================================
+               PAINT
+            ==================================================== */
+
+            function paint() {
+
+                let totalSpeed =
+                    0;
+
+
+                letters.forEach(
+                    letter => {
+
+                        const vx =
+                            letter.x -
+                            letter.oldX;
+
+
+                        const vy =
+                            letter.y -
+                            letter.oldY;
+
+
+                        const speed =
+                            Math.sqrt(
+                                vx * vx +
+                                vy * vy
+                            );
+
+
+                        totalSpeed +=
+                            speed;
+
+
+                        letter.el.style.setProperty(
+                            "--x",
+                            `${letter.x}px`
+                        );
+
+
+                        letter.el.style.setProperty(
+                            "--y",
+                            `${letter.y}px`
+                        );
+
+
+                        letter.el.style.setProperty(
+                            "--r",
+                            `${Math.max(
+                                -0.5,
+                                Math.min(
+                                    0.5,
+                                    vx * 0.05
+                                )
+                            )}rad`
+                        );
+
+
+                        letter.el.style.setProperty(
+                            "--s",
+                            `${1 +
+                                Math.min(
+                                    0.25,
+                                    speed * 0.06
+                                )}`
+                        );
+
+                    }
+                );
+
+
+                /*
+                 * Dormant state stays visually quiet.
+                 */
+
+                if (!active) {
+
+                    energy = 0;
+
+                } else {
+
+                    const target =
+                        Math.min(
+                            1,
+
+                            totalSpeed /
+                            (
+                                letters.length *
+                                3
+                            )
+                        );
+
+
+                    energy +=
+                        (
+                            target -
+                            energy
+                        ) *
+                        0.12;
+
+                }
+
+
+                const card =
+                    stage.closest(
+                        ".tool-card"
+                    );
+
+
+                if (card) {
+
+                    card.style.setProperty(
+                        "--energy",
+                        energy.toFixed(3)
+                    );
+
+                }
+
+            }
+
+
+            /* ====================================================
+               INITIAL RENDER
+            ==================================================== */
+
+            stage.style.setProperty(
+                "--hue",
+                hue
+            );
+
+
+            letters.forEach(
+                letter => {
+
+                    letter.el.style.setProperty(
+                        "--x",
+                        `${letter.baseX}px`
+                    );
+
+
+                    letter.el.style.setProperty(
+                        "--y",
+                        `${letter.baseY}px`
+                    );
+
+
+                    letter.el.style.setProperty(
+                        "--r",
+                        "0rad"
+                    );
+
+
+                    letter.el.style.setProperty(
+                        "--s",
+                        "1"
+                    );
+
+                }
+            );
+
+
+            return {
+
+                el: stage,
+
+                hue,
+
+
+                tick() {
+
+                    if (!active) {
+
+                        paint();
+
+                        return;
+
+                    }
+
+
+                    integrate();
+
+                    constrain();
+
+                    paint();
+
+                }
+
+            };
+
+        }
+
+
+        /* ========================================================
+           CREATE CARD
+        ========================================================= */
+
+        function createCard(
+            tool,
+            index
+        ) {
+
+            const ratings =
+                getRatings();
+
+
+            const favorites =
+                getFavorites();
+
+
+            const rating =
+                Number(
+                    ratings[tool.title] || 0
+                );
+
+
+            const favorite =
+                Boolean(
+                    favorites[tool.title]
+                );
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "tool-card";
+
+
+            card.dataset.title =
+                tool.title;
+
+
+            /* ====================================================
+               TITLE STAGE
+            ==================================================== */
+
+            const titleStage =
+                createTitleStage(
+                    tool.title,
+                    index
+                );
+
+
+            card.style.setProperty(
+                "--hue",
+                titleStage.hue
+            );
+
+
+            card.appendChild(
+                titleStage.el
+            );
+
+
+            engine.stages.push(
+                titleStage
+            );
+
+
+            /* ====================================================
+               FAVORITE
+            ==================================================== */
+
+            const favoriteButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            favoriteButton.className =
+                `favorite-btn ${
+                    favorite
+                        ? "active"
+                        : ""
+                }`;
+
+
+            favoriteButton.setAttribute(
+                "aria-label",
+                `Favorite ${tool.title}`
+            );
+
+
+            favoriteButton.innerHTML =
+                heartSVG();
+
+
+            favoriteButton.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    const current =
+                        getFavorites();
+
+
+                    current[tool.title] =
+                        !current[
+                            tool.title
+                        ];
+
+
+                    localStorage.setItem(
+                        STORAGE_FAVORITES,
+                        JSON.stringify(
+                            current
+                        )
+                    );
+
+
+                    render();
+
+                }
+            );
+
+
+            titleStage.el.appendChild(
+                favoriteButton
+            );
+
+
+            /* ====================================================
+               CONTENT
+            ==================================================== */
+
+            const content =
+                document.createElement(
+                    "div"
+                );
+
+
+            content.className =
+                "card-content";
+
+
+            const description =
+                document.createElement(
+                    "p"
+                );
+
+
+            description.className =
+                "tool-description";
+
+
+            description.textContent =
+                tool.description;
+
+
+            content.appendChild(
+                description
+            );
+
+
+            card.appendChild(
+                content
+            );
+
+
+            /* ====================================================
+               BOTTOM
+            ==================================================== */
+
+            const bottom =
+                document.createElement(
+                    "div"
+                );
+
+
+            bottom.className =
+                "card-bottom";
+
+
+            /* ====================================================
+               RATING
+            ==================================================== */
+
+            const ratingContainer =
+                document.createElement(
+                    "div"
+                );
+
+
+            ratingContainer.className =
+                "rating";
+
+
+            for (
+                let i = 1;
+
+                i <= 5;
+
+                i++
+            ) {
+
+                const star =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                star.className =
+                    `star ${
+                        i <= rating
+                            ? "active"
+                            : ""
+                    }`;
+
+
+                star.dataset.rating =
+                    i;
+
+
+                star.textContent =
+                    "★";
+
+
+                star.setAttribute(
+                    "aria-label",
+                    `Rate ${i} out of 5`
+                );
+
+
+                star.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+
+                        const ratings =
+                            getRatings();
+
+
+                        ratings[
+                            tool.title
+                        ] =
+                            Number(
+                                star.dataset.rating
+                            );
+
+
+                        localStorage.setItem(
+                            STORAGE_RATINGS,
+                            JSON.stringify(
+                                ratings
+                            )
+                        );
+
+
+                        render();
+
+                    }
+                );
+
+
+                ratingContainer.appendChild(
+                    star
+                );
+
+            }
+
+
+            const ratingValue =
+                document.createElement(
+                    "span"
+                );
+
+
+            ratingValue.className =
+                "rating-value";
+
+
+            ratingValue.textContent =
+                rating > 0
+                    ? rating.toFixed(1)
+                    : "—";
+
+
+            ratingContainer.appendChild(
+                ratingValue
+            );
+
+
+            bottom.appendChild(
+                ratingContainer
+            );
+
+
+            /* ====================================================
+               OPEN
+            ==================================================== */
+
+            const openLink =
+                document.createElement(
+                    "a"
+                );
+
+
+            openLink.className =
+                "open-tool";
+
+
+            /*
+             * IMPORTANT:
+             *
+             * utilities.json contains ONLY
+             * the filename.
+             *
+             * Example:
+             *
+             * "link": "calculator.html"
+             *
+             * Final URL:
+             *
+             * ./utility/calculator.html
+             */
+
+            openLink.href =
+                `./utility/${encodeURIComponent(
+                    tool.link
+                )}`;
+
+
+            openLink.innerHTML = `
+                Open
+                ${arrowSVG()}
+            `;
+
+
+            bottom.appendChild(
+                openLink
+            );
+
+
+            card.appendChild(
+                bottom
+            );
+
+
+            return card;
+
+        }
+
+
+        /* ========================================================
+           RENDER
+        ========================================================= */
+
+        function render() {
+
+            const ratings =
+                getRatings();
+
+
+            const favorites =
+                getFavorites();
+
+
+            let items =
+                [...filteredUtilities];
+
+
+            /* ====================================================
+               SORT
+            ==================================================== */
+
+            switch (
+                sortSelect.value
+            ) {
+
+
+                case "rating-desc":
+
+                    items.sort(
+                        (a, b) =>
+                            (
+                                ratings[b.title] ||
+                                0
+                            ) -
+                            (
+                                ratings[a.title] ||
+                                0
+                            )
+                    );
+
+                    break;
+
+
+                case "rating-asc":
+
+                    items.sort(
+                        (a, b) =>
+                            (
+                                ratings[a.title] ||
+                                0
+                            ) -
+                            (
+                                ratings[b.title] ||
+                                0
+                            )
+                    );
+
+                    break;
+
+
+                case "title-asc":
+
+                    items.sort(
+                        (a, b) =>
+                            a.title.localeCompare(
+                                b.title
+                            )
+                    );
+
+                    break;
+
+
+                case "title-desc":
+
+                    items.sort(
+                        (a, b) =>
+                            b.title.localeCompare(
+                                a.title
+                            )
+                    );
+
+                    break;
+
+
+                case "favorites":
+
+                    items.sort(
+                        (a, b) =>
+                            Number(
+                                Boolean(
+                                    favorites[
+                                        b.title
+                                    ]
+                                )
+                            ) -
+                            Number(
+                                Boolean(
+                                    favorites[
+                                        a.title
+                                    ]
+                                )
+                            )
+                    );
+
+                    break;
+
+            }
+
+
+            /*
+             * Destroy old physics stages.
+             */
+
+            engine.stages = [];
+
+
+            grid.innerHTML = "";
+
+
+            if (
+                items.length === 0
+            ) {
+
+                grid.innerHTML = `
+
+                    <div class="empty">
+
+                        No tools found.
+
+                    </div>
+
+                `;
+
+
+                toolCount.textContent =
+                    "0 ITEMS";
+
+
+                return;
+
+            }
+
+
+            items.forEach(
+                (
+                    tool,
+                    index
+                ) => {
+
+                    grid.appendChild(
+                        createCard(
+                            tool,
+                            index
+                        )
+                    );
+
+                }
+            );
+
+
+            toolCount.textContent =
+                `${items.length} ${
+                    items.length === 1
+                        ? "ITEM"
+                        : "ITEMS"
+                }`;
+
+        }
+
+
+        /* ========================================================
+           SEARCH
+        ========================================================= */
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                const query =
+                    searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                filteredUtilities =
+                    utilities.filter(
+                        tool =>
+                            tool.title
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+
+                            ||
+
+                            tool.description
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+                    );
+
+
+                render();
+
+            }
+        );
+
+
+        /* ========================================================
+           SORT
+        ========================================================= */
+
+        sortSelect.addEventListener(
+            "change",
+            render
+        );
+
+
+        /* ========================================================
+           LOAD utilities.json
+           
+           ROOT FILE:
+           
+               /utilities.json
+           
+           This is the ONLY source of tool data.
+        ========================================================= */
+
+        async function loadUtilities() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "./utilities.json",
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                /*
+                 * Validate basic JSON structure.
+                 */
+
+                if (
+                    !Array.isArray(data)
+                ) {
+
+                    throw new Error(
+                        "utilities.json must contain an array."
+                    );
+
+                }
+
+
+                utilities =
+                    data.filter(
+                        tool =>
+
+                            tool &&
+
+                            typeof tool.title ===
+                                "string" &&
+
+                            typeof tool.description ===
+                                "string" &&
+
+                            typeof tool.link ===
+                                "string"
+                    );
+
+
+                filteredUtilities =
+                    [...utilities];
+
+
+                render();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to load utilities.json:",
+                    error
+                );
+
+
+                grid.innerHTML = `
+
+                    <div class="empty">
+
+                        Failed to load
+                        <strong>utilities.json</strong>.
+
+                        <br><br>
+
+                        Make sure the file exists
+                        in the root directory.
+
+                    </div>
+
+                `;
+
+
+                toolCount.textContent =
+                    "ERROR";
+
+            }
+
+        }
+
+
+        /* ========================================================
+           THREE.JS MAGNETIC FIELD
+        ========================================================= */
+
+        function initMagneticField() {
+
+            if (
+                typeof THREE ===
+                "undefined"
+            ) {
+
+                console.warn(
+                    "Three.js has not loaded."
+                );
+
+                return;
+
+            }
+
+
+            const canvas =
+                document.getElementById(
+                    "magnetic-field"
+                );
+
+
+            const scene =
+                new THREE.Scene();
+
+
+            const camera =
+                new THREE.OrthographicCamera(
+                    -1,
+                    1,
+                    1,
+                    -1,
+                    0,
+                    10
+                );
+
+
+            camera.position.z =
+                1;
+
+
+            const renderer =
+                new THREE.WebGLRenderer({
+
+                    canvas,
+
+                    alpha: true,
+
+                    antialias: true
+
+                });
+
+
+            renderer.setPixelRatio(
+                Math.min(
+                    window.devicePixelRatio,
+                    2
+                )
+            );
+
+
+            renderer.setSize(
+                window.innerWidth,
+                window.innerHeight
+            );
+
+
+            /* ====================================================
+               PARTICLES
+            ==================================================== */
+
+            const particleCount =
+                850;
+
+
+            const positions =
+                new Float32Array(
+                    particleCount * 3
+                );
+
+
+            const original =
+                new Float32Array(
+                    particleCount * 3
+                );
+
+
+            const velocities =
+                new Float32Array(
+                    particleCount * 3
+                );
+
+
+            for (
+                let i = 0;
+
+                i < particleCount;
+
+                i++
+            ) {
+
+                const i3 =
+                    i * 3;
+
+
+                const x =
+                    Math.random() *
+                    2 -
+                    1;
+
+
+                const y =
+                    Math.random() *
+                    2 -
+                    1;
+
+
+                positions[i3] =
+                    x;
+
+
+                positions[i3 + 1] =
+                    y;
+
+
+                positions[i3 + 2] =
+                    0;
+
+
+                original[i3] =
+                    x;
+
+
+                original[i3 + 1] =
+                    y;
+
+
+                original[i3 + 2] =
+                    0;
+
+
+                velocities[i3] =
+                    0;
+
+
+                velocities[i3 + 1] =
+                    0;
+
+
+                velocities[i3 + 2] =
+                    0;
+
+            }
+
+
+            const geometry =
+                new THREE.BufferGeometry();
+
+
+            geometry.setAttribute(
+                "position",
+
+                new THREE.BufferAttribute(
+                    positions,
+                    3
+                )
+            );
+
+
+            const material =
+                new THREE.PointsMaterial({
+
+                    size: 0.006,
+
+                    transparent: true,
+
+                    opacity: 0.36,
+
+                    depthWrite: false
+
+                });
+
+
+            const particles =
+                new THREE.Points(
+                    geometry,
+                    material
+                );
+
+
+            scene.add(
+                particles
+            );
+
+
+            /* ====================================================
+               MOUSE
+            ==================================================== */
+
+            const mouse = {
+
+                x: 999,
+
+                y: 999
+
+            };
+
+
+            const targetMouse = {
+
+                x: 999,
+
+                y: 999
+
+            };
+
+
+            window.addEventListener(
+                "mousemove",
+                event => {
+
+                    targetMouse.x =
+                        (
+                            event.clientX /
+                            window.innerWidth
+                        ) *
+                        2 -
+                        1;
+
+
+                    targetMouse.y =
+                        -(
+                            event.clientY /
+                            window.innerHeight
+                        ) *
+                        2 +
+                        1;
+
+                }
+            );
+
+
+            window.addEventListener(
+                "mouseleave",
+                () => {
+
+                    targetMouse.x =
+                        999;
+
+
+                    targetMouse.y =
+                        999;
+
+                }
+            );
+
+
+            /* ====================================================
+               MAGNETIC PHYSICS
+            ==================================================== */
+
+            function updateParticles() {
+
+                const positionAttribute =
+                    geometry.attributes.position;
+
+
+                const array =
+                    positionAttribute.array;
+
+
+                /*
+                 * Smooth mouse.
+                 */
+
+                if (
+                    Math.abs(
+                        targetMouse.x
+                    ) < 2
+                ) {
+
+                    mouse.x +=
+                        (
+                            targetMouse.x -
+                            mouse.x
+                        ) *
+                        0.08;
+
+
+                    mouse.y +=
+                        (
+                            targetMouse.y -
+                            mouse.y
+                        ) *
+                        0.08;
+
+                }
+
+
+                for (
+                    let i = 0;
+
+                    i < particleCount;
+
+                    i++
+                ) {
+
+                    const i3 =
+                        i * 3;
+
+
+                    let x =
+                        array[i3];
+
+
+                    let y =
+                        array[i3 + 1];
+
+
+                    const ox =
+                        original[i3];
+
+
+                    const oy =
+                        original[i3 + 1];
+
+
+                    const dx =
+                        mouse.x -
+                        x;
+
+
+                    const dy =
+                        mouse.y -
+                        y;
+
+
+                    const distance =
+                        Math.sqrt(
+                            dx * dx +
+                            dy * dy
+                        );
+
+
+                    const radius =
+                        0.45;
+
+
+                    if (
+                        distance <
+                        radius
+                    ) {
+
+                        const strength =
+                            1 -
+                            distance /
+                            radius;
+
+
+                        /*
+                         * Tangential force.
+                         */
+
+                        const tangentX =
+                            -dy;
+
+
+                        const tangentY =
+                            dx;
+
+
+                        velocities[i3] +=
+                            tangentX *
+                            strength *
+                            0.0025;
+
+
+                        velocities[i3 + 1] +=
+                            tangentY *
+                            strength *
+                            0.0025;
+
+
+                        /*
+                         * Slight magnetic pull.
+                         */
+
+                        velocities[i3] +=
+                            dx *
+                            strength *
+                            0.0007;
+
+
+                        velocities[i3 + 1] +=
+                            dy *
+                            strength *
+                            0.0007;
+
+                    }
+
+
+                    /*
+                     * Return force.
+                     */
+
+                    velocities[i3] +=
+                        (
+                            ox -
+                            x
+                        ) *
+                        0.00045;
+
+
+                    velocities[i3 + 1] +=
+                        (
+                            oy -
+                            y
+                        ) *
+                        0.00045;
+
+
+                    /*
+                     * Friction.
+                     */
+
+                    velocities[i3] *=
+                        0.94;
+
+
+                    velocities[i3 + 1] *=
+                        0.94;
+
+
+                    /*
+                     * Apply velocity.
+                     */
+
+                    array[i3] +=
+                        velocities[i3];
+
+
+                    array[i3 + 1] +=
+                        velocities[i3 + 1];
+
+                }
+
+
+                positionAttribute.needsUpdate =
+                    true;
+
+            }
+
+
+            /* ====================================================
+               RESIZE
+            ==================================================== */
+
+            window.addEventListener(
+                "resize",
+                () => {
+
+                    renderer.setSize(
+                        window.innerWidth,
+                        window.innerHeight
+                    );
+
+
+                    renderer.setPixelRatio(
+                        Math.min(
+                            window.devicePixelRatio,
+                            2
+                        )
+                    );
+
+                }
+            );
+
+
+            /* ====================================================
+               ANIMATION
+            ==================================================== */
+
+            function animate() {
+
+                requestAnimationFrame(
+                    animate
+                );
+
+
+                updateParticles();
+
+
+                renderer.render(
+                    scene,
+                    camera
+                );
+
+            }
+
+
+            animate();
+
+        }
+
+
+        /* ========================================================
+           START
+        ========================================================= */
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                /*
+                 * Start data loading.
+                 */
+
+                loadUtilities();
+
+
+                /*
+                 * Start Three.js.
+                 */
+
+                initMagneticField();
+
+
+                /*
+                 * Start title physics engine.
+                 */
+
+                engine.start();
+
+            }
+        );
+
+
+    </script>
+
+</body>
+
+</html>
