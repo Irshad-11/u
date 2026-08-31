@@ -1,0 +1,623 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>*{box-sizing:border-box}</style></head><body><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeExplain Database</title>
+<script>
+(function(){
+  try {
+    var raw = localStorage.getItem('mdcv_state_v1');
+    var themeId = 'midnight';
+    var uiScale = 100;
+    if(raw){
+      var p = JSON.parse(raw);
+      if(p && p.settings){
+        if(p.settings.theme) themeId = p.settings.theme;
+        if(p.settings.uiScale) uiScale = p.settings.uiScale;
+      } else if(p && p.theme){
+        themeId = (p.theme === 'light') ? 'paper' : 'midnight';
+      }
+    }
+    document.documentElement.setAttribute('data-theme', themeId);
+    document.documentElement.style.setProperty('--ui-scale', (uiScale/100));
+  } catch(e){}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter','ui-sans-serif','system-ui','sans-serif'],
+          mono: ['JetBrains Mono','ui-monospace','SFMono-Regular','monospace']
+        }
+      }
+    }
+  }
+</script>
+<link id="prismLight" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+<link id="prismDark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html[data-theme="midnight"]{ --bg:#0a0a0a; --surface:#111113; --surface-2:#1c1c1f; --surface-3:#242428; --border:#27272a; --text:#f4f4f5; --muted:#a1a1aa; --faint:#71717a; --accent:#ffffff; --accent-contrast:#0a0a0a; }
+  html[data-theme="paper"]{ --bg:#ffffff; --surface:#fafafa; --surface-2:#f4f4f5; --surface-3:#e9e9ec; --border:#e4e4e7; --text:#18181b; --muted:#71717a; --faint:#a1a1aa; --accent:#18181b; --accent-contrast:#ffffff; }
+  html[data-theme="nord"]{ --bg:#2e3440; --surface:#333a48; --surface-2:#3b4252; --surface-3:#454e60; --border:#4c566a; --text:#eceff4; --muted:#d8dee9; --faint:#9aa8bf; --accent:#88c0d0; --accent-contrast:#2e3440; }
+  html[data-theme="dracula"]{ --bg:#282a36; --surface:#2c2f3d; --surface-2:#383a4a; --surface-3:#454858; --border:#44475a; --text:#f8f8f2; --muted:#cbd0e3; --faint:#9a9cb0; --accent:#bd93f9; --accent-contrast:#282a36; }
+  html[data-theme="solarized-dark"]{ --bg:#002b36; --surface:#073642; --surface-2:#0a4152; --surface-3:#0d4d61; --border:#0f5363; --text:#eee8d5; --muted:#93a1a1; --faint:#6f8384; --accent:#268bd2; --accent-contrast:#002b36; }
+  html[data-theme="solarized-light"]{ --bg:#fdf6e3; --surface:#f5eeda; --surface-2:#e4ddc4; --surface-3:#d9d0b4; --border:#d3cbb2; --text:#073642; --muted:#657b83; --faint:#93a1a1; --accent:#268bd2; --accent-contrast:#fdf6e3; }
+  html[data-theme="ocean"]{ --bg:#0f172a; --surface:#142138; --surface-2:#1c2e4a; --surface-3:#243b5c; --border:#28405f; --text:#e2e8f0; --muted:#94a3b8; --faint:#64748b; --accent:#38bdf8; --accent-contrast:#0f172a; }
+  html[data-theme="forest"]{ --bg:#0f1a14; --surface:#16241c; --surface-2:#1e3026; --surface-3:#263c30; --border:#2a4032; --text:#e6f1ea; --muted:#9db7a8; --faint:#6f8a7a; --accent:#4ade80; --accent-contrast:#0f1a14; }
+  html[data-theme="rosepine"]{ --bg:#191724; --surface:#1f1d2e; --surface-2:#282536; --surface-3:#332f45; --border:#403d52; --text:#e0def4; --muted:#908caa; --faint:#6e6a86; --accent:#eb6f92; --accent-contrast:#191724; }
+  html[data-theme="sepia"]{ --bg:#f4ecd8; --surface:#efe4c9; --surface-2:#e8dab8; --surface-3:#dccca4; --border:#d9c9a3; --text:#433422; --muted:#7c6a52; --faint:#9c8a6e; --accent:#a8712f; --accent-contrast:#f4ecd8; }
+  html[data-theme="slateblue"]{ --bg:#f8fafc; --surface:#f1f5f9; --surface-2:#e2e8f0; --surface-3:#d5deea; --border:#cbd5e1; --text:#0f172a; --muted:#64748b; --faint:#94a3b8; --accent:#4f46e5; --accent-contrast:#ffffff; }
+  html[data-theme="contrast-dark"]{ --bg:#000000; --surface:#0a0a0a; --surface-2:#1a1a1a; --surface-3:#292929; --border:#4d4d4d; --text:#ffffff; --muted:#d4d4d4; --faint:#a3a3a3; --accent:#facc15; --accent-contrast:#000000; }
+  html[data-theme="contrast-light"]{ --bg:#ffffff; --surface:#ffffff; --surface-2:#f0f0f0; --surface-3:#e0e0e0; --border:#000000; --text:#000000; --muted:#262626; --faint:#404040; --accent:#1d4ed8; --accent-contrast:#ffffff; }
+
+  html { font-size: calc(16px * var(--ui-scale, 1)); }
+  html, body { height:100%; margin:0; }
+  body { background-color: var(--bg); color: var(--text); transition: background-color .2s ease, color .2s ease; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius:9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  .code-font { font-family:'JetBrains Mono', ui-monospace, monospace; font-size: var(--code-font-size, 13px); line-height:1.65; tab-size:4; white-space:pre; word-wrap:normal; word-break:normal; }
+  #interpInput.code-font { white-space:pre-wrap; word-break:break-word; }
+  pre[class*="language-"] { background:transparent !important; margin:0 !important; }
+  code[class*="language-"] { background:transparent !important; }
+  @keyframes fadein { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
+  .icon-btn { width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:6px; opacity:.7; transition:opacity .15s ease, background-color .15s ease; color:var(--text); flex-shrink:0; }
+  .icon-btn:hover { opacity:1; background-color: var(--surface-3); }
+  textarea { font-variant-ligatures: none; }
+
+  /* --- view row (sidebar item) --- */
+  .view-row { display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:0.8125rem; margin-bottom:2px; color: var(--text); background-color: transparent; transition: background-color .12s ease, color .12s ease; }
+  .view-row:hover { background-color: var(--surface-3); }
+  .view-row .row-icon-btn { flex-shrink:0; display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:5px; opacity:.65; color: inherit; transition: opacity .12s ease, background-color .12s ease; }
+  .view-row .row-icon-btn:hover { opacity:1; background-color: rgba(127,127,127,.25); }
+  .view-row .row-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .view-row .row-delete { flex-shrink:0; display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:5px; opacity:0; color: inherit; transition: opacity .12s ease, background-color .12s ease; }
+  .view-row:hover .row-delete { opacity:.6; }
+  .view-row .row-delete:hover { opacity:1 !important; background-color: rgba(239,68,68,.2); color:#ef4444; }
+  .view-row.active { background-color: var(--accent); color: var(--accent-contrast); }
+  .view-row.active:hover { background-color: var(--accent); filter: brightness(0.92); }
+  .view-row.hidden-view .row-title { opacity:.45; text-decoration: line-through; }
+
+  .theme-swatch-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .theme-swatch { width:100%; aspect-ratio:1.6/1; border-radius:10px; display:flex; align-items:flex-end; justify-content:flex-end; padding:6px; box-sizing:border-box; border:2px solid var(--border); cursor:pointer; transition:transform .12s ease, border-color .12s ease; }
+  .theme-swatch:hover { transform:translateY(-1px); }
+  .theme-swatch.active { border-color: var(--accent); }
+  .range-slim { -webkit-appearance:none; appearance:none; height:4px; border-radius:9999px; background:var(--border); outline:none; }
+  .range-slim::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:9999px; background:var(--accent); cursor:pointer; border:2px solid var(--bg); }
+  .range-slim::-moz-range-thumb { width:14px; height:14px; border-radius:9999px; background:var(--accent); cursor:pointer; border:2px solid var(--bg); }
+</style>
+</head>
+<body class="h-screen w-screen overflow-hidden font-sans antialiased flex" style="background-color:var(--bg); color:var(--text);">
+
+<aside class="w-72 shrink-0 h-full flex flex-col border-r" style="border-color:var(--border); background-color:var(--surface);">
+  <div class="flex items-center justify-between px-4 py-3.5 border-b" style="border-color:var(--border);">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background-color:var(--accent);">
+        <i data-lucide="layout-panel-left" class="w-3.5 h-3.5" style="color:var(--accent-contrast);"></i>
+      </div>
+      <span class="text-sm font-semibold tracking-tight">MD Viewer</span>
+    </div>
+    <button id="settingsBtn" class="icon-btn" title="Settings">
+      <i data-lucide="settings-2" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <div class="flex gap-2 px-3 py-3">
+    <button id="importBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import
+    </button>
+    <button id="newViewBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg hover:opacity-90 transition-opacity" style="background-color:var(--accent); color:var(--accent-contrast);">
+      <i data-lucide="plus" class="w-3.5 h-3.5"></i> New View
+    </button>
+  </div>
+
+  <div id="viewList" class="flex-1 overflow-y-auto px-2 pb-2"></div>
+
+  <div class="p-3 border-t flex gap-2" style="border-color:var(--border);">
+    <button id="copyAllBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+    </button>
+    <button id="downloadBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 h-full flex flex-col overflow-hidden relative">
+  <div id="mainEmpty" class="flex-1 flex flex-col items-center justify-center gap-2" style="color:var(--faint);">
+    <i data-lucide="file-code-2" class="w-8 h-8"></i>
+    <p class="text-sm">Import a markdown file or create a new view to get started</p>
+  </div>
+  <div id="mainContent" class="flex-1 flex-col overflow-hidden" style="display:none;"></div>
+</main>
+
+<div id="importModal" class="fixed inset-0 z-50 items-center justify-center backdrop-blur-sm p-4" style="display:none; background-color:rgba(0,0,0,.45);">
+  <div class="w-full max-w-lg rounded-2xl border shadow-xl overflow-hidden" style="border-color:var(--border); background-color:var(--surface);">
+    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:var(--border);">
+      <h2 class="text-sm font-semibold">Import Markdown</h2>
+      <button id="closeImportBtn" class="icon-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 flex flex-col gap-3">
+      <label class="flex items-center justify-center gap-2 text-xs font-medium border border-dashed rounded-xl py-4 cursor-pointer transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+        <span>Click to choose a .md file</span>
+        <input id="importFileInput" type="file" accept=".md,.markdown,.txt" class="hidden"/>
+      </label>
+      <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:var(--faint);">
+        <div class="h-px flex-1" style="background-color:var(--border);"></div> or paste text <div class="h-px flex-1" style="background-color:var(--border);"></div>
+      </div>
+      <textarea id="importTextarea" placeholder="# 1&#10;## Code&#10;```python&#10;...&#10;```&#10;## Interpreter&#10;```txt&#10;...&#10;```" class="code-font w-full h-40 p-3 text-xs rounded-xl border outline-none resize-none" style="border-color:var(--border); background-color:var(--surface-2); color:var(--text);"></textarea>
+    </div>
+    <div class="flex justify-end gap-2 px-5 py-4 border-t" style="border-color:var(--border);">
+      <button id="cancelImportBtn" class="text-xs font-medium px-3 py-2 rounded-lg transition-colors" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">Cancel</button>
+      <button id="confirmImportBtn" class="text-xs font-medium px-3 py-2 rounded-lg hover:opacity-90 transition-opacity" style="background-color:var(--accent); color:var(--accent-contrast);">Import</button>
+    </div>
+  </div>
+</div>
+
+<div id="settingsModal" class="fixed inset-0 z-50 items-center justify-center backdrop-blur-sm p-4" style="display:none; background-color:rgba(0,0,0,.45);">
+  <div class="w-full max-w-xl rounded-2xl border shadow-xl overflow-hidden max-h-[85vh] flex flex-col" style="border-color:var(--border); background-color:var(--surface);">
+    <div class="flex items-center justify-between px-5 py-4 border-b shrink-0" style="border-color:var(--border);">
+      <h2 class="text-sm font-semibold">Settings</h2>
+      <button id="closeSettingsBtn" class="icon-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="p-5 flex flex-col gap-6 overflow-y-auto">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:var(--muted);">Color Profile</p>
+        <div id="themeGrid" class="grid grid-cols-4 gap-x-2.5 gap-y-3"></div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Interface Font Size</p>
+          <span id="uiScaleValue" class="text-xs font-mono" style="color:var(--muted);">100%</span>
+        </div>
+        <input id="uiScaleSlider" type="range" min="85" max="140" step="5" value="100" class="range-slim w-full"/>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Code Font Size</p>
+          <span id="codeFontValue" class="text-xs font-mono" style="color:var(--muted);">13px</span>
+        </div>
+        <input id="codeFontSlider" type="range" min="5" max="24" step="1" value="13" class="range-slim w-full"/>
+      </div>
+    </div>
+    <div class="flex justify-between items-center px-5 py-4 border-t shrink-0" style="border-color:var(--border);">
+      <button id="resetSettingsBtn" class="text-xs font-medium px-3 py-2 rounded-lg transition-colors" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">Reset to defaults</button>
+      <button id="doneSettingsBtn" class="text-xs font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity" style="background-color:var(--accent); color:var(--accent-contrast);">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+  if(window.Prism && Prism.plugins && Prism.plugins.autoloader){
+    Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+  }
+</script>
+
+<script>
+  var STORAGE_KEY = 'mdcv_state_v1';
+  var DEFAULT_SETTINGS = { theme:'midnight', uiScale:100, codeFontSize:13 };
+  var state = { views: [], activeId: null, settings: Object.assign({}, DEFAULT_SETTINGS) };
+  var idCounter = 0;
+
+  var THEMES = [
+    { id:'midnight', name:'Midnight', mode:'dark', bg:'#0a0a0a', accent:'#ffffff' },
+    { id:'paper', name:'Paper', mode:'light', bg:'#ffffff', accent:'#18181b' },
+    { id:'nord', name:'Nord', mode:'dark', bg:'#2e3440', accent:'#88c0d0' },
+    { id:'dracula', name:'Dracula', mode:'dark', bg:'#282a36', accent:'#bd93f9' },
+    { id:'solarized-dark', name:'Solar Dark', mode:'dark', bg:'#002b36', accent:'#268bd2' },
+    { id:'solarized-light', name:'Solar Light', mode:'light', bg:'#fdf6e3', accent:'#268bd2' },
+    { id:'ocean', name:'Ocean', mode:'dark', bg:'#0f172a', accent:'#38bdf8' },
+    { id:'forest', name:'Forest', mode:'dark', bg:'#0f1a14', accent:'#4ade80' },
+    { id:'rosepine', name:'Rosé Pine', mode:'dark', bg:'#191724', accent:'#eb6f92' },
+    { id:'sepia', name:'Sepia', mode:'light', bg:'#f4ecd8', accent:'#a8712f' },
+    { id:'slateblue', name:'Slate Blue', mode:'light', bg:'#f8fafc', accent:'#4f46e5' },
+    { id:'contrast-dark', name:'Contrast Dark', mode:'dark', bg:'#000000', accent:'#facc15' },
+    { id:'contrast-light', name:'Contrast Light', mode:'light', bg:'#ffffff', accent:'#1d4ed8' }
+  ];
+
+  var LANGS = [
+    ['python','Python'],['javascript','JavaScript'],['typescript','TypeScript'],
+    ['jsx','JSX'],['tsx','TSX'],['java','Java'],['c','C'],['cpp','C++'],
+    ['csharp','C#'],['go','Go'],['rust','Rust'],['php','PHP'],['ruby','Ruby'],
+    ['bash','Bash'],['sql','SQL'],['json','JSON'],['yaml','YAML'],
+    ['markdown','Markdown'],['markup','HTML/XML'],['css','CSS'],
+    ['swift','Swift'],['kotlin','Kotlin'],['txt','Plain Text']
+  ];
+
+  function genId(){ idCounter++; return 'v_' + Date.now().toString(36) + '_' + idCounter; }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.views)) state.views = parsed.views;
+        if(parsed && parsed.activeId) state.activeId = parsed.activeId;
+        if(parsed && parsed.settings){
+          state.settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+        } else if(parsed && parsed.theme){
+          state.settings.theme = (parsed.theme === 'light') ? 'paper' : 'midnight';
+        }
+      }
+    }catch(e){}
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  function refreshIcons(){ if(window.lucide && lucide.createIcons) lucide.createIcons(); }
+
+  function parseMarkdown(text){
+    var results = [];
+    var re = /^# (.+)$/gm;
+    var match; var matches = [];
+    while((match = re.exec(text)) !== null){
+      matches.push({ title: match[1].trim(), index: match.index });
+    }
+    for(var i=0; i<matches.length; i++){
+      var start = matches[i].index;
+      var end = (i+1 < matches.length) ? matches[i+1].index : text.length;
+      var chunk = text.slice(start, end);
+      var codeMatch = chunk.match(/##\s*Code[^\n]*\n+```(\w*)\n([\s\S]*?)```/i);
+      var interpMatch = chunk.match(/##\s*Interpreter[^\n]*\n+```(\w*)\n([\s\S]*?)```/i);
+      results.push({
+        id: genId(),
+        title: matches[i].title,
+        lang: codeMatch && codeMatch[1] ? codeMatch[1] : 'python',
+        code: codeMatch ? codeMatch[2].replace(/\n$/,'') : '',
+        interpreter: interpMatch ? interpMatch[2].replace(/\n$/,'') : '',
+        seen: true
+      });
+    }
+    return results;
+  }
+
+  function exportMarkdown(){
+    return state.views.filter(function(v){ return v.seen; }).map(function(v){
+      return "# " + v.title + "\n## Code\n```" + (v.lang||"") + "\n" + v.code + "\n```\n## Interpreter\n```txt\n" + v.interpreter + "\n```";
+    }).join("\n\n");
+  }
+
+  function copyText(text, btn){
+    navigator.clipboard.writeText(text||'').then(function(){
+      if(btn){
+        var original = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5" style="color:#22c55e;"></i>';
+        refreshIcons();
+        setTimeout(function(){ btn.innerHTML = original; refreshIcons(); }, 1100);
+      }
+    }).catch(function(){});
+  }
+
+  var sidebarList = document.getElementById('viewList');
+  var mainEmpty = document.getElementById('mainEmpty');
+  var mainContent = document.getElementById('mainContent');
+  var importModal = document.getElementById('importModal');
+  var settingsModal = document.getElementById('settingsModal');
+
+  function renderSidebar(){
+    if(state.views.length === 0){
+      sidebarList.innerHTML = '<p class="text-xs px-3 py-8 text-center leading-relaxed" style="color:var(--faint);">No views yet.<br/>Import a file or create a new view.</p>';
+    } else {
+      sidebarList.innerHTML = state.views.map(function(v){
+        var active = v.id === state.activeId;
+        var cls = 'view-row' + (active ? ' active' : '') + (v.seen ? '' : ' hidden-view');
+        return '' +
+        '<div data-action="select" data-id="'+v.id+'" class="'+cls+'">' +
+          '<button data-action="toggle-seen" data-id="'+v.id+'" class="row-icon-btn" title="'+(v.seen?'Included in export (click to exclude)':'Excluded from export (click to include)')+'">' +
+            '<i data-lucide="'+(v.seen?'eye':'eye-off')+'" class="w-3.5 h-3.5"></i>' +
+          '</button>' +
+          '<span data-id="'+v.id+'" class="row-title">'+escapeHtml(v.title||'Untitled')+'</span>' +
+          '<button data-action="delete" data-id="'+v.id+'" class="row-delete" title="Delete view">' +
+            '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+          '</button>' +
+        '</div>';
+      }).join('');
+    }
+    refreshIcons();
+  }
+
+  function renderMain(){
+    var view = state.views.find(function(v){ return v.id === state.activeId; });
+    if(!view){
+      mainEmpty.style.display = 'flex';
+      mainContent.style.display = 'none';
+      mainContent.innerHTML = '';
+      return;
+    }
+    mainEmpty.style.display = 'none';
+    mainContent.style.display = 'flex';
+    mainContent.style.animation = 'none';
+    void mainContent.offsetWidth;
+    mainContent.style.animation = 'fadein .25s ease';
+
+    var langOptions = LANGS.map(function(l){
+      return '<option value="'+l[0]+'" '+(l[0]===view.lang?'selected':'')+'>'+l[1]+'</option>';
+    }).join('');
+
+    mainContent.innerHTML =
+      '<div class="flex items-center gap-3 px-5 py-3 border-b shrink-0" style="border-color:var(--border);">' +
+        '<input id="titleInput" type="text" value="'+escapeHtml(view.title)+'" placeholder="Untitled view" class="flex-1 bg-transparent text-base font-medium outline-none" style="color:var(--text);"/>' +
+        '<label class="flex items-center gap-1.5 text-xs cursor-pointer select-none" style="color:var(--muted);">' +
+          '<input id="seenCheckbox" type="checkbox" '+(view.seen?'checked':'')+' class="w-3.5 h-3.5"/> Include in export' +
+        '</label>' +
+      '</div>' +
+      '<div class="flex-1 grid grid-cols-2 overflow-hidden">' +
+        '<div class="relative flex flex-col h-full overflow-hidden border-r" style="border-color:var(--border);">' +
+          '<div class="flex items-center justify-between px-4 py-2 border-b shrink-0" style="border-color:var(--border);">' +
+            '<span class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--faint);">Code</span>' +
+            '<div class="flex items-center gap-1.5">' +
+              '<select id="langSelect" class="text-xs border rounded-md px-1.5 py-1 outline-none" style="background-color:var(--surface-2); border-color:var(--border); color:var(--text);">'+langOptions+'</select>' +
+              '<button id="codeFontMinus" class="icon-btn" title="Decrease code font size"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>' +
+              '<span id="codeFontMini" class="text-[10px] font-mono w-7 text-center" style="color:var(--muted);"></span>' +
+              '<button id="codeFontPlus" class="icon-btn" title="Increase code font size"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>' +
+              '<button data-action="copy-code" class="icon-btn" title="Copy code"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="relative flex-1 overflow-hidden">' +
+            '<pre id="codeHighlightPre" class="code-font absolute inset-0 p-4 overflow-auto pointer-events-none"><code id="codeHighlight" class="language-'+(view.lang||'python')+'"></code></pre>' +
+            '<textarea id="codeInput" spellcheck="false" class="code-font absolute inset-0 w-full h-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:transparent; caret-color:var(--text);"></textarea>' +
+          '</div>' +
+        '</div>' +
+        '<div class="flex flex-col h-full overflow-hidden">' +
+          '<div class="flex items-center justify-between px-4 py-2 border-b shrink-0" style="border-color:var(--border);">' +
+            '<span class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--faint);">Interpreter</span>' +
+            '<button data-action="copy-interp" class="icon-btn" title="Copy interpreter"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' +
+          '</div>' +
+          '<textarea id="interpInput" spellcheck="false" class="code-font flex-1 w-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:var(--text);"></textarea>' +
+        '</div>' +
+      '</div>';
+
+    var codeInput = document.getElementById('codeInput');
+    var codeHighlight = document.getElementById('codeHighlight');
+    var codeHighlightPre = document.getElementById('codeHighlightPre');
+    var interpInput = document.getElementById('interpInput');
+    var titleInput = document.getElementById('titleInput');
+    var langSelect = document.getElementById('langSelect');
+    var seenCheckbox = document.getElementById('seenCheckbox');
+    var codeFontMini = document.getElementById('codeFontMini');
+
+    codeInput.value = view.code;
+    interpInput.value = view.interpreter;
+    codeFontMini.textContent = state.settings.codeFontSize + 'px';
+
+    function doHighlight(){
+      codeHighlight.textContent = codeInput.value;
+      codeHighlight.className = 'language-' + (langSelect.value || 'txt');
+      if(window.Prism && langSelect.value !== 'txt'){
+        Prism.highlightElement(codeHighlight);
+      }
+    }
+    doHighlight();
+
+    codeInput.addEventListener('input', function(){
+      view.code = codeInput.value;
+      doHighlight();
+      saveState();
+    });
+    codeInput.addEventListener('scroll', function(){
+      codeHighlightPre.scrollTop = codeInput.scrollTop;
+      codeHighlightPre.scrollLeft = codeInput.scrollLeft;
+    });
+    interpInput.addEventListener('input', function(){
+      view.interpreter = interpInput.value;
+      saveState();
+    });
+    titleInput.addEventListener('input', function(){
+      view.title = titleInput.value;
+      saveState();
+      var sideEl = sidebarList.querySelector('span[data-id="'+view.id+'"]');
+      if(sideEl) sideEl.textContent = view.title || 'Untitled';
+    });
+    langSelect.addEventListener('change', function(){
+      view.lang = langSelect.value;
+      doHighlight();
+      saveState();
+    });
+    seenCheckbox.addEventListener('change', function(){
+      view.seen = seenCheckbox.checked;
+      saveState();
+      renderSidebar();
+    });
+    document.getElementById('codeFontMinus').addEventListener('click', function(){
+      adjustCodeFontSize(-1);
+    });
+    document.getElementById('codeFontPlus').addEventListener('click', function(){
+      adjustCodeFontSize(1);
+    });
+
+    mainContent.querySelector('[data-action="copy-code"]').addEventListener('click', function(e){
+      copyText(view.code, e.currentTarget);
+    });
+    mainContent.querySelector('[data-action="copy-interp"]').addEventListener('click', function(e){
+      copyText(view.interpreter, e.currentTarget);
+    });
+
+    refreshIcons();
+  }
+
+  sidebarList.addEventListener('click', function(e){
+    var toggleBtn = e.target.closest('[data-action="toggle-seen"]');
+    if(toggleBtn){
+      var id1 = toggleBtn.dataset.id;
+      var v1 = state.views.find(function(x){ return x.id === id1; });
+      if(v1){
+        v1.seen = !v1.seen;
+        saveState(); renderSidebar();
+        if(id1 === state.activeId) renderMain();
+      }
+      return;
+    }
+    var delBtn = e.target.closest('[data-action="delete"]');
+    if(delBtn){
+      var id2 = delBtn.dataset.id;
+      if(confirm('Delete this view?')){
+        state.views = state.views.filter(function(x){ return x.id !== id2; });
+        if(state.activeId === id2){
+          state.activeId = state.views.length ? state.views[0].id : null;
+        }
+        saveState(); renderSidebar(); renderMain();
+      }
+      return;
+    }
+    var selEl = e.target.closest('[data-action="select"]');
+    if(selEl){
+      state.activeId = selEl.dataset.id;
+      saveState(); renderSidebar(); renderMain();
+      return;
+    }
+  });
+
+  document.getElementById('newViewBtn').addEventListener('click', function(){
+    var v = { id: genId(), title: 'New View', lang: 'python', code: '', interpreter: '', seen: true };
+    state.views.push(v);
+    state.activeId = v.id;
+    saveState(); renderSidebar(); renderMain();
+    setTimeout(function(){
+      var t = document.getElementById('titleInput');
+      if(t){ t.focus(); t.select(); }
+    }, 50);
+  });
+
+  document.getElementById('importBtn').addEventListener('click', function(){ importModal.style.display = 'flex'; });
+  document.getElementById('closeImportBtn').addEventListener('click', function(){ importModal.style.display = 'none'; });
+  document.getElementById('cancelImportBtn').addEventListener('click', function(){ importModal.style.display = 'none'; });
+  importModal.addEventListener('click', function(e){ if(e.target === importModal) importModal.style.display = 'none'; });
+
+  document.getElementById('importFileInput').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){ document.getElementById('importTextarea').value = reader.result; };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('confirmImportBtn').addEventListener('click', function(){
+    var text = document.getElementById('importTextarea').value;
+    if(!text.trim()){ importModal.style.display = 'none'; return; }
+    var parsed = parseMarkdown(text);
+    if(parsed.length === 0){
+      alert('No "# Title" sections with ## Code / ## Interpreter found.');
+      return;
+    }
+    state.views = state.views.concat(parsed);
+    state.activeId = parsed[0].id;
+    saveState(); renderSidebar(); renderMain();
+    document.getElementById('importTextarea').value = '';
+    document.getElementById('importFileInput').value = '';
+    importModal.style.display = 'none';
+  });
+
+  document.getElementById('copyAllBtn').addEventListener('click', function(e){
+    copyText(exportMarkdown(), e.currentTarget);
+  });
+  document.getElementById('downloadBtn').addEventListener('click', function(){
+    var content = exportMarkdown();
+    var blob = new Blob([content], { type: 'text/markdown' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'export.md';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  function renderThemeGrid(){
+    var grid = document.getElementById('themeGrid');
+    grid.innerHTML = THEMES.map(function(t){
+      var active = t.id === state.settings.theme;
+      return '<div class="theme-swatch-wrap">' +
+        '<button data-theme-id="'+t.id+'" class="theme-swatch '+(active?'active':'')+'" style="background-color:'+t.bg+';">' +
+          '<span style="width:14px;height:14px;border-radius:9999px;background-color:'+t.accent+';display:block;"></span>' +
+        '</button>' +
+        '<span class="text-[10px] text-center block" style="color:var(--muted);">'+t.name+'</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', state.settings.theme);
+    document.documentElement.style.setProperty('--ui-scale', state.settings.uiScale/100);
+    document.documentElement.style.setProperty('--code-font-size', state.settings.codeFontSize+'px');
+    var themeObj = THEMES.find(function(t){ return t.id === state.settings.theme; }) || THEMES[0];
+    var lightLink = document.getElementById('prismLight');
+    var darkLink = document.getElementById('prismDark');
+    lightLink.disabled = themeObj.mode === 'dark';
+    darkLink.disabled = themeObj.mode !== 'dark';
+    var uiVal = document.getElementById('uiScaleValue');
+    var codeVal = document.getElementById('codeFontValue');
+    if(uiVal) uiVal.textContent = state.settings.uiScale + '%';
+    if(codeVal) codeVal.textContent = state.settings.codeFontSize + 'px';
+    var slider1 = document.getElementById('uiScaleSlider');
+    var slider2 = document.getElementById('codeFontSlider');
+    if(slider1) slider1.value = state.settings.uiScale;
+    if(slider2) slider2.value = state.settings.codeFontSize;
+    var mini = document.getElementById('codeFontMini');
+    if(mini) mini.textContent = state.settings.codeFontSize + 'px';
+    var codeHighlight = document.getElementById('codeHighlight');
+    if(codeHighlight && window.Prism) Prism.highlightElement(codeHighlight);
+    refreshIcons();
+  }
+
+  function adjustCodeFontSize(delta){
+    var next = Math.min(24, Math.max(5, state.settings.codeFontSize + delta));
+    state.settings.codeFontSize = next;
+    saveState();
+    applyTheme();
+  }
+
+  document.getElementById('settingsBtn').addEventListener('click', function(){
+    renderThemeGrid();
+    settingsModal.style.display = 'flex';
+  });
+  document.getElementById('closeSettingsBtn').addEventListener('click', function(){ settingsModal.style.display = 'none'; });
+  document.getElementById('doneSettingsBtn').addEventListener('click', function(){ settingsModal.style.display = 'none'; });
+  settingsModal.addEventListener('click', function(e){ if(e.target === settingsModal) settingsModal.style.display = 'none'; });
+
+  document.getElementById('themeGrid').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-theme-id]');
+    if(!btn) return;
+    state.settings.theme = btn.dataset.themeId;
+    saveState(); applyTheme(); renderThemeGrid();
+  });
+
+  document.getElementById('uiScaleSlider').addEventListener('input', function(e){
+    state.settings.uiScale = parseInt(e.target.value, 10);
+    saveState(); applyTheme();
+  });
+  document.getElementById('codeFontSlider').addEventListener('input', function(e){
+    state.settings.codeFontSize = parseInt(e.target.value, 10);
+    saveState(); applyTheme();
+  });
+  document.getElementById('resetSettingsBtn').addEventListener('click', function(){
+    state.settings = Object.assign({}, DEFAULT_SETTINGS);
+    saveState(); applyTheme(); renderThemeGrid();
+  });
+
+  loadState();
+  applyTheme();
+  if(!state.activeId && state.views.length) state.activeId = state.views[0].id;
+  renderSidebar();
+  renderMain();
+  refreshIcons();
+</script>
+</body>
+</html>
+<script>try{}catch(e){document.body.innerHTML+='<div style="color:red;background:#ffe6e6;padding:10px;margin-top:20px;border-radius:4px;border:1px solid red;"><strong>Runtime Error:</strong> '+e.message+'</div>'}</script></body></html>
