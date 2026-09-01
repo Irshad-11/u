@@ -3,30 +3,5 @@
     "title": "Code & Explanation Database",
     "description": "A store of Explanation along with code for train LLM",
     "link": "code-db.html"
-  },
-  {
-    "title": "JSON Formatter",
-    "description": "Format, inspect and validate JSON data directly in your browser.",
-    "link": "json-formatter.html"
-  },
-  {
-    "title": "Base64 Encoder",
-    "description": "Encode and decode Base64 text without sending your data anywhere.",
-    "link": "base64.html"
-  },
-  {
-    "title": "Timestamp Converter",
-    "description": "Convert Unix timestamps into readable dates and times.",
-    "link": "timestamp.html"
-  },
-  {
-    "title": "UUID Generator",
-    "description": "Generate random UUIDs instantly for development and testing.",
-    "link": "uuid-generator.html"
-  },
-  {
-    "title": "Color Converter",
-    "description": "Convert colors between HEX, RGB, HSL and other common formats.",
-    "link": "color-converter.html"
   }
 ]
