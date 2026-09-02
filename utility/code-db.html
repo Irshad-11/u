@@ -10,17 +10,20 @@
     var raw = localStorage.getItem('mdcv_state_v1');
     var themeId = 'midnight';
     var uiScale = 100;
+    var sidebarCollapsed = false;
     if(raw){
       var p = JSON.parse(raw);
       if(p && p.settings){
         if(p.settings.theme) themeId = p.settings.theme;
         if(p.settings.uiScale) uiScale = p.settings.uiScale;
+        if(p.settings.sidebarCollapsed) sidebarCollapsed = p.settings.sidebarCollapsed;
       } else if(p && p.theme){
         themeId = (p.theme === 'light') ? 'paper' : 'midnight';
       }
     }
     document.documentElement.setAttribute('data-theme', themeId);
     document.documentElement.style.setProperty('--ui-scale', (uiScale/100));
+    if(sidebarCollapsed) document.documentElement.setAttribute('data-sidebar', 'collapsed');
   } catch(e){}
 })();
 </script>
@@ -65,7 +68,9 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius:9999px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-  .code-font { font-family:'JetBrains Mono', ui-monospace, monospace; font-size: var(--code-font-size, 13px); line-height:1.65; tab-size:4; white-space:pre; word-wrap:normal; word-break:normal; }
+  .code-font { font-family:'JetBrains Mono', ui-monospace, monospace; line-height:1.65; tab-size:4; white-space:pre; word-wrap:normal; word-break:normal; }
+  .code-font-code { font-size: var(--code-font-size, 13px); }
+  .code-font-interp { font-size: var(--interp-font-size, 13px); }
   #interpInput.code-font { white-space:pre-wrap; word-break:break-word; }
   pre[class*="language-"] { background:transparent !important; margin:0 !important; }
   code[class*="language-"] { background:transparent !important; }
@@ -73,6 +78,20 @@
   .icon-btn { width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:6px; opacity:.7; transition:opacity .15s ease, background-color .15s ease; color:var(--text); flex-shrink:0; }
   .icon-btn:hover { opacity:1; background-color: var(--surface-3); }
   textarea { font-variant-ligatures: none; }
+
+  /* --- sidebar --- */
+  #sidebarAside { width:288px; transition: width .18s ease, padding .18s ease; }
+  #sidebarAside.collapsed { width:56px; }
+  #sidebarAside.collapsed .sb-label { display:none; }
+  #sidebarAside.collapsed .sidebar-actions { flex-direction:column; }
+  #sidebarAside.collapsed #importBtn,
+  #sidebarAside.collapsed #newViewBtn,
+  #sidebarAside.collapsed #copyAllBtn,
+  #sidebarAside.collapsed #downloadBtn { padding-left:0; padding-right:0; }
+  #sidebarAside.collapsed .view-row { justify-content:center; padding:8px 4px; }
+  #sidebarAside.collapsed .row-title,
+  #sidebarAside.collapsed .row-delete { display:none; }
+  #sidebarAside.collapsed #viewList { padding-left:4px; padding-right:4px; }
 
   /* --- view row (sidebar item) --- */
   .view-row { display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:0.8125rem; margin-bottom:2px; color: var(--text); background-color: transparent; transition: background-color .12s ease, color .12s ease; }
@@ -94,40 +113,51 @@
   .range-slim { -webkit-appearance:none; appearance:none; height:4px; border-radius:9999px; background:var(--border); outline:none; }
   .range-slim::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:9999px; background:var(--accent); cursor:pointer; border:2px solid var(--bg); }
   .range-slim::-moz-range-thumb { width:14px; height:14px; border-radius:9999px; background:var(--accent); cursor:pointer; border:2px solid var(--bg); }
+
+  /* --- resizable panes --- */
+  #paneResizer { width:6px; flex-shrink:0; cursor:col-resize; background-color: var(--border); position:relative; transition: background-color .15s ease; }
+  #paneResizer:hover, #paneResizer.dragging { background-color: var(--accent); }
+  #paneResizer::after { content:''; position:absolute; top:0; bottom:0; left:-3px; right:-3px; }
+  #codePanelWrap, #interpPanelWrap { min-width:180px; overflow:hidden; }
 </style>
 </head>
 <body class="h-screen w-screen overflow-hidden font-sans antialiased flex" style="background-color:var(--bg); color:var(--text);">
 
-<aside class="w-72 shrink-0 h-full flex flex-col border-r" style="border-color:var(--border); background-color:var(--surface);">
+<aside id="sidebarAside" class="shrink-0 h-full flex flex-col border-r" style="border-color:var(--border); background-color:var(--surface);">
   <div class="flex items-center justify-between px-4 py-3.5 border-b" style="border-color:var(--border);">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background-color:var(--accent);">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style="background-color:var(--accent);">
         <i data-lucide="layout-panel-left" class="w-3.5 h-3.5" style="color:var(--accent-contrast);"></i>
       </div>
-      <span class="text-sm font-semibold tracking-tight">MD Viewer</span>
+      <span class="text-sm font-semibold tracking-tight sb-label">MD Viewer</span>
     </div>
-    <button id="settingsBtn" class="icon-btn" title="Settings">
-      <i data-lucide="settings-2" class="w-4 h-4"></i>
-    </button>
+    <div class="flex items-center gap-1 shrink-0">
+      <button id="settingsBtn" class="icon-btn sb-label" title="Settings">
+        <i data-lucide="settings-2" class="w-4 h-4"></i>
+      </button>
+      <button id="sidebarCollapseBtn" class="icon-btn" title="Collapse sidebar">
+        <i id="sidebarCollapseIcon" data-lucide="panel-left-close" class="w-4 h-4"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="flex gap-2 px-3 py-3">
-    <button id="importBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
-      <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import
+  <div class="flex gap-2 px-3 py-3 sidebar-actions">
+    <button id="importBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" title="Import" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="upload" class="w-3.5 h-3.5"></i><span class="sb-label">Import</span>
     </button>
-    <button id="newViewBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg hover:opacity-90 transition-opacity" style="background-color:var(--accent); color:var(--accent-contrast);">
-      <i data-lucide="plus" class="w-3.5 h-3.5"></i> New View
+    <button id="newViewBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg hover:opacity-90 transition-opacity" style="background-color:var(--accent); color:var(--accent-contrast);" title="New View">
+      <i data-lucide="plus" class="w-3.5 h-3.5"></i><span class="sb-label">New View</span>
     </button>
   </div>
 
   <div id="viewList" class="flex-1 overflow-y-auto px-2 pb-2"></div>
 
-  <div class="p-3 border-t flex gap-2" style="border-color:var(--border);">
-    <button id="copyAllBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
-      <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+  <div class="p-3 border-t flex gap-2 sidebar-actions" style="border-color:var(--border);">
+    <button id="copyAllBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" title="Copy" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i><span class="sb-label">Copy</span>
     </button>
-    <button id="downloadBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
-      <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+    <button id="downloadBtn" class="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-2.5 py-2 rounded-lg border transition-colors" style="border-color:var(--border);" title="Download" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+      <i data-lucide="download" class="w-3.5 h-3.5"></i><span class="sb-label">Download</span>
     </button>
   </div>
 </aside>
@@ -155,7 +185,7 @@
       <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:var(--faint);">
         <div class="h-px flex-1" style="background-color:var(--border);"></div> or paste text <div class="h-px flex-1" style="background-color:var(--border);"></div>
       </div>
-      <textarea id="importTextarea" placeholder="# 1&#10;## Code&#10;```python&#10;...&#10;```&#10;## Interpreter&#10;```txt&#10;...&#10;```" class="code-font w-full h-40 p-3 text-xs rounded-xl border outline-none resize-none" style="border-color:var(--border); background-color:var(--surface-2); color:var(--text);"></textarea>
+      <textarea id="importTextarea" placeholder="# 1&#10;## Code&#10;```python&#10;...&#10;```&#10;## Interpreter&#10;```txt&#10;...&#10;```" class="code-font code-font-code w-full h-40 p-3 text-xs rounded-xl border outline-none resize-none" style="border-color:var(--border); background-color:var(--surface-2); color:var(--text);"></textarea>
     </div>
     <div class="flex justify-end gap-2 px-5 py-4 border-t" style="border-color:var(--border);">
       <button id="cancelImportBtn" class="text-xs font-medium px-3 py-2 rounded-lg transition-colors" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">Cancel</button>
@@ -184,10 +214,17 @@
       </div>
       <div>
         <div class="flex items-center justify-between mb-2">
-          <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Code Font Size</p>
+          <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Code Panel Font Size</p>
           <span id="codeFontValue" class="text-xs font-mono" style="color:var(--muted);">13px</span>
         </div>
         <input id="codeFontSlider" type="range" min="5" max="24" step="1" value="13" class="range-slim w-full"/>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Interpreter Panel Font Size</p>
+          <span id="interpFontValue" class="text-xs font-mono" style="color:var(--muted);">13px</span>
+        </div>
+        <input id="interpFontSlider" type="range" min="5" max="24" step="1" value="13" class="range-slim w-full"/>
       </div>
     </div>
     <div class="flex justify-between items-center px-5 py-4 border-t shrink-0" style="border-color:var(--border);">
@@ -207,7 +244,7 @@
 
 <script>
   var STORAGE_KEY = 'mdcv_state_v1';
-  var DEFAULT_SETTINGS = { theme:'midnight', uiScale:100, codeFontSize:13 };
+  var DEFAULT_SETTINGS = { theme:'midnight', uiScale:100, codeFontSize:13, interpFontSize:13, sidebarCollapsed:false, paneSplit:50 };
   var state = { views: [], activeId: null, settings: Object.assign({}, DEFAULT_SETTINGS) };
   var idCounter = 0;
 
@@ -307,6 +344,7 @@
     }).catch(function(){});
   }
 
+  var sidebarAside = document.getElementById('sidebarAside');
   var sidebarList = document.getElementById('viewList');
   var mainEmpty = document.getElementById('mainEmpty');
   var mainContent = document.getElementById('mainContent');
@@ -315,13 +353,13 @@
 
   function renderSidebar(){
     if(state.views.length === 0){
-      sidebarList.innerHTML = '<p class="text-xs px-3 py-8 text-center leading-relaxed" style="color:var(--faint);">No views yet.<br/>Import a file or create a new view.</p>';
+      sidebarList.innerHTML = '<p class="text-xs px-3 py-8 text-center leading-relaxed sb-label" style="color:var(--faint);">No views yet.<br/>Import a file or create a new view.</p>';
     } else {
       sidebarList.innerHTML = state.views.map(function(v){
         var active = v.id === state.activeId;
         var cls = 'view-row' + (active ? ' active' : '') + (v.seen ? '' : ' hidden-view');
         return '' +
-        '<div data-action="select" data-id="'+v.id+'" class="'+cls+'">' +
+        '<div data-action="select" data-id="'+v.id+'" class="'+cls+'" title="'+escapeHtml(v.title||'Untitled')+'">' +
           '<button data-action="toggle-seen" data-id="'+v.id+'" class="row-icon-btn" title="'+(v.seen?'Included in export (click to exclude)':'Excluded from export (click to include)')+'">' +
             '<i data-lucide="'+(v.seen?'eye':'eye-off')+'" class="w-3.5 h-3.5"></i>' +
           '</button>' +
@@ -353,6 +391,8 @@
       return '<option value="'+l[0]+'" '+(l[0]===view.lang?'selected':'')+'>'+l[1]+'</option>';
     }).join('');
 
+    var paneSplitVal = state.settings.paneSplit || 50;
+
     mainContent.innerHTML =
       '<div class="flex items-center gap-3 px-5 py-3 border-b shrink-0" style="border-color:var(--border);">' +
         '<input id="titleInput" type="text" value="'+escapeHtml(view.title)+'" placeholder="Untitled view" class="flex-1 bg-transparent text-base font-medium outline-none" style="color:var(--text);"/>' +
@@ -360,8 +400,8 @@
           '<input id="seenCheckbox" type="checkbox" '+(view.seen?'checked':'')+' class="w-3.5 h-3.5"/> Include in export' +
         '</label>' +
       '</div>' +
-      '<div class="flex-1 grid grid-cols-2 overflow-hidden">' +
-        '<div class="relative flex flex-col h-full overflow-hidden border-r" style="border-color:var(--border);">' +
+      '<div id="paneContainer" class="flex-1 flex overflow-hidden">' +
+        '<div id="codePanelWrap" class="relative flex flex-col h-full" style="flex:0 0 '+paneSplitVal+'%; border-right:1px solid var(--border);">' +
           '<div class="flex items-center justify-between px-4 py-2 border-b shrink-0" style="border-color:var(--border);">' +
             '<span class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--faint);">Code</span>' +
             '<div class="flex items-center gap-1.5">' +
@@ -373,16 +413,22 @@
             '</div>' +
           '</div>' +
           '<div class="relative flex-1 overflow-hidden">' +
-            '<pre id="codeHighlightPre" class="code-font absolute inset-0 p-4 overflow-auto pointer-events-none"><code id="codeHighlight" class="language-'+(view.lang||'python')+'"></code></pre>' +
-            '<textarea id="codeInput" spellcheck="false" class="code-font absolute inset-0 w-full h-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:transparent; caret-color:var(--text);"></textarea>' +
+            '<pre id="codeHighlightPre" class="code-font code-font-code absolute inset-0 p-4 overflow-auto pointer-events-none"><code id="codeHighlight" class="language-'+(view.lang||'python')+'"></code></pre>' +
+            '<textarea id="codeInput" spellcheck="false" class="code-font code-font-code absolute inset-0 w-full h-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:transparent; caret-color:var(--text);"></textarea>' +
           '</div>' +
         '</div>' +
-        '<div class="flex flex-col h-full overflow-hidden">' +
+        '<div id="paneResizer" title="Drag to resize"></div>' +
+        '<div id="interpPanelWrap" class="flex flex-col h-full" style="flex:1 1 auto;">' +
           '<div class="flex items-center justify-between px-4 py-2 border-b shrink-0" style="border-color:var(--border);">' +
             '<span class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--faint);">Interpreter</span>' +
-            '<button data-action="copy-interp" class="icon-btn" title="Copy interpreter"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' +
+            '<div class="flex items-center gap-1.5">' +
+              '<button id="interpFontMinus" class="icon-btn" title="Decrease interpreter font size"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>' +
+              '<span id="interpFontMini" class="text-[10px] font-mono w-7 text-center" style="color:var(--muted);"></span>' +
+              '<button id="interpFontPlus" class="icon-btn" title="Increase interpreter font size"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>' +
+              '<button data-action="copy-interp" class="icon-btn" title="Copy interpreter"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' +
+            '</div>' +
           '</div>' +
-          '<textarea id="interpInput" spellcheck="false" class="code-font flex-1 w-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:var(--text);"></textarea>' +
+          '<textarea id="interpInput" spellcheck="false" class="code-font code-font-interp flex-1 w-full p-4 resize-none overflow-auto bg-transparent outline-none" style="color:var(--text);"></textarea>' +
         '</div>' +
       '</div>';
 
@@ -394,10 +440,12 @@
     var langSelect = document.getElementById('langSelect');
     var seenCheckbox = document.getElementById('seenCheckbox');
     var codeFontMini = document.getElementById('codeFontMini');
+    var interpFontMini = document.getElementById('interpFontMini');
 
     codeInput.value = view.code;
     interpInput.value = view.interpreter;
     codeFontMini.textContent = state.settings.codeFontSize + 'px';
+    interpFontMini.textContent = state.settings.interpFontSize + 'px';
 
     function doHighlight(){
       codeHighlight.textContent = codeInput.value;
@@ -426,6 +474,8 @@
       saveState();
       var sideEl = sidebarList.querySelector('span[data-id="'+view.id+'"]');
       if(sideEl) sideEl.textContent = view.title || 'Untitled';
+      var rowEl = sidebarList.querySelector('div[data-id="'+view.id+'"][data-action="select"]');
+      if(rowEl) rowEl.setAttribute('title', view.title || 'Untitled');
     });
     langSelect.addEventListener('change', function(){
       view.lang = langSelect.value;
@@ -443,6 +493,12 @@
     document.getElementById('codeFontPlus').addEventListener('click', function(){
       adjustCodeFontSize(1);
     });
+    document.getElementById('interpFontMinus').addEventListener('click', function(){
+      adjustInterpFontSize(-1);
+    });
+    document.getElementById('interpFontPlus').addEventListener('click', function(){
+      adjustInterpFontSize(1);
+    });
 
     mainContent.querySelector('[data-action="copy-code"]').addEventListener('click', function(e){
       copyText(view.code, e.currentTarget);
@@ -451,7 +507,44 @@
       copyText(view.interpreter, e.currentTarget);
     });
 
+    initResizer();
     refreshIcons();
+  }
+
+  function initResizer(){
+    var resizer = document.getElementById('paneResizer');
+    var container = document.getElementById('paneContainer');
+    var leftPanel = document.getElementById('codePanelWrap');
+    if(!resizer || !container || !leftPanel) return;
+    var dragging = false;
+
+    resizer.addEventListener('mousedown', function(e){
+      dragging = true;
+      resizer.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+      e.preventDefault();
+    });
+
+    function onMove(e){
+      if(!dragging) return;
+      var rect = container.getBoundingClientRect();
+      var pct = ((e.clientX - rect.left) / rect.width) * 100;
+      pct = Math.max(20, Math.min(80, pct));
+      leftPanel.style.flex = '0 0 ' + pct + '%';
+      state.settings.paneSplit = pct;
+    }
+    function onUp(){
+      if(dragging){
+        dragging = false;
+        resizer.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        saveState();
+      }
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   }
 
   sidebarList.addEventListener('click', function(e){
@@ -556,6 +649,7 @@
     document.documentElement.setAttribute('data-theme', state.settings.theme);
     document.documentElement.style.setProperty('--ui-scale', state.settings.uiScale/100);
     document.documentElement.style.setProperty('--code-font-size', state.settings.codeFontSize+'px');
+    document.documentElement.style.setProperty('--interp-font-size', state.settings.interpFontSize+'px');
     var themeObj = THEMES.find(function(t){ return t.id === state.settings.theme; }) || THEMES[0];
     var lightLink = document.getElementById('prismLight');
     var darkLink = document.getElementById('prismDark');
@@ -563,14 +657,20 @@
     darkLink.disabled = themeObj.mode !== 'dark';
     var uiVal = document.getElementById('uiScaleValue');
     var codeVal = document.getElementById('codeFontValue');
+    var interpVal = document.getElementById('interpFontValue');
     if(uiVal) uiVal.textContent = state.settings.uiScale + '%';
     if(codeVal) codeVal.textContent = state.settings.codeFontSize + 'px';
+    if(interpVal) interpVal.textContent = state.settings.interpFontSize + 'px';
     var slider1 = document.getElementById('uiScaleSlider');
     var slider2 = document.getElementById('codeFontSlider');
+    var slider3 = document.getElementById('interpFontSlider');
     if(slider1) slider1.value = state.settings.uiScale;
     if(slider2) slider2.value = state.settings.codeFontSize;
-    var mini = document.getElementById('codeFontMini');
-    if(mini) mini.textContent = state.settings.codeFontSize + 'px';
+    if(slider3) slider3.value = state.settings.interpFontSize;
+    var codeMini = document.getElementById('codeFontMini');
+    var interpMini = document.getElementById('interpFontMini');
+    if(codeMini) codeMini.textContent = state.settings.codeFontSize + 'px';
+    if(interpMini) interpMini.textContent = state.settings.interpFontSize + 'px';
     var codeHighlight = document.getElementById('codeHighlight');
     if(codeHighlight && window.Prism) Prism.highlightElement(codeHighlight);
     refreshIcons();
@@ -582,6 +682,29 @@
     saveState();
     applyTheme();
   }
+  function adjustInterpFontSize(delta){
+    var next = Math.min(24, Math.max(5, state.settings.interpFontSize + delta));
+    state.settings.interpFontSize = next;
+    saveState();
+    applyTheme();
+  }
+
+  function applySidebarCollapsed(){
+    sidebarAside.classList.toggle('collapsed', !!state.settings.sidebarCollapsed);
+    var icon = document.getElementById('sidebarCollapseIcon');
+    if(icon){
+      icon.setAttribute('data-lucide', state.settings.sidebarCollapsed ? 'panel-left-open' : 'panel-left-close');
+    }
+    var btn = document.getElementById('sidebarCollapseBtn');
+    if(btn) btn.title = state.settings.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+    refreshIcons();
+  }
+
+  document.getElementById('sidebarCollapseBtn').addEventListener('click', function(){
+    state.settings.sidebarCollapsed = !state.settings.sidebarCollapsed;
+    saveState();
+    applySidebarCollapsed();
+  });
 
   document.getElementById('settingsBtn').addEventListener('click', function(){
     renderThemeGrid();
@@ -606,13 +729,18 @@
     state.settings.codeFontSize = parseInt(e.target.value, 10);
     saveState(); applyTheme();
   });
+  document.getElementById('interpFontSlider').addEventListener('input', function(e){
+    state.settings.interpFontSize = parseInt(e.target.value, 10);
+    saveState(); applyTheme();
+  });
   document.getElementById('resetSettingsBtn').addEventListener('click', function(){
     state.settings = Object.assign({}, DEFAULT_SETTINGS);
-    saveState(); applyTheme(); renderThemeGrid();
+    saveState(); applyTheme(); renderThemeGrid(); applySidebarCollapsed(); renderMain();
   });
 
   loadState();
   applyTheme();
+  applySidebarCollapsed();
   if(!state.activeId && state.views.length) state.activeId = state.views[0].id;
   renderSidebar();
   renderMain();
