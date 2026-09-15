@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>পড়ার রুটিন · ১৬–২২ সেপ্টেম্বর</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --ink:#141B2E;
+  --ink-2:#1C2540;
+  --ink-3:#26314F;
+  --line:#33406A;
+  --fg:#E9EDF8;
+  --fg-dim:#8E98BC;
+  --os:#57C9EC;
+  --os-soft:rgba(87,201,236,.13);
+  --math:#F4A85C;
+  --math-soft:rgba(244,168,92,.13);
+  --exam:#F0637A;
+  --exam-soft:rgba(240,99,122,.14);
+  --done:#5BD9A6;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--fg);
+  font-family:'Noto Sans Bengali',system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.65;
+  padding:0 16px 80px;
+  max-width:760px;
+  margin:0 auto;
+}
+.num{font-family:'Space Grotesk',system-ui,sans-serif;font-variant-numeric:tabular-nums}
+
+/* ---------- top bar ---------- */
+header{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--ink) 72%,rgba(20,27,46,0));
+  padding:18px 0 14px;
+}
+.bar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--ink-2);border:1px solid var(--line);
+  border-radius:var(--r);padding:12px 14px;
+}
+.bar .left{flex:1;min-width:0}
+.bar h1{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.bar .sub{font-size:12.5px;color:var(--fg-dim)}
+.track{height:5px;background:var(--ink-3);border-radius:99px;overflow:hidden;margin-top:8px}
+.track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--os),var(--math));border-radius:99px;transition:width .45s cubic-bezier(.2,.8,.3,1)}
+.pct{font-size:20px;font-weight:700}
+.reset{
+  background:none;border:1px solid var(--line);color:var(--fg-dim);
+  border-radius:9px;padding:7px 9px;cursor:pointer;display:grid;place-items:center;
+}
+.reset:hover{color:var(--exam);border-color:var(--exam)}
+.reset:focus-visible{outline:2px solid var(--os);outline-offset:2px}
+
+/* ---------- strategy ---------- */
+.plan{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--ink-2);padding:16px;margin-bottom:26px;
+}
+.plan h2{font-size:14.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.plan p{font-size:13.5px;color:var(--fg-dim);margin-bottom:9px}
+.plan p:last-child{margin-bottom:0}
+.plan b{color:var(--fg);font-weight:600}
+.k{padding:1px 6px;border-radius:6px;font-size:12.5px;font-weight:600}
+.k.a{background:var(--os-soft);color:var(--os)}
+.k.b{background:var(--math-soft);color:var(--math)}
+
+/* ---------- day ---------- */
+.day{display:flex;gap:14px;margin-bottom:8px}
+.rail{width:46px;flex:none;display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.dot{
+  width:44px;height:44px;border-radius:12px;flex:none;
+  display:grid;place-items:center;line-height:1.1;
+  background:var(--ink-2);border:1px solid var(--line);
+}
+.dot .d{font-size:16px;font-weight:700}
+.dot .w{font-size:9.5px;color:var(--fg-dim);margin-top:-2px}
+.rail .stem{width:2px;flex:1;background:var(--line);margin:6px 0 2px;border-radius:2px}
+.day.exam .dot{border-color:var(--exam);background:var(--exam-soft)}
+.day.exam .dot .d{color:var(--exam)}
+.day.done .dot{border-color:var(--done)}
+.day.done .dot .d{color:var(--done)}
+
+.body{flex:1;min-width:0;padding-bottom:22px}
+.dhead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+.dhead h3{font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.tag{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px}
+.tag.os{background:var(--os-soft);color:var(--os)}
+.tag.math{background:var(--math-soft);color:var(--math)}
+.tag.exam{background:var(--exam-soft);color:var(--exam)}
+.dcount{font-size:12px;color:var(--fg-dim);margin-left:auto}
+
+.slot{border:1px solid var(--line);border-radius:var(--r);background:var(--ink-2);margin-bottom:10px;overflow:hidden}
+.shead{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--ink-3)}
+.shead .ic{display:grid;place-items:center;color:var(--fg-dim)}
+.shead .nm{font-size:13px;font-weight:600}
+.shead .tm{font-size:11.5px;color:var(--fg-dim);margin-left:auto}
+ul{list-style:none;padding:5px 6px 7px}
+li{display:flex;gap:10px;padding:8px 8px;border-radius:10px;align-items:flex-start;cursor:pointer;transition:background .15s}
+li:hover{background:var(--ink-3)}
+li:focus-visible{outline:2px solid var(--os);outline-offset:-2px}
+.box{
+  width:19px;height:19px;flex:none;margin-top:2px;border-radius:6px;
+  border:1.5px solid var(--line);display:grid;place-items:center;
+  transition:background .18s,border-color .18s;
+}
+.box svg{width:12px;height:12px;stroke-width:3.5;color:var(--ink);opacity:0;transform:scale(.5);transition:opacity .18s,transform .18s}
+li.on .box{background:var(--done);border-color:var(--done)}
+li.on .box svg{opacity:1;transform:scale(1)}
+.txt{font-size:13.6px;line-height:1.6}
+.txt em{font-style:normal;color:var(--fg-dim);font-size:12.6px;display:block;margin-top:1px}
+li.on .txt{color:var(--fg-dim);text-decoration:line-through;text-decoration-color:var(--line)}
+li.on .txt em{opacity:.6}
+.pin{color:var(--math);font-weight:600}
+.pin.o{color:var(--os)}
+
+.note{
+  border-left:2px solid var(--exam);background:var(--exam-soft);
+  border-radius:0 10px 10px 0;padding:9px 12px;margin:0 0 10px;
+  font-size:12.8px;color:var(--fg);
+}
+
+/* ---------- skip list ---------- */
+.skip{border:1px dashed var(--line);border-radius:var(--r);padding:16px;margin-top:6px}
+.skip h2{font-size:14.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.skip ul{list-style:none;padding:0}
+.skip li{padding:5px 0;cursor:default;font-size:13.4px;color:var(--fg-dim)}
+.skip li:hover{background:none}
+.skip li b{color:var(--fg);font-weight:600}
+
+footer{text-align:center;color:var(--fg-dim);font-size:12px;margin-top:26px}
+
+@media(max-width:480px){
+  body{padding:0 12px 70px;font-size:14.5px}
+  .rail{width:40px}
+  .dot{width:38px;height:38px;border-radius:11px}
+  .dot .d{font-size:14px}
+  .txt{font-size:13.2px}
+  .dcount{width:100%;margin-left:0;order:9}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="left">
+      <h1>১৬ – ২২ সেপ্টেম্বর · OS ও গণিত</h1>
+      <div class="sub" id="sub">লোড হচ্ছে…</div>
+      <div class="track"><i id="fill"></i></div>
+    </div>
+    <div class="pct num" id="pct">0%</div>
+    <button class="reset" id="reset" title="সব টিক মুছে ফেলুন" aria-label="সব টিক মুছে ফেলুন"><i data-lucide="rotate-ccw" style="width:16px;height:16px"></i></button>
+  </div>
+</header>
+
+<section class="plan">
+  <h2><i data-lucide="target" style="width:16px;height:16px;color:var(--math)"></i>কৌশলটা আগে পড়ুন</h2>
+  <p>গণিতে দুই সেট, প্রতি সেটে ৩টা থেকে <b>২টা</b> লিখতে হবে। মানে প্রতি সেটে একটা চ্যাপ্টার ছেড়ে দিলেও চলে। তাই সহজ ও যান্ত্রিক চ্যাপ্টারগুলো পুরো দখল করাই লাভজনক।</p>
+  <p><span class="k a">Set A · Ch 1–3</span> &nbsp; অধ্যায় ১ ও ২ পুরোপুরি — দুটোই নিয়মভিত্তিক, অনুশীলন করলেই নম্বর। অধ্যায় ৩ থেকে শুধু ৩.১, ৩.২, ৩.৫ নিরাপত্তা হিসেবে।</p>
+  <p><span class="k b">Set B · Ch 4–6</span> &nbsp; অধ্যায় ৫ (৫.১, ৫.২, কেইলি–হ্যামিল্টন) ও অধ্যায় ৬ (৬.১, ৬.২) — এ দুটোই আপনার দুটো উত্তর। অধ্যায় ৪-এর শুধু যান্ত্রিক অংশ ব্যাকআপ।</p>
+  <p>OS পরীক্ষা ১৯ তারিখ, তাই ১৬–১৮ OS-ভারী। ১৯ তারিখ পরীক্ষার পর থেকে সবটাই গণিত।</p>
+</section>
+
+<div id="days"></div>
+
+<section class="skip">
+  <h2><i data-lucide="minus-circle" style="width:16px;height:16px;color:var(--fg-dim)"></i>যেগুলোতে সময় দেবেন না</h2>
+  <ul>
+    <li><b>৪.১, ৪.২</b> — ভেক্টর স্পেস ও সাবস্পেসের প্রমাণ-ভারী অংশ। শুধু সংজ্ঞা আর অ্যাক্সিওমের নামগুলো চোখ বুলিয়ে রাখুন, প্রমাণ করতে যাবেন না।</li>
+    <li><b>৩.৩, ৩.৪</b> — অর্থোগোনালিটি ও লিনিয়ার সিস্টেমের জ্যামিতি। সময় বাঁচলে দেখবেন, না বাঁচলে নয়।</li>
+    <li><b>১.১০</b> — লিওনটিফ ইনপুট-আউটপুট। শুধু ধারণা, অঙ্ক নয়।</li>
+    <li><b>৪.৬, ৪.১০, ৪.১১, ৫.৩–৫.৫, ৬.৩ থেকে শেষ</b> — সিলেবাসের বাইরে, একদম ধরবেন না।</li>
+  </ul>
+</section>
+
+<footer>টিক দিলে নিজে থেকেই সেভ হয়ে যাবে</footer>
+
+<script>
+const DAYS=[
+{d:16,w:"মঙ্গল",t:"OS-এর দিন · বাইরে থাকবেন",tags:[["os","OS"]],
+ note:"আজ বাইরে থাকবেন, তাই সকাল-দুপুর মোবাইলে নোট পড়ার কাজ রাখা হয়েছে। রাতে বসে লেখার কাজ।",
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"চলার পথে",items:[
+   ["<span class='pin o'>OS অধ্যায় ১</span> — রিভিশন শিটের Ch1 অংশ মোবাইলে পড়ুন","OS কী, kernel-এর সংজ্ঞা, interrupt vector, trap vs hardware interrupt"],
+   ["Dual-mode, mode bit, privileged instruction, timer","কেন timer সেট করা privileged — এটুকু বুঝে নিন"],
+   ["DMA আর caching-এর যুক্তিটা ধরে ফেলুন","DMA = per block একটা interrupt; cache সবসময় ছোট"]]},
+  {ic:"sun",nm:"দুপুর–বিকাল",tm:"চলার পথে",items:[
+   ["Multiprogramming vs Timesharing","লক্ষ্য আলাদা: CPU utilization বনাম response time < ১ সেকেন্ড"],
+   ["Buffering / Caching / Spooling — তিনটার পার্থক্য","এই তিনটা গুলিয়ে ফেলাই সবচেয়ে সাধারণ ভুল"],
+   ["Multiprocessor vs Cluster, AMP vs SMP",""],
+   ["Protection vs Security, computing environments","ভার্চুয়ালাইজেশন, ক্লাউড, রিয়েল-টাইম — শুধু ধারণা"]]},
+  {ic:"moon",nm:"রাত",tm:"৩–৪ ঘণ্টা",items:[
+   ["<span class='pin o'>OS অধ্যায় ২ পুরো</span> — OS services ৯টা, system call + parameter passing ৩ পদ্ধতি","block/table পদ্ধতি Linux ও Solaris ব্যবহার করে — মনে রাখুন"],
+   ["System call-এর ৬ ধরন + Windows/Unix টেবিল",""],
+   ["Policy vs Mechanism, MS-DOS vs FreeBSD",""],
+   ["OS structure ৬টা — Simple, UNIX, Layered, Microkernel, Modules, Hybrid","তুলনার টেবিলটা একবার হাতে লিখে ফেলুন"],
+   ["<span class='pin o'>অধ্যায় ৩ শুরু</span> — process concept, ৫টা অংশ, memory layout",""]]}
+ ]},
+
+{d:17,w:"বুধ",t:"OS অধ্যায় ৩ ও ৬",tags:[["os","OS"]],
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin o'>Process state diagram</span> — ৫ অবস্থা, ৬টা transition নাম সহ","waiting → running সরাসরি নেই — এটাই পরীক্ষার ফাঁদ"],
+   ["PCB-র ৮টা field মুখস্থ",""],
+   ["Context switch — কেন pure overhead, কীসে দ্রুত হয়",""],
+   ["Linux-এর task_struct — কোন field PCB-র কোন অংশ",""]]},
+  {ic:"sun",nm:"দুপুর",tm:"৩ ঘণ্টা",items:[
+   ["তিনটা queue — job, ready, device + queueing diagram","CPU ছাড়ার ৪টা পথ মনে রাখুন"],
+   ["Short / Long / Medium-term scheduler — তুলনার টেবিল","degree of multiprogramming কে নিয়ন্ত্রণ করে, কে কমায়"],
+   ["fork(), exec(), wait(), exit() — return value সহ","fork: &lt;0 error, ==0 child, &gt;0 parent"],
+   ["Zombie vs Orphan vs Cascading termination","zombie = parent wait করেনি; orphan = parent মরে গেছে"]]},
+  {ic:"moon",nm:"রাত",tm:"৩–৪ ঘণ্টা",items:[
+   ["<span class='pin o'>IPC</span> — shared memory vs message passing, ৪টা কারণ",""],
+   ["Bounded buffer — full ও empty শর্ত, BUFFER_SIZE−১ নিয়ম","(in+1)%SIZE == out মানে full; in == out মানে empty"],
+   ["Direct vs Indirect communication, mailbox-এর ৩ সমাধান",""],
+   ["Blocking/Non-blocking, rendezvous, buffering ৩ ধরন",""],
+   ["<span class='pin o'>অধ্যায় ৬ শুরু</span> — CPU–I/O burst, preemptive-এর ৪ অবস্থা, dispatcher, ৫ criteria","১ ও ৪ = non-preemptive, বাকি সব preemptive"]]}
+ ]},
+
+{d:18,w:"বৃহঃ",t:"OS অঙ্ক + গণিত শুরু",tags:[["os","OS"],["math","গণিত"]],
+ note:"কাল OS পরীক্ষা। আজ রাতটা পুরোপুরি রিভিশনের জন্য রাখা — নতুন কিছু পড়বেন না।",
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin o'>Gantt chart নিজের হাতে আঁকুন</span> — FCFS-এর দুটো উদাহরণ (গড় ১৭ ও ৩)","convoy effect-এর ব্যাখ্যাটা লিখে ফেলুন"],
+   ["SJF (গড় ৭) ও SRTF (গড় ৬.৫) — ধাপে ধাপে","SRTF-এ প্রতিটি arrival-এ থেমে পুনর্বিবেচনা করুন"],
+   ["Priority (গড় ৮.২) ও RR q=৪","ছোট সংখ্যা = উঁচু priority"],
+   ["Exponential averaging — α=0 ও α=1 এর মানে",""],
+   ["MLQ vs MLFQ, MLFQ-র ৫ parameter + Q0/Q1/Q2 উদাহরণ",""],
+   ["Real-time: RMS vs EDF, দুই latency, 0≤t≤d≤p; Little's Formula n=λW",""]]},
+  {ic:"sun",nm:"দুপুর",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin'>গণিত ১.১ + ১.২</span> — গাউসিয়ান ও গাউস–জর্ডান এলিমিনেশন","echelon বনাম reduced echelon form — পার্থক্য পরিষ্কার রাখুন"],
+   ["Consistent / inconsistent, free variable, প্যারামিটার আকারে সমাধান","এখান থেকে CQ আসার সম্ভাবনা সবচেয়ে বেশি"],
+   ["<span class='pin'>১.৩</span> — ম্যাট্রিক্স অপারেশন, গুণের নিয়ম, transpose, trace","সিলেবাসের সবচেয়ে সহজ অংশ — এখানে ভুল করা চলবে না"],
+   ["১.২ ও ১.৩ এর ৫টা করে অনুশীলনী অঙ্ক",""]]},
+  {ic:"moon",nm:"রাত",tm:"পূর্ণ রিভিশন",items:[
+   ["<span class='pin o'>চার চ্যাপ্টারের রিভিশন শিট</span> একটানা পড়ুন",""],
+   ["OS নোটের ৩৮টা trap-এর তালিকা",""],
+   ["অধ্যায় ৬-এর ১৪টা trap",""],
+   ["২৮টা scenario প্রশ্ন — উত্তর না দেখে মুখে বলার চেষ্টা","আটকে গেলে তখনই উত্তর মিলিয়ে নিন"],
+   ["তাড়াতাড়ি ঘুমাতে যান","ক্লান্ত মাথায় Gantt chart ভুল হয়"]]}
+ ]},
+
+{d:19,w:"শুক্র",t:"OS পরীক্ষা · এরপর গণিত",tags:[["exam","OS পরীক্ষা"],["math","গণিত"]],exam:1,
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"পরীক্ষার আগে",items:[
+   ["শুধু রিভিশন শিট আর trap তালিকা","নতুন কোনো টপিক ধরবেন না — এখন আর লাভ নেই"],
+   ["Gantt-এর সূত্র দুটো মনে করে নিন","Turnaround = Completion − Arrival · Waiting = Turnaround − Burst"]]},
+  {ic:"pencil",nm:"পরীক্ষা",tm:"",items:[
+   ["<span class='pin' style='color:var(--exam)'>OS পরীক্ষা</span>",""],
+   ["পরীক্ষার পর অন্তত ২ ঘণ্টা বিশ্রাম","এটা বাদ দেবেন না — সামনে টানা তিন দিন গণিত"]]},
+  {ic:"moon",nm:"রাত",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin'>১.৪</span> — ইনভার্স, ম্যাট্রিক্সের বীজগাণিতিক ধর্ম","(AB)⁻¹ = B⁻¹A⁻¹ — ক্রম উল্টে যায়"],
+   ["<span class='pin'>১.৫</span> — এলিমেন্টারি ম্যাট্রিক্স দিয়ে A⁻¹ বের করা","[A | I] → [I | A⁻¹] — এই পদ্ধতিটা হাতে তুলে নিন"],
+   ["<span class='pin'>১.৬</span> — ইনভার্টিবিলিটির সমতুল্য শর্তগুলো","তালিকাটা মুখস্থ — থিওরি প্রশ্নে সরাসরি আসে"],
+   ["৩টা ইনভার্স বের করার অঙ্ক নিজে করুন",""]]}
+ ]},
+
+{d:20,w:"শনি",t:"অধ্যায় ১ শেষ + অধ্যায় ২",tags:[["math","গণিত"]],
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"৩–৪ ঘণ্টা",items:[
+   ["<span class='pin'>১.৭</span> — ডায়াগোনাল, ট্রায়াঙ্গুলার, সিমেট্রিক ম্যাট্রিক্স","ছোট অংশ, সহজ নম্বর"],
+   ["<span class='pin'>১.৮</span> — ম্যাট্রিক্স ট্রান্সফরমেশন, standard matrix বের করা",""],
+   ["<span class='pin'>১.৯ প্রয়োগ</span> — ট্রাফিক ফ্লো (নেটওয়ার্ক অ্যানালাইসিস)","প্রতিটি নোডে ইন = আউট সমীকরণ বসান"],
+   ["১.৯ — ইলেকট্রিক্যাল সার্কিট (কার্শফের সূত্র)",""],
+   ["১.৯ — রাসায়নিক সমীকরণ সমতা করা",""],
+   ["১.৯ — পলিনোমিয়াল ইন্টারপোলেশন",""],
+   ["<span class='pin'>অনুশীলনী ১.৯ পুরোটা করুন</span>","আলাদা করে বলা হয়েছে, মানে প্রশ্ন এখান থেকেই আসবে"]]},
+  {ic:"sun",nm:"দুপুর",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin'>২.১</span> — কোফ্যাক্টর এক্সপ্যানশনে ডিটারমিন্যান্ট","minor, cofactor, চিহ্নের ছক"],
+   ["<span class='pin'>২.২</span> — রো রিডাকশন দিয়ে ডিটারমিন্যান্ট","কোন রো-অপারেশনে det কীভাবে বদলায় — এই তিনটা নিয়মই আসল"],
+   ["৩×৩ ও ৪×৪ মিলিয়ে ৫টা অঙ্ক",""]]},
+  {ic:"moon",nm:"রাত",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin'>২.৩</span> — ডিটারমিন্যান্টের ধর্ম, adjoint দিয়ে ইনভার্স",""],
+   ["<span class='pin'>ক্রেমারের নিয়ম</span> — পুরোপুরি আয়ত্তে আনুন","নিশ্চিত প্রশ্ন, আর একদম যান্ত্রিক"],
+   ["অধ্যায় ১ + ২ মিশিয়ে ৪টা অঙ্ক","Set A এখন হাতের মুঠোয় — এটাই লক্ষ্য ছিল"]]}
+ ]},
+
+{d:21,w:"রবি",t:"Set B · অধ্যায় ৫, ৬ ও ৪",tags:[["math","গণিত"]],
+ note:"আজকের দিনটাই Set B ঠিক করে দেবে। অধ্যায় ৫ আর ৬ শেষ হলে আপনার দুটো উত্তর নিশ্চিত।",
+ slots:[
+  {ic:"sunrise",nm:"সকাল",tm:"৪ ঘণ্টা",items:[
+   ["<span class='pin'>৫.১</span> — আইগেনভ্যালু ও আইগেনভেক্টর","det(A − λI) = 0 → characteristic equation → λ → (A − λI)x = 0"],
+   ["২×২ ও ৩×৩ মিলিয়ে ৪টা অঙ্ক নিজে করুন",""],
+   ["<span class='pin'>কেইলি–হ্যামিল্টন উপপাদ্য</span> — বিবৃতি + প্রমাণ যাচাই","আলাদা করে সিলেবাসে বলা আছে — বাদ দেওয়া যাবে না"],
+   ["কেইলি–হ্যামিল্টন দিয়ে A⁻¹ ও A-এর উচ্চ ঘাত বের করা","এই প্রয়োগটাই বেশি জিজ্ঞাসা করা হয়"]]},
+  {ic:"sun",nm:"দুপুর",tm:"৪ ঘণ্টা",items:[
+   ["<span class='pin'>৫.২</span> — ডায়াগোনালাইজেশন, P⁻¹AP = D","P-এর কলাম = আইগেনভেক্টর, D-এর কর্ণ = আইগেনভ্যালু"],
+   ["কখন ডায়াগোনালাইজ করা যায় না — শর্তটা লিখে রাখুন",""],
+   ["Aⁿ বের করার অঙ্ক (PDⁿP⁻¹)",""],
+   ["<span class='pin'>৬.১</span> — ইনার প্রোডাক্ট, অ্যাক্সিওম, ওয়েটেড ইনার প্রোডাক্ট",""],
+   ["<span class='pin'>৬.২</span> — কোণ, কোশি–শোয়ার্ৎস, অর্থোগোনালিটি","ছোট দুটো সেকশন, সহজ নম্বর"]]},
+  {ic:"moon",nm:"রাত",tm:"৩ ঘণ্টা",items:[
+   ["<span class='pin'>৩.১ + ৩.২</span> — ভেক্টর, নর্ম, ডট প্রোডাক্ট, দূরত্ব","Set A-র নিরাপত্তা, পুরোটাই সূত্র"],
+   ["<span class='pin'>৩.৫</span> — ক্রস প্রোডাক্ট + ত্রিভুজ ও সামান্তরিকের ক্ষেত্রফল",""],
+   ["<span class='pin'>৪.৭</span> — রো স্পেস, কলাম স্পেস, নাল স্পেস","basis বের করার যান্ত্রিক পদ্ধতিটাই শিখুন"],
+   ["<span class='pin'>৪.৮</span> — র‍্যাঙ্ক, নালিটি, rank + nullity = n","Set B-র ব্যাকআপ প্রশ্ন এখান থেকেই আসবে"]]}
+ ]},
+
+{d:22,w:"সোম",t:"গণিত পরীক্ষা",tags:[["exam","গণিত পরীক্ষা"]],exam:1,
+ slots:[
+  {ic:"sunrise",nm:"ভোর",tm:"২ ঘণ্টা",items:[
+   ["<span class='pin'>৪.৩</span> — লিনিয়ার ইনডিপেন্ডেন্স যাচাই করার পদ্ধতি","শুধু পদ্ধতি, প্রমাণ নয়"],
+   ["<span class='pin'>৪.৪ + ৪.৫</span> — বেসিস, কোঅর্ডিনেট, ডাইমেনশন","সংজ্ঞা + একটা করে উদাহরণ, এর বেশি নয়"],
+   ["<span class='pin'>৪.৯</span> — R² ও R³-এ মৌলিক ম্যাট্রিক্স ট্রান্সফরমেশন","রিফ্লেকশন, প্রোজেকশন, রোটেশনের ম্যাট্রিক্সগুলো"]]},
+  {ic:"sun",nm:"সকাল",tm:"পরীক্ষার আগে",items:[
+   ["Set A-র সূত্র রিভিশন — এলিমিনেশন, ইনভার্স, ডিটারমিন্যান্ট, ক্রেমার",""],
+   ["Set B-র সূত্র রিভিশন — আইগেন, ডায়াগোনালাইজেশন, কেইলি–হ্যামিল্টন, ইনার প্রোডাক্ট",""],
+   ["কোন ২টা প্রশ্ন ধরবেন — মনে মনে ঠিক করে যান","প্রশ্ন দেখে সিদ্ধান্ত নিতে গিয়ে সময় নষ্ট হয়"]]},
+  {ic:"pencil",nm:"পরীক্ষা",tm:"",items:[
+   ["<span class='pin' style='color:var(--exam)'>গণিত পরীক্ষা</span>","প্রতিটি অঙ্কের ধাপ লিখুন — উত্তর ভুল হলেও ধাপে নম্বর আছে"]]}
+ ]}
+];
+
+/* ---------- storage ---------- */
+const KEY="routine-sep16-22";
+let state={};
+async function load(){
+  try{ if(window.storage){const r=await window.storage.get(KEY); if(r&&r.value){state=JSON.parse(r.value);return;}} }catch(e){}
+  try{ const s=localStorage.getItem(KEY); if(s){state=JSON.parse(s);return;} }catch(e){}
+  state={};
+}
+let saving=null;
+function save(){
+  clearTimeout(saving);
+  saving=setTimeout(async()=>{
+    const v=JSON.stringify(state);
+    try{ if(window.storage){await window.storage.set(KEY,v);return;} }catch(e){}
+    try{ localStorage.setItem(KEY,v); }catch(e){}
+  },220);
+}
+
+/* ---------- render ---------- */
+const wrap=document.getElementById("days");
+function render(){
+  wrap.innerHTML=DAYS.map((D,di)=>{
+    const total=D.slots.reduce((a,s)=>a+s.items.length,0);
+    const done=D.slots.reduce((a,s,si)=>a+s.items.filter((_,ii)=>state[`${di}-${si}-${ii}`]).length,0);
+    const cls=["day",D.exam?"exam":"",done===total?"done":""].join(" ");
+    const tags=D.tags.map(t=>`<span class="tag ${t[0]}">${t[1]}</span>`).join("");
+    const slots=D.slots.map((S,si)=>`
+      <div class="slot">
+        <div class="shead">
+          <span class="ic"><i data-lucide="${S.ic}" style="width:15px;height:15px"></i></span>
+          <span class="nm">${S.nm}</span>${S.tm?`<span class="tm">${S.tm}</span>`:""}
+        </div>
+        <ul>${S.items.map((it,ii)=>{
+          const k=`${di}-${si}-${ii}`;
+          return `<li class="${state[k]?"on":""}" data-k="${k}" tabindex="0" role="checkbox" aria-checked="${!!state[k]}">
+            <span class="box"><i data-lucide="check"></i></span>
+            <span class="txt">${it[0]}${it[1]?`<em>${it[1]}</em>`:""}</span>
+          </li>`;}).join("")}</ul>
+      </div>`).join("");
+    return `<div class="${cls}">
+      <div class="rail"><div class="dot"><div class="d num">${D.d}</div><div class="w">${D.w}</div></div><div class="stem"></div></div>
+      <div class="body">
+        <div class="dhead"><h3>${D.t}</h3>${tags}<span class="dcount num">${done}/${total}</span></div>
+        ${D.note?`<div class="note">${D.note}</div>`:""}
+        ${slots}
+      </div></div>`;
+  }).join("");
+  lucide.createIcons();
+  totals();
+}
+function totals(){
+  let t=0,d=0;
+  DAYS.forEach((D,di)=>D.slots.forEach((S,si)=>S.items.forEach((_,ii)=>{t++;if(state[`${di}-${si}-${ii}`])d++;})));
+  const p=t?Math.round(d/t*100):0;
+  document.getElementById("pct").textContent=p+"%";
+  document.getElementById("fill").style.width=p+"%";
+  document.getElementById("sub").textContent=`${d} / ${t} কাজ শেষ · OS পরীক্ষা ১৯, গণিত ২২`;
+}
+function toggle(li){
+  const k=li.dataset.k;
+  state[k]=!state[k];
+  li.classList.toggle("on",state[k]);
+  li.setAttribute("aria-checked",!!state[k]);
+  const body=li.closest(".body"),day=li.closest(".day");
+  const di=+k.split("-")[0],D=DAYS[di];
+  const total=D.slots.reduce((a,s)=>a+s.items.length,0);
+  const done=D.slots.reduce((a,s,si)=>a+s.items.filter((_,ii)=>state[`${di}-${si}-${ii}`]).length,0);
+  body.querySelector(".dcount").textContent=`${done}/${total}`;
+  day.classList.toggle("done",done===total);
+  totals(); save();
+}
+wrap.addEventListener("click",e=>{const li=e.target.closest("li[data-k]");if(li)toggle(li);});
+wrap.addEventListener("keydown",e=>{
+  if(e.key!==" "&&e.key!=="Enter")return;
+  const li=e.target.closest("li[data-k]");if(li){e.preventDefault();toggle(li);}
+});
+document.getElementById("reset").addEventListener("click",()=>{
+  if(!confirm("সব টিক মুছে ফেলবেন?"))return;
+  state={};save();render();
+});
+
+load().then(()=>{render();lucide.createIcons();});
+</script>
+</body>
+</html>
