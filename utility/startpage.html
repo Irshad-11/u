@@ -14,6 +14,7 @@
     localStorage  mantel.state     the live configuration (JSON, see "state shape" below)
                   mantel.profiles  named profiles, each a full copy of the state
                   mantel.cache     weather / news responses, safe to delete
+    Libraries (CDN): SortableJS for dragging; three.js, fetched only when a 3D background is chosen.
     IndexedDB     mantel > kv      uploaded background images (img:<id>) and automatic backups (backup:<time>)
     Clearing site data for this origin erases all of it. Use Settings > Backup and import to keep a file.
 
@@ -43,7 +44,7 @@
   --panel:color-mix(in srgb,var(--surface) calc(var(--alpha)*100%),transparent);
 }
 *{box-sizing:border-box}
-html{font-size:calc(16px*var(--scale))}
+html{font-size:calc(16px*var(--scale));overflow-x:clip}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:400 .9375rem/1.45 var(--font);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer}
@@ -59,7 +60,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 .ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ───────── background layers ───────── */
-#bg,#pat,#fx,#dim{position:fixed;inset:0;z-index:-1;pointer-events:none}
+#bg,#pat,#fx,#fx3,#dim{position:fixed;inset:0;z-index:-1;pointer-events:none}
+#fx3{width:100%;height:100%}
 #bg{background-size:cover;background-position:center}
 #fx{width:100%;height:100%}
 #pat[data-p=grid]{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:28px 28px}
@@ -118,6 +120,7 @@ body[data-valign=center] .grid{min-height:calc(100vh - 60px);align-content:cente
 .w[data-w="6"]{grid-column:span 6}.w[data-w="7"]{grid-column:span 7}.w[data-w="8"]{grid-column:span 8}.w[data-w="9"]{grid-column:span 9}
 .w[data-w="10"]{grid-column:span 10}.w[data-w="11"]{grid-column:span 11}.w[data-w="12"]{grid-column:span 12}
 .w[data-row]{grid-column:1/-1;width:calc(var(--wn)/12*100%)}
+.w[data-bleed]{grid-column:1/-1!important;width:100vw!important;margin-left:calc(50% - 50vw);justify-self:start}
 .w[data-row=center]{justify-self:center}.w[data-row=end]{justify-self:end}
 .w-h{display:flex;align-items:center;gap:6px;min-height:28px;margin-bottom:8px}
 .w-t{font:600 .8125rem/1.2 var(--font);color:var(--muted);flex:1;min-width:0}
@@ -291,6 +294,39 @@ dialog::backdrop{background:rgb(0 0 0/.38)}
 .wc li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;align-items:baseline}
 .wc b{font:600 1.15rem var(--font-d);font-variant-numeric:tabular-nums}
 
+/* big display, flip cards */
+.hero{text-align:center;padding:.5rem 0}
+.hero.tall{min-height:calc(100vh - 150px);display:flex;flex-direction:column;justify-content:center}
+.hero-cap{font:600 clamp(1rem,2.2vw,1.7rem)/1.2 var(--font-d);margin-bottom:.8rem}
+.hero-sub{color:var(--muted);margin-top:.9rem;font-size:clamp(.9rem,1.4vw,1.15rem)}
+.hero-ctl{display:flex;gap:8px;justify-content:center;margin-top:1rem;flex-wrap:wrap;opacity:.5;transition:opacity .15s}
+.hero:hover .hero-ctl,.hero-ctl:focus-within{opacity:1}
+@media (hover:none){.hero-ctl{opacity:1}}
+.dsp{display:inline-flex;align-items:flex-start;white-space:nowrap;font-family:var(--font-d);font-weight:600;font-variant-numeric:tabular-nums;line-height:1.16;letter-spacing:0}
+.dg{display:inline-flex;flex-direction:column;align-items:center}
+.dgd{display:inline-flex;gap:.06em}
+.dgu{font:500 .13em/1 var(--font);color:var(--muted);margin-top:.9em;min-height:1em}
+.dsep{margin:0 .1em;opacity:.55}
+.dap{font-size:.26em;align-self:flex-end;margin:0 0 1.9em .5em;color:var(--muted);font-weight:500}
+.pd{display:inline-block;min-width:.62em;text-align:center}
+.fd{position:relative;display:inline-block;width:.74em;height:1.16em;perspective:5em}
+.fd>span{position:absolute;left:0;right:0;height:50%;overflow:hidden;text-align:center;background:color-mix(in srgb,var(--ink) 90%,var(--bg));color:var(--bg);backface-visibility:hidden}
+.fd>.t,.fd>.ft{top:0;line-height:1.16em;border-radius:.09em .09em 0 0}
+.fd>.b,.fd>.fb{top:50%;line-height:0;border-radius:0 0 .09em .09em}
+.fd>.ft{transform-origin:50% 100%;z-index:2}.fd>.fb{transform-origin:50% 0;transform:rotateX(90deg);z-index:2}
+.fd:not(.go)>.ft,.fd:not(.go)>.fb{display:none}
+.fd.go>.ft{animation:flipT .26s ease-in forwards}.fd.go>.fb{animation:flipB .26s .26s ease-out forwards}
+.fd::after{content:"";position:absolute;left:0;right:0;top:calc(50% - .5px);height:1px;min-height:1px;background:var(--bg);opacity:.6;z-index:3}
+@keyframes flipT{to{transform:rotateX(-90deg)}}@keyframes flipB{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
+.cd-v .dsp,.clock-t .dsp{font-weight:inherit}
+.cd-v .dgu{font-size:.3em;margin-top:.5em}.clock-t .dap{margin-bottom:.4em}
+/* links placed freely on the screen */
+#float{position:fixed;inset:0;z-index:3;pointer-events:none}
+#float .fl{position:absolute;translate:-50% -50%;pointer-events:auto;-webkit-user-drag:none;user-select:none}
+.lk img{-webkit-user-drag:none}
+body.editing #float .fl,body.editing .bm-pin .lk{cursor:move;touch-action:none}
+body.editing #float .fl{outline:1px dashed var(--muted);background:var(--panel)}
+
 /* ───────── theme identities ───────── */
 html[data-theme=mono] .w-t{text-transform:uppercase;letter-spacing:.09em;font-size:.7rem;font-weight:700;color:var(--ink)}
 html[data-theme=mono] .clock-t{font-weight:700;letter-spacing:-.04em}
@@ -334,13 +370,14 @@ html[data-theme=arcade] .w-t{font-size:1.05rem;font-weight:400;color:var(--accen
 </style>
 </head>
 <body data-bar="quiet">
-<div id="bg"></div><div id="pat"></div><canvas id="fx" aria-hidden="true"></canvas><div id="dim"></div>
+<div id="bg"></div><div id="pat"></div><canvas id="fx3" aria-hidden="true" hidden></canvas><canvas id="fx" aria-hidden="true"></canvas><div id="dim"></div>
 <a class="sr" href="#grid">Skip to widgets</a>
 <header id="bar">
   <nav id="tabs" aria-label="Layouts"></nav>
   <div id="tools"></div>
 </header>
 <main id="grid" class="grid" tabindex="-1"></main>
+<nav id="float" aria-label="Links placed on the screen"></nav>
 <div id="editbar" hidden></div>
 <div id="toasts" aria-live="polite"></div>
 <noscript><p style="padding:2rem">This start page needs JavaScript. Everything runs in your browser; nothing is sent to a server.</p></noscript>
@@ -392,6 +429,7 @@ const ICONS={
   pin:'<path d="M9 4h6l-1 6 3 3H7l3-3-1-6zM12 13v7"/>',up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
   play:'<path d="M8 5l11 7-11 7z"/>',pause:'<path d="M8 5v14M16 5v14"/>',reset:'<path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/>',
   ext:'<path d="M14 5h5v5M19 5l-8 8M11 7H6v11h11v-5"/>',undo:'<path d="M9 5L4 10l5 5M4 10h10a4.5 4.5 0 0 1 0 9h-3"/>',
+  float:'<path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/>',
   layout:'<path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"/>',fold:'<path d="M6 9l6 6 6-6"/>'
 };
 function ico(n){const s=h('span',{class:'ico','aria-hidden':'true'});s.innerHTML=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||''}</svg>`;return s}
@@ -543,7 +581,7 @@ function defaultData(){return {
 function defaultState(){
   const id=uid();
   return {v:FORMAT,
-    prefs:{name:'',title:'New tab',h12:false,weekStart:1,favicons:'site',sound:true,bar:'quiet',webfonts:true,rssProxy:''},
+    prefs:{name:'',title:'New tab',h12:false,weekStart:1,favicons:'site',sound:true,bar:'quiet',webfonts:true,rssProxy:'',floatSize:40,floatLabels:true},
     look:{theme:'plain',custom:{},themes:[]},
     grid:{maxw:1080,gap:22,pad:28,valign:'top'},
     search:{engines:clone(ENGINES),engine:'ddg',newTab:false,suggest:true},
@@ -588,7 +626,7 @@ function cleanThemePatch(v){
 }
 const CLEAN={
   prefs(v){const d=defaultState().prefs;v=isObj(v)?v:{};return {name:S.str(v.name,'',60),title:S.str(v.title,d.title,60),h12:S.bool(v.h12),weekStart:S.one(v.weekStart,[0,1,6],1),
-    favicons:S.one(v.favicons,['site','ddg','off'],'site'),sound:S.bool(v.sound,true),bar:S.one(v.bar,['quiet','always'],'quiet'),webfonts:S.bool(v.webfonts,true),rssProxy:S.str(v.rssProxy,'',300)}},
+    favicons:S.one(v.favicons,['site','ddg','off'],'site'),sound:S.bool(v.sound,true),bar:S.one(v.bar,['quiet','always'],'quiet'),webfonts:S.bool(v.webfonts,true),rssProxy:S.str(v.rssProxy,'',300),floatSize:S.num(v.floatSize,40,20,120),floatLabels:S.bool(v.floatLabels,true)}},
   look(v){v=isObj(v)?v:{};
     const themes=S.list(v.themes,t=>{const base=THEMES.find(b=>b.id===t.base);if(!base)return null;return {id:S.id(t.id),name:S.str(t.name,'Custom theme',40)||'Custom theme',base:base.id,...cleanThemePatch(t)}});
     const theme=[...THEMES,...themes].some(t=>t.id===v.theme)?v.theme:'plain';
@@ -606,7 +644,7 @@ const CLEAN={
     return ls.length?ls:[{id:uid(),name:'Home',widgets:[]}]},
   bookmarks(v){v=isObj(v)?v:{};return {groups:S.list(v.groups,g=>({id:S.id(g.id),name:S.str(g.name,'Group',60)||'Group',open:S.bool(g.open),
     links:S.list(g.links,l=>{const url=safeUrl(l.url);if(!url)return null;const icon=S.str(l.icon,'',600);
-      return {id:S.id(l.id),name:S.str(l.name,host(url),80)||host(url),url,icon:/^https?:|^data:image\//.test(icon)||[...icon].length<=4?icon:'',pinned:S.bool(l.pinned)}})}))}},
+      return {id:S.id(l.id),name:S.str(l.name,host(url),80)||host(url),url,icon:/^https?:|^data:image\//.test(icon)||[...icon].length<=4?icon:'',pinned:S.bool(l.pinned),...(typeof l.fx==='number'&&typeof l.fy==='number'?{fx:clamp(l.fx,0,1),fy:clamp(l.fy,0,1)}:{})}})}))}},
   tasks:v=>S.list(v,t=>S.str(t.text).trim()?{id:S.id(t.id),text:S.str(t.text,'',500),done:S.bool(t.done),pri:S.one(t.pri,[0,1,2,3],0),due:/^\d{4}-\d\d-\d\d$/.test(t.due)?t.due:'',note:S.str(t.note,'',2000),created:S.num(t.created,Date.now())}:null),
   notes(v){const n=S.list(v,p=>({id:S.id(p.id),title:S.str(p.title,'Notes',40)||'Notes',text:S.str(p.text,'',200000)}));return n.length?n:[{id:uid(),title:'Notes',text:''}]},
   countdowns:v=>S.list(v,c=>typeof c.at==='number'&&isFinite(c.at)?{id:S.id(c.id),label:S.str(c.label,'Countdown',80)||'Countdown',at:c.at,tz:S.str(c.tz,'local',60)||'local',repeat:S.one(c.repeat,['','day','week','month','year'],'')}:null),
@@ -742,7 +780,7 @@ const FONTS={
   'Kalam':{g:'Kalam:wght@400;700',s:'"Kalam","Comic Sans MS",cursive'},
   'VT323':{g:'VT323',s:'"VT323",ui-monospace,monospace'}
 };
-const FX_KINDS=['none','stars','fireflies','rain','snow','aurora','waves'];
+const FX2=['none','stars','fireflies','rain','snow','aurora','waves'],FX3=['warp','galaxy','terrain','shapes','flow'],FX_KINDS=[...FX2,...FX3];
 const T=(id,name,note,c,font,display,o)=>({id,name,note,c:{bg:c[0],surface:c[1],ink:c[2],muted:c[3],line:c[4],accent:c[5]},font,display,
   surface:'none',radius:6,bw:1,alpha:1,scale:1,...o,bg:{kind:'solid',g1:c[0],g2:c[1],angle:160,pattern:'none',effect:'none',img:'',imgId:'',dim:0,blur:0,...(o&&o.bg)}});
 const THEMES=[
@@ -763,6 +801,11 @@ const THEMES=[
   T('aurora','Aurora','Moving northern light',['#07151a','#0d2229','#e0f1ee','#86a7a4','#1b3a40','#69e0b4'],'IBM Plex Sans','IBM Plex Sans',{surface:'fill',radius:10,alpha:.45,bg:{effect:'aurora'}}),
   T('rain','Rain','Slate window in the rain',['#27313a','#313d48','#e3e8ec','#96a3ae','#3f4d5a','#9fc6d9'],'IBM Plex Sans','IBM Plex Sans',{surface:'line',radius:4,alpha:.5,bg:{effect:'rain'}}),
   T('snow','First snow','Pale, with snowfall',['#e8eef3','#ffffff','#1e2a36','#647484','#c9d5df','#35607f'],'Figtree','Figtree',{surface:'fill',radius:10,alpha:.7,bg:{effect:'snow'}}),
+  T('hyperspace','Hyperspace','3D: stars rushing past',['#05070d','#0c111c','#e8ecf6','#8792ad','#1b2336','#8fd0ff'],'Space Grotesk','Space Grotesk',{bg:{effect:'warp'}}),
+  T('orbit','Orbit','3D: a slowly turning galaxy',['#0a0812','#141021','#efe9f7','#9a8fb3','#261f3a','#f0b56a'],'Bricolage Grotesque','Bricolage Grotesque',{surface:'fill',radius:10,alpha:.55,bg:{effect:'galaxy'}}),
+  T('contour','Contour','3D: rolling wire terrain',['#f1efe9','#ffffff','#1d2420','#687069','#d5d6cd','#2f6f5e'],'IBM Plex Sans','IBM Plex Sans',{surface:'line',radius:2,alpha:.8,bg:{effect:'terrain'}}),
+  T('drift','Drift','3D: floating wireframes',['#16181c','#1e2126','#eceef0','#959ba3','#2e3239','#e2c275'],'Space Grotesk','Space Grotesk',{surface:'line',radius:0,alpha:.5,bg:{effect:'shapes'}}),
+  T('tide','Tide','3D: slow flowing colour',['#0d1b24','#132733','#e6f0f2','#8eaab2','#21404d','#4fb3a6'],'Figtree','Figtree',{surface:'fill',radius:12,alpha:.45,bg:{effect:'flow'}}),
   T('contrast','High contrast','Maximum legibility',['#000000','#000000','#ffffff','#e0e0e0','#ffffff','#ffe600'],'Atkinson Hyperlegible','Atkinson Hyperlegible',{surface:'line',radius:4,bw:2,scale:1.08})
 ];
 const allThemes=()=>[...THEMES,...state.look.themes.map(u=>resolveTheme(u))];
@@ -805,7 +848,7 @@ function applyTheme(){
   }
   $('#pat').dataset.p=b.pattern;
   $('#dim').style.background=b.dim?`color-mix(in srgb,${t.c.bg} ${Math.round(b.dim*100)}%,transparent)`:'';
-  fx.set(b.effect,t.c);
+  fx.set(b.effect,t.c);fx3.set(b.effect,t.c);
 }
 
 /* ═════════ 8. animated backgrounds ═════════
@@ -814,7 +857,7 @@ const fx={
   cv:null,g:null,kind:'none',col:{},p:[],raf:0,last:0,w:0,h:0,
   set(kind,col){
     this.cv=this.cv||$('#fx');this.g=this.g||this.cv.getContext('2d');
-    this.kind=FX_KINDS.includes(kind)?kind:'none';this.col=col;cancelAnimationFrame(this.raf);this.raf=0;
+    this.kind=FX2.includes(kind)?kind:'none';this.col=col;cancelAnimationFrame(this.raf);this.raf=0;
     if(this.kind==='none'){this.cv.hidden=true;return}
     this.cv.hidden=false;this.size();this.seed();this.draw(0);
     if(!reducedMotion())this.raf=requestAnimationFrame(t=>this.loop(t));
@@ -869,7 +912,7 @@ const mounts=new Map();      // widget id -> {el, body, ticks[], clean[], token}
 let editing=false,gridSort=null;
 const SIZES=[[3,'Small'],[4,'Third'],[6,'Half'],[8,'Two thirds'],[12,'Full']];
 
-function renderAll(){applyTheme();document.title=state.prefs.title||'New tab';renderBar();renderGrid()}
+function renderAll(){applyTheme();document.title=state.prefs.title||'New tab';renderBar();renderGrid();renderFloat()}
 
 function renderBar(){
   const tabs=$('#tabs'),many=state.layouts.length>1;tabs.replaceChildren();
@@ -889,7 +932,7 @@ function renderBar(){
     h('button',{class:'btn sm primary',type:'button',onclick:()=>setEditing(false)},'Done'));
 }
 function setEditing(on){
-  editing=on;document.body.classList.toggle('editing',on);gridSort&&gridSort.option('disabled',!on);renderBar();
+  editing=on;document.body.classList.toggle('editing',on);gridSort&&gridSort.option('disabled',!on);renderBar();renderFloat();
   if(on&&!window.Sortable)toast('Dragging is unavailable offline. Use each widget\'s menu to move it.');
 }
 function switchLayout(id){if(id===state.active)return;state.active=id;save();renderBar();renderGrid()}
@@ -924,7 +967,7 @@ const titleOf=inst=>inst.title||W[inst.type].name;
 function frameAttrs(el,inst){
   const def=W[inst.type];
   el.className='w'+(def.bare&&!inst.title?' bare':'')+(inst.collapsed?' collapsed':'')+(inst.pinned?' pinned':'');
-  el.dataset.w=inst.w;el.style.setProperty('--wn',inst.w);
+  el.dataset.w=inst.w;el.dataset.type=inst.type;el.style.setProperty('--wn',inst.w);
   inst.row?el.dataset.row=inst.row:delete el.dataset.row;
   if(inst.h&&!inst.collapsed){el.style.height=inst.h+'px';el.dataset.fixed=''}else{el.style.height='';delete el.dataset.fixed}
 }
@@ -956,7 +999,7 @@ function renderBody(inst){
   catch(e){console.error(e);m.body.replaceChildren(h('p',{class:'werr',text:'This widget ran into a problem: '+e.message}),
     h('button',{class:'link',type:'button',onclick(){inst.cfg={};save();renderBody(inst)}},'Reset its settings'))}
 }
-function redrawType(type){mounts.forEach(m=>{if(m.inst.type===type&&!m.inst.collapsed)renderBody(m.inst)})}
+function redrawType(type){if(type==='bookmarks')renderFloat();mounts.forEach(m=>{if(m.inst.type===type&&!m.inst.collapsed)renderBody(m.inst)})}
 function resizeHandle(inst,el){
   return h('div',{class:'w-rs',title:'Drag to resize. Double-click for automatic height.',
     ondblclick(){snap();inst.h=0;save();frameAttrs(el,inst)},
@@ -1034,8 +1077,8 @@ const tzField={k:'tz',label:'Time zone',list:'tzs',ph:'local',help:'An IANA name
 const tzCheck=v=>validTz(v.tz||'local')?'':'That time zone is not recognised. Try a name like Europe/London.';
 
 reg('clock',{name:'Clock',desc:'Time and date, in any time zone.',cat:'Time',w:12,bare:true,
-  cfg:{h12:'auto',seconds:false,date:'long',tz:'local',size:1,align:'center',label:''},
-  fields:[{k:'h12',label:'Format',type:'select',opts:[['auto','Follow general setting'],['24','24-hour'],['12','12-hour']]},
+  cfg:{style:'digits',h12:'auto',seconds:false,date:'long',tz:'local',size:1,align:'center',label:''},
+  fields:[{k:'style',label:'Style',type:'select',opts:[['digits','Plain digits'],['flip','Flip clock']]},{k:'h12',label:'Format',type:'select',opts:[['auto','Follow general setting'],['24','24-hour'],['12','12-hour']]},
     {k:'seconds',label:'Show seconds',type:'check'},{k:'date',label:'Date',type:'select',opts:DATEFMT},tzField,
     {k:'label',label:'Caption',ph:'e.g. Dhaka'},{k:'size',label:'Size',type:'range',min:.4,max:1.6,step:.1},{k:'align',label:'Alignment',type:'select',opts:ALIGN}],
   validate:tzCheck,
@@ -1043,10 +1086,11 @@ reg('clock',{name:'Clock',desc:'Time and date, in any time zone.',cat:'Time',w:1
     tzDatalist();
     const t=h('div',{class:'clock-t'}),d=h('div',{class:'clock-d'}),h12=c.h12==='auto'?state.prefs.h12:c.h12==='12';
     put(b,h('div',{class:'clock',style:{textAlign:c.align,'--cs':c.size}},t,d));
+    const D=c.style==='flip'?makeDisplay('flip'):null;if(D)put(t,D.el);
     const up=(n=new Date())=>{
       const parts=dtf({hour:h12?'numeric':'2-digit',minute:'2-digit',...(c.seconds?{second:'2-digit'}:{}),hourCycle:h12?'h12':'h23',...tzOpt(c.tz)}).formatToParts(n);
       const main=parts.filter(p=>p.type!=='dayPeriod').map(p=>p.value).join('').trim(),ap=parts.find(p=>p.type==='dayPeriod');
-      t.replaceChildren(main,ap?h('small',{text:ap.value}):'');
+      if(D)D.set(clockParts(n,{h12,sec:c.seconds,tz:c.tz}));else t.replaceChildren(main,ap?h('small',{text:ap.value}):'');
       d.textContent=[c.label,c.date==='none'?'':fmtDate(n,c.date,c.tz)].filter(Boolean).join(', ');d.hidden=!d.textContent;
     };
     up();x.tick(up);
@@ -1130,12 +1174,15 @@ function editLink(link,groupId){
     fields:[{k:'url',label:'Address',type:'text',ph:'example.com'},{k:'name',label:'Name',ph:'Taken from the address if empty'},
       {k:'group',label:'Group',type:'select',opts:B.groups.map(g=>[g.id,g.name])},
       {k:'icon',label:'Icon',ph:'Empty = site icon',help:'An emoji, one or two letters, or the address of an image.'},
-      {k:'pinned',label:'Pin above the groups',type:'check'}],
-    values:link?{...link,group:cur.id}:{url:'',name:'',icon:'',pinned:false,group:cur.id},
+      {k:'pinned',label:'Pin above the groups',type:'check'},
+      {k:'float',label:'Place freely on the screen',type:'check',help:'Then press E and drag it anywhere. Drop it back on the bookmarks widget to return it.'}],
+    values:link?{...link,group:cur.id,float:link.fx!=null}:{url:'',name:'',icon:'',pinned:false,float:false,group:cur.id},
     validate:v=>fixUrl(v.url)?'':'Enter a web address, for example example.com.',
     onOk(v){
       snap();const url=fixUrl(v.url),icon=v.icon.trim(),data={name:v.name.trim().slice(0,80)||host(url),url,icon:/^https?:|^data:image\//.test(icon)?icon:[...icon].slice(0,2).join(''),pinned:v.pinned};
-      if(isNew)B.groups.find(g=>g.id===v.group).links.push({id:uid(),...data});
+      const tgt=isNew?{id:uid(),...data}:link;
+      if(v.float){if(tgt.fx==null){tgt.fx=.3+Math.random()*.4;tgt.fy=.82}}else{delete tgt.fx;delete tgt.fy}
+      if(isNew)B.groups.find(g=>g.id===v.group).links.push(tgt);
       else{Object.assign(link,data);if(v.group!==cur.id){cur.links.splice(cur.links.indexOf(link),1);B.groups.find(g=>g.id===v.group).links.push(link)}}
       save();redrawType('bookmarks');redrawType('search');
     }});
@@ -1159,8 +1206,8 @@ reg('bookmarks',{name:'Bookmarks',desc:'Pinned links up top, the rest in groups 
     const isOpen=g=>c.remember?!!g.open:bmOpen.has(g.id);
     const anchor=(l,tile)=>h('a',{class:'lk'+(tile?' tile':''),href:l.url,target:c.newTab?'_blank':null,rel:'noopener noreferrer',title:tile&&!c.labels?l.name:null,'aria-label':tile&&!c.labels?l.name:null,style:{'--sz':c.size+'px'}},
       linkIcon(l,tile?c.size:Math.min(c.size,22)),(!tile||c.labels)&&h('span',{class:tile?'':'ell',text:l.name}));
-    const pins=allLinks().filter(l=>l.pinned);
-    if(c.showPinned&&pins.length)b.append(h('div',{class:'bm-pin'+(c.pinAlign==='center'?' c':''),role:'list','aria-label':'Pinned links'},pins.map(l=>h('span',{role:'listitem'},anchor(l,true)))));
+    const pins=allLinks().filter(l=>l.pinned&&l.fx==null);
+    if(c.showPinned&&pins.length)b.append(h('div',{class:'bm-pin'+(c.pinAlign==='center'?' c':''),role:'list','aria-label':'Pinned links'},pins.map(l=>{const a=anchor(l,true);a.draggable=false;a.addEventListener('pointerdown',e=>dragFloat(e,l));return h('span',{role:'listitem'},a)})));
     if(c.showGroups||manage){
       const wrap=h('div',{class:'bm-groups'});
       B.groups.forEach((g,gi)=>{
@@ -1176,6 +1223,7 @@ reg('bookmarks',{name:'Bookmarks',desc:'Pinned links up top, the rest in groups 
         if(open){
           const links=h('div',{class:'bm-links'+(manage?' manage':c.view==='tiles'?' tiles':''),id:pid,'data-g':g.id});
           g.links.forEach((l,li)=>put(links,manage?h('div',{class:'bm-row','data-id':l.id},ib('grip','Drag to reorder',null,{class:'ib hd',tabindex:'-1',style:{cursor:'grab'}}),anchor(l),
+            ib('float',l.fx!=null?'Return '+l.name+' to the widget':'Place '+l.name+' freely on the screen',()=>{if(l.fx!=null){delete l.fx;delete l.fy}else{l.fx=.3+Math.random()*.4;l.fy=.82}done()},{'aria-pressed':String(l.fx!=null),style:{color:l.fx!=null?'var(--accent)':null}}),
             ib('pin',l.pinned?'Unpin '+l.name:'Pin '+l.name,()=>{l.pinned=!l.pinned;done()},{'aria-pressed':String(l.pinned),style:{color:l.pinned?'var(--accent)':null}}),
             ib('up','Move up',()=>{g.links.splice(li-1,0,g.links.splice(li,1)[0]);done()},{disabled:li===0}),
             ib('down','Move down',()=>{g.links.splice(li+1,0,g.links.splice(li,1)[0]);done()},{disabled:li===g.links.length-1}),
@@ -1327,8 +1375,8 @@ function editCountdown(cd){
       cd?Object.assign(cd,o):C.push({id:uid(),...o});save();redrawType('countdown')}});
 }
 reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any number of dates.',cat:'Time',w:4,
-  cfg:{format:'full',size:1,order:'soonest',past:'since'},
-  fields:[{k:'format',label:'Display',type:'select',opts:[['full','Days, hours, minutes, seconds'],['compact','Largest two units'],['days','Days only']]},
+  cfg:{style:'digits',format:'full',size:1,order:'soonest',past:'since'},
+  fields:[{k:'style',label:'Style',type:'select',opts:[['digits','Plain digits'],['flip','Flip clock']]},{k:'format',label:'Display',type:'select',opts:[['full','Days, hours, minutes, seconds'],['compact','Largest two units'],['days','Days only']]},
     {k:'size',label:'Number size',type:'range',min:.6,max:2.2,step:.1},
     {k:'order',label:'Order',type:'select',opts:[['soonest','Soonest first'],['added','As added']]},
     {k:'past',label:'When a date has passed',type:'select',opts:[['since','Count up from it'],['done','Show “Reached”'],['hide','Hide it']]}],
@@ -1351,7 +1399,8 @@ reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any
       }
       list.forEach((o,i)=>{
         const r=rows[i],diff=o.t-now,past=diff<=0,s=Math.floor(Math.abs(diff)/1000),d=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60;
-        if(past&&c.past==='done')r.v.replaceChildren('Reached');
+        if(c.style==='flip'&&!(past&&c.past==='done')){if(!r.D){r.D=makeDisplay('flip');r.v.replaceChildren(r.D.el)}r.D.set(cdParts(diff,c.format,past,true))}
+        else if(past&&c.past==='done'){r.D=null;r.v.replaceChildren('Reached')}
         else if(c.format==='days')r.v.replaceChildren(...U(past?d:Math.ceil(Math.abs(diff)/864e5),'days'));
         else if(c.format==='compact')r.v.replaceChildren(...(d?[...U(d,'d'),...U(hh,'h')]:hh?[...U(hh,'h'),...U(mm,'m')]:[...U(mm,'m'),...U(ss,'s')]));
         else r.v.replaceChildren(...U(d,'d'),...U(pad(hh),'h'),...U(pad(mm),'m'),...U(pad(ss),'s'));
@@ -1595,6 +1644,252 @@ reg('random',{name:'Decide for me',desc:'Flip a coin, roll dice, or pick from yo
       h('button',{class:'btn',type:'button',disabled:!items.length,onclick:()=>out.textContent=items[rnd(items.length)]},'Pick from list')));
   }});
 
+/* ═════════ 13b. digit displays (plain or flip), the Big display widget, and links placed freely on screen ═════════ */
+/* A display takes parts: {d:'12',u:'hours'} digit group, {s:':'} separator, {ap:'PM'}. set() returns true when its shape changed. */
+function flipSet(fd,ch,anim){
+  const old=fd.dataset.v;if(old===ch)return;fd.dataset.v=ch;
+  const [t,b,ft,fb]=fd.children;clearTimeout(fd._t);
+  if(!anim||old==null||reducedMotion()||document.hidden){t.textContent=b.textContent=ch;fd.classList.remove('go');return}
+  ft.textContent=old;b.textContent=old;t.textContent=ch;fb.textContent=ch;
+  fd.classList.remove('go');void fd.offsetWidth;fd.classList.add('go');
+  fd._t=setTimeout(()=>{b.textContent=ch;fd.classList.remove('go')},540);
+}
+function makeDisplay(style){
+  const flip=style==='flip',el=h('div',{class:'dsp '+(flip?'flip':'plain'),role:'timer'});let sig=null,cells=[];
+  return {el,set(parts){
+    const s=parts.map(p=>p.d!=null?'d'+[...p.d].length+(p.u||''):p.s!=null?'s':'a').join('|'),fresh=s!==sig;
+    if(fresh){
+      sig=s;cells=[];el.replaceChildren();
+      parts.forEach(p=>{
+        if(p.d!=null){const row=h('span',{class:'dgd','aria-hidden':'true'});
+          [...p.d].forEach(()=>{const c=flip?h('span',{class:'fd'},h('span',{class:'t'}),h('span',{class:'b'}),h('span',{class:'ft'}),h('span',{class:'fb'})):h('span',{class:'pd'});cells.push(c);put(row,c)});
+          put(el,h('span',{class:'dg'},row,p.u!=null&&h('span',{class:'dgu','aria-hidden':'true',text:p.u})))}
+        else if(p.s!=null)put(el,h('span',{class:'dsep','aria-hidden':'true',text:p.s}));
+        else{const a=h('span',{class:'dap','aria-hidden':'true'});cells.push(a);put(el,a)}
+      });
+    }
+    let i=0;
+    parts.forEach(p=>{if(p.d!=null)[...p.d].forEach(ch=>{const c=cells[i++];flip?flipSet(c,ch,!fresh):c.textContent!==ch&&(c.textContent=ch)});else if(p.ap!=null)cells[i++].textContent=p.ap});
+    el.setAttribute('aria-label',parts.map(p=>p.d!=null?p.d+(p.u?' '+p.u:''):p.ap||'').filter(Boolean).join(' '));
+    return fresh;
+  }};
+}
+/* Scales a display so it takes `fill` (0..1) of the box width, without growing taller than maxH. */
+function fitDisplay(el,box,fill,maxH){
+  const bw=box.clientWidth;if(!bw)return;
+  el.style.fontSize='100px';const w=el.getBoundingClientRect().width;if(!w)return;
+  el.style.fontSize=Math.max(18,Math.min(100*bw*fill/w,maxH/1.6))+'px';
+}
+function clockParts(n,{h12,sec,tz}){
+  const out=[];
+  dtf({hour:h12?'numeric':'2-digit',minute:'2-digit',...(sec?{second:'2-digit'}:{}),hourCycle:h12?'h12':'h23',...tzOpt(tz)}).formatToParts(n).forEach(p=>{
+    if(p.type==='hour'||p.type==='minute'||p.type==='second'){if(out.length)out.push({s:':'});out.push({d:p.value})}
+    else if(p.type==='dayPeriod')out.push({ap:p.value})});
+  return out;
+}
+function cdParts(diff,format,past,short){
+  const s=Math.floor(Math.abs(diff)/1000),d=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60;
+  const U=short?['d','h','m','s']:['days','hours','minutes','seconds'],g=(v,i)=>({d:i?pad(v):String(v).padStart(2,'0'),u:U[i]}),sep={s:':'};
+  if(format==='days')return [{d:String(past?d:Math.ceil(Math.abs(diff)/864e5)),u:U[0]}];
+  if(format==='compact')return d?[g(d,0),sep,g(hh,1)]:hh?[g(hh,1),sep,g(mm,2)]:[g(mm,2),sep,g(ss,3)];
+  if(format==='nosec')return d?[g(d,0),sep,g(hh,1),sep,g(mm,2)]:[g(hh,1),sep,g(mm,2)];
+  return d||format==='full'?[g(d,0),sep,g(hh,1),sep,g(mm,2),sep,g(ss,3)]:[g(hh,1),sep,g(mm,2),sep,g(ss,3)];
+}
+function durParts(ms){
+  const s=Math.ceil(Math.max(0,ms)/1000),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60;
+  return [...(hh?[{d:pad(hh),u:'hours'},{s:':'}]:[]),{d:pad(mm),u:'minutes'},{s:':'},{d:pad(ss),u:'seconds'}];
+}
+/* shared run controls, so the Big display and the small widgets drive the same timers */
+const also=(...types)=>{save();types.forEach(redrawType)};
+const timerLeft=()=>{const T=state.data.timer;return T.running?Math.max(0,T.endAt-Date.now()):T.left};
+function timerToggle(){const T=state.data.timer;if(T.running){T.left=timerLeft();T.running=false;T.endAt=0}else{if(T.left<=0)T.left=T.dur;T.endAt=Date.now()+T.left;T.running=true;T.done=0;try{actx&&actx.resume()}catch(e){}}also('timer','hero')}
+function timerSet(ms){Object.assign(state.data.timer,{dur:ms,left:ms,running:false,endAt:0,done:0});also('timer','hero')}
+const swElapsed=()=>{const S=state.data.stopwatch;return S.elapsed+(S.running?Date.now()-S.start:0)};
+function swToggle(){const S=state.data.stopwatch;if(S.running){S.elapsed=swElapsed();S.running=false;S.start=0}else{S.start=Date.now();S.running=true}also('stopwatch','hero')}
+function swReset(){Object.assign(state.data.stopwatch,{start:0,elapsed:0,running:false,laps:[]});also('stopwatch','hero')}
+const pomoLeft=()=>{const P=state.data.pomo;return P.running?Math.max(0,P.endAt-Date.now()):P.left};
+function pomoToggle(){const P=state.data.pomo;if(P.running){P.left=pomoLeft();P.running=false;P.endAt=0}else{if(P.left<=0)P.left=P[P.phase]*60000;P.endAt=Date.now()+P.left;P.running=true;try{actx&&actx.resume()}catch(e){}}also('pomodoro','hero')}
+function pomoReset(){const P=state.data.pomo;P.left=P[P.phase]*60000;P.running=false;P.endAt=0;also('pomodoro','hero')}
+
+reg('hero',{name:'Big display',desc:'A clock, countdown, timer, stopwatch or focus timer at full-screen size, as plain digits or a flip clock.',cat:'Time',w:12,bare:true,
+  cfg:{source:'countdown',cd:'',style:'flip',fill:92,bleed:true,tall:false,seconds:true,format:'auto',caption:true,controls:true,h12:'auto',tz:'local'},
+  fields:()=>[
+    {k:'source',label:'Show',type:'select',opts:[['clock','Clock'],['countdown','Countdown to a date'],['timer','Timer'],['stopwatch','Stopwatch'],['pomodoro','Focus timer']]},
+    {k:'cd',label:'Which countdown',type:'select',opts:[['','The soonest one'],...state.data.countdowns.map(c=>[c.id,c.label])],help:'Add or edit countdowns with the button under the display.'},
+    {k:'style',label:'Style',type:'select',opts:[['flip','Flip clock'],['digits','Plain digits']]},
+    {k:'fill',label:'Size: share of the width to fill, in percent',type:'range',min:20,max:100,step:2},
+    {k:'bleed',label:'Stretch across the whole screen width',type:'check'},
+    {k:'tall',label:'Give it the whole screen height, centred',type:'check'},
+    {k:'format',label:'Countdown units',type:'select',opts:[['auto','Days only when needed'],['full','Always days, hours, minutes, seconds'],['nosec','Without seconds'],['days','Days only']]},
+    {k:'seconds',label:'Clock: show seconds',type:'check'},
+    {k:'h12',label:'Clock: format',type:'select',opts:[['auto','Follow general setting'],['24','24-hour'],['12','12-hour']]},
+    {...tzField,label:'Clock: time zone'},
+    {k:'caption',label:'Show the label and date lines',type:'check'},
+    {k:'controls',label:'Show start, pause and reset buttons',type:'check'}],
+  validate:tzCheck,
+  render(b,c,x){
+    tzDatalist();
+    const wEl=b.closest('.w');if(wEl)wEl.toggleAttribute('data-bleed',!!c.bleed&&!wEl.closest('.pv'));
+    const D=makeDisplay(c.style),cap=h('div',{class:'hero-cap'}),sub=h('div',{class:'hero-sub'}),ctl=h('div',{class:'hero-ctl'});
+    const box=h('div',{class:'hero'+(c.tall?' tall':'')},cap,h('div',{class:'hero-d'},D.el),sub,ctl);put(b,box);
+    const fit=()=>fitDisplay(D.el,box,clamp(+c.fill||90,20,100)/100,innerHeight*(c.tall?.7:.6));
+    const B=(label,fn,primary)=>h('button',{class:'btn'+(primary?' primary':''),type:'button',onclick:fn},label);
+    const src=c.source,h12=c.h12==='auto'?state.prefs.h12:c.h12==='12';let run=null,isRunning=()=>false;
+    if(src==='timer'){run=B('',timerToggle,true);isRunning=()=>state.data.timer.running;
+      put(ctl,run,B('Reset',()=>timerSet(state.data.timer.dur)),B('Set length…',()=>formDialog({title:'Timer length',fields:[{k:'len',label:'Length',help:'Minutes, or mm:ss, or h:mm:ss. Up to 24 hours.'},{k:'label',label:'Label (optional)'}],
+        values:{len:dur(state.data.timer.dur),label:state.data.timer.label},validate:v=>parseDur(v.len)>=1000&&parseDur(v.len)<=864e5?'':'Enter a length such as 25 or 12:30.',
+        onOk(v){state.data.timer.label=v.label.trim().slice(0,60);timerSet(parseDur(v.len))}})))}
+    else if(src==='stopwatch'){run=B('',swToggle,true);isRunning=()=>state.data.stopwatch.running;put(ctl,run,B('Reset',swReset))}
+    else if(src==='pomodoro'){run=B('',pomoToggle,true);isRunning=()=>state.data.pomo.running;put(ctl,run,B('Reset',pomoReset),B('Skip',()=>{const P=state.data.pomo;pomoNext(P,Date.now());P.running=false;P.endAt=0;also('pomodoro','hero')}))}
+    else if(src==='countdown')put(ctl,B(state.data.countdowns.length?'Add another date':'Set a date to count down to',()=>editCountdown(null)));
+    ctl.hidden=!c.controls&&!(src==='countdown'&&!state.data.countdowns.length);cap.hidden=sub.hidden=!c.caption;
+    const paint=()=>{
+      const now=Date.now();let parts,ct='',st='';
+      if(src==='clock'){const n=new Date(now);parts=clockParts(n,{h12,sec:c.seconds,tz:c.tz});st=fmtDate(n,'full',c.tz)+(c.tz&&c.tz!=='local'?', '+c.tz:'')}
+      else if(src==='countdown'){
+        const C=state.data.countdowns,list=C.map(cd=>({cd,t:nextOccurrence(cd,now)})),pick=list.find(o=>o.cd.id===c.cd)||list.filter(o=>o.t>now).sort((a,z)=>a.t-z.t)[0]||list.sort((a,z)=>z.t-a.t)[0];
+        if(!pick){parts=cdParts(0,'full');ct='No countdown yet'}
+        else{const diff=pick.t-now,fm=c.format==='auto'?(Math.abs(diff)>=864e5?'full':'hms'):c.format;parts=cdParts(diff,fm,diff<=0);ct=pick.cd.label;
+          st=(diff<=0?'since ':'until ')+fmtDate(new Date(pick.t),'full',pick.cd.tz)+', '+fmtTime(new Date(pick.t),{tz:pick.cd.tz})+(pick.cd.tz!=='local'?' ('+pick.cd.tz+')':'')}
+      }
+      else if(src==='timer'){const T=state.data.timer;parts=durParts(timerLeft());ct=T.label;st=T.done&&!T.running&&T.left===0?'Finished at '+fmtTime(new Date(T.done)):''}
+      else if(src==='stopwatch')parts=durParts(Math.floor(swElapsed()/1000)*1000);
+      else{const P=state.data.pomo;parts=durParts(pomoLeft());ct={focus:'Focus',short:'Short break',long:'Long break'}[P.phase];st=`${P.n} focus ${P.n===1?'session':'sessions'} done`}
+      if(D.set(parts))fit();
+      if(cap.textContent!==ct)cap.textContent=ct;if(sub.textContent!==st)sub.textContent=st;
+      if(run){const l=isRunning()?'Pause':'Start';if(run.textContent!==l)run.textContent=l}
+    };
+    paint();x.tick(paint);
+    if(run){const iv=setInterval(()=>{if(!document.hidden)paint()},250);x.off(()=>clearInterval(iv))}
+    if('ResizeObserver' in window){const ro=new ResizeObserver(fit);ro.observe(box);x.off(()=>ro.disconnect())}
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>x.alive()&&fit());
+  }});
+
+/* ── links placed freely on the screen: position is kept as a fraction of the window, so it survives resizing ── */
+function renderFloat(){
+  const layer=$('#float'),P=state.prefs;if(!layer)return;layer.replaceChildren();
+  allLinks().filter(l=>l.fx!=null).forEach(l=>{
+    const a=h('a',{class:'lk tile fl','data-id':l.id,href:l.url,rel:'noopener noreferrer',draggable:'false',title:editing?'Drag to move. Arrow keys nudge. Delete returns it to the widget.':l.name,
+      'aria-label':l.name+(editing?', placed link. Arrow keys move it, Delete returns it to the bookmarks widget.':''),style:{left:l.fx*100+'%',top:l.fy*100+'%','--sz':P.floatSize+'px'},
+      onpointerdown:e=>dragFloat(e,l),
+      onkeydown(e){
+        if(!editing)return;const st=e.shiftKey?.05:.01,k=e.key;
+        if(k==='Delete'||k==='Backspace'){e.preventDefault();snap();delete l.fx;delete l.fy;save();redrawType('bookmarks');return}
+        const dx=k==='ArrowLeft'?-st:k==='ArrowRight'?st:0,dy=k==='ArrowUp'?-st:k==='ArrowDown'?st:0;if(!dx&&!dy)return;
+        e.preventDefault();snap('float');l.fx=clamp(l.fx+dx,.02,.98);l.fy=clamp(l.fy+dy,.03,.97);save();a.style.left=l.fx*100+'%';a.style.top=l.fy*100+'%';
+      }},linkIcon(l,P.floatSize),P.floatLabels&&h('span',{text:l.name}));
+    put(layer,a);
+  });
+}
+function dragFloat(e,l){
+  if(!editing||e.button)return;e.preventDefault();snap('float');
+  let moved=false;const x0=e.clientX,y0=e.clientY,first=l.fx==null;
+  const place=ev=>{l.fx=clamp(ev.clientX/innerWidth,.02,.98);l.fy=clamp(ev.clientY/innerHeight,.03,.97)};
+  const node=()=>$(`#float [data-id="${l.id}"]`);
+  const mv=ev=>{
+    if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<5)return;
+    if(!moved){moved=true;if(first){place(ev);redrawType('bookmarks')}}
+    place(ev);const n=node();if(n){n.style.left=l.fx*100+'%';n.style.top=l.fy*100+'%'}
+  };
+  const up=ev=>{
+    document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);
+    if(!moved)return;
+    /* dropped on the bookmarks widget: it goes back in */
+    if(document.elementsFromPoint(ev.clientX,ev.clientY).some(n=>n.closest&&n.closest('.w[data-type=bookmarks]'))){delete l.fx;delete l.fy}
+    save();redrawType('bookmarks');
+  };
+  document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+}
+/* while arranging, links are handles, not links */
+document.addEventListener('click',e=>{if(editing&&e.target.closest&&e.target.closest('#float .lk,.bm-pin .lk'))e.preventDefault()},true);
+
+/* ═════════ 13c. three.js backgrounds (the library is fetched only when one of these is selected) ═════════ */
+let threeP=null;
+function loadThree(){
+  if(window.THREE)return Promise.resolve();
+  return threeP||(threeP=new Promise((res,rej)=>{
+    const urls=['https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js','https://unpkg.com/three@0.160.0/build/three.min.js'];
+    const next=()=>{const u=urls.shift();if(!u){threeP=null;return rej(new Error('three.js could not be loaded'))}
+      const s=h('script',{src:u});s.onload=()=>window.THREE?res():next();s.onerror=()=>{s.remove();next()};document.head.append(s)};
+    next();
+  }));
+}
+const FLOW_FRAG=`precision mediump float;uniform float t;uniform vec2 r;uniform vec3 a,b,c;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,s=.5;for(int i=0;i<5;i++){v+=s*n(p);p=p*2.03+7.;s*=.5;}return v;}
+void main(){vec2 p=gl_FragCoord.xy/r.y*1.5;float q=fbm(p+vec2(t*.03,-t*.02));float w=fbm(p*1.3+q*2.2+vec2(-t*.02,t*.025));
+vec3 col=mix(a,b,smoothstep(.3,.9,w)*.6);col=mix(col,c,smoothstep(.5,.95,q*w*2.)*.16);gl_FragColor=vec4(col,1.);}`;
+const fx3={
+  ren:null,scene:null,cam:null,kind:'none',tok:0,raf:0,last:0,upd:null,base:null,look:null,mx:0,my:0,warned:false,flow:null,
+  async set(kind,col){
+    const cv=$('#fx3'),tok=++this.tok;cancelAnimationFrame(this.raf);this.raf=0;
+    if(!FX3.includes(kind)){this.kind='none';cv.hidden=true;this.clear();return}
+    try{await loadThree();if(tok!==this.tok)return;this.build(kind,col)}
+    catch(e){cv.hidden=true;this.kind='none';if(!this.warned){this.warned=true;toast(window.THREE?'This browser could not start WebGL, so the 3D background is off.':'The 3D background needs three.js from a CDN, which could not be reached. It will work once you are online.',{err:true,ms:8000})}return}
+    cv.hidden=false;this.kind=kind;this.size();this.frame(0,8);
+    if(!reducedMotion())this.raf=requestAnimationFrame(t=>this.loop(t));
+  },
+  clear(){if(!this.scene)return;this.scene.traverse(o=>{o.geometry&&o.geometry.dispose();o.material&&o.material.dispose()});this.scene=null;this.flow=null},
+  build(kind,col){
+    const T=THREE,cv=$('#fx3');
+    if(!this.ren){this.ren=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true,powerPreference:'low-power'});this.ren.setClearColor(0,0)}
+    this.clear();
+    const scene=this.scene=new T.Scene(),cam=this.cam=new T.PerspectiveCamera(60,1,1,5000),R=Math.random;
+    const ink=new T.Color(col.ink),ac=new T.Color(col.accent),dark=lum(col.bg)<.3,blend=dark?T.AdditiveBlending:T.NormalBlending;
+    this.look=new T.Vector3(0,0,0);this.upd=()=>{};
+    if(kind==='warp'){
+      const N=1600,pos=new Float32Array(N*3),geo=new T.BufferGeometry();
+      for(let i=0;i<N;i++){pos[i*3]=(R()-.5)*1800;pos[i*3+1]=(R()-.5)*1100;pos[i*3+2]=-R()*1600}
+      geo.setAttribute('position',new T.BufferAttribute(pos,3));
+      scene.add(new T.Points(geo,new T.PointsMaterial({color:ink,size:2.4,transparent:true,opacity:.85,depthWrite:false})));
+      cam.position.set(0,0,0);this.look.set(0,0,-800);
+      this.upd=(t,dt)=>{for(let i=0;i<N;i++){const k=i*3+2;pos[k]+=dt*(70+(i%9)*16);if(pos[k]>0)pos[k]=-1600}geo.attributes.position.needsUpdate=true};
+    }else if(kind==='galaxy'){
+      const N=7000,pos=new Float32Array(N*3),cl=new Float32Array(N*3),geo=new T.BufferGeometry(),c=new T.Color();
+      for(let i=0;i<N;i++){const r=Math.pow(R(),1.7)*560,a=(i%3)*2.094+r*.011+(R()-.5)*.55,sp=(1-r/560)*38+6;
+        pos[i*3]=Math.cos(a)*r+(R()-.5)*sp;pos[i*3+1]=(R()-.5)*sp*.8;pos[i*3+2]=Math.sin(a)*r+(R()-.5)*sp;
+        c.copy(ac).lerp(ink,Math.min(1,r/420+R()*.2));cl[i*3]=c.r;cl[i*3+1]=c.g;cl[i*3+2]=c.b}
+      geo.setAttribute('position',new T.BufferAttribute(pos,3));geo.setAttribute('color',new T.BufferAttribute(cl,3));
+      const pts=new T.Points(geo,new T.PointsMaterial({size:2.6,vertexColors:true,transparent:true,opacity:dark?.8:.6,blending:blend,depthWrite:false})),g=new T.Group();
+      g.add(pts);g.rotation.x=.62;g.rotation.z=.18;scene.add(g);cam.position.set(0,40,720);
+      this.upd=(t,dt)=>{pts.rotation.y+=dt*.035};
+    }else if(kind==='terrain'){
+      const geo=new T.PlaneGeometry(2600,1500,84,48),p=geo.attributes.position;
+      const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:ac,wireframe:true,transparent:true,opacity:dark?.3:.24}));
+      m.rotation.x=-Math.PI/2.3;m.position.y=-190;scene.add(m);cam.position.set(0,70,520);this.look.set(0,-70,0);
+      this.upd=t=>{for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i);p.setZ(i,Math.sin(x*.006+t*.35)*26+Math.sin(y*.009+t*.27)*30+Math.sin((x+y)*.004+t*.2)*18)}p.needsUpdate=true};
+    }else if(kind==='shapes'){
+      const gs=[new T.IcosahedronGeometry(42,0),new T.OctahedronGeometry(40,0),new T.TorusGeometry(32,11,7,14),new T.TetrahedronGeometry(46,0),new T.BoxGeometry(52,52,52)],list=[];
+      for(let i=0;i<18;i++){const o=new T.LineSegments(new T.EdgesGeometry(gs[i%gs.length]),new T.LineBasicMaterial({color:i%3?ink:ac,transparent:true,opacity:dark?.42:.34}));
+        o.position.set((R()-.5)*1500,(R()-.5)*820,-120-R()*640);o.scale.setScalar(.6+R()*1.3);o.userData={rx:(R()-.5)*.3,ry:(R()-.5)*.3,y:o.position.y,ph:R()*6.28,sp:.1+R()*.2};scene.add(o);list.push(o)}
+      gs.forEach(g=>g.dispose());cam.position.set(0,0,320);this.look.set(0,0,-400);
+      this.upd=(t,dt)=>list.forEach(o=>{o.rotation.x+=dt*o.userData.rx;o.rotation.y+=dt*o.userData.ry;o.position.y=o.userData.y+Math.sin(t*o.userData.sp+o.userData.ph)*36});
+    }else{
+      const u=this.flow={t:{value:0},r:{value:new T.Vector2(1,1)},a:{value:new T.Color(col.bg)},b:{value:ac},c:{value:ink}};
+      const m=new T.Mesh(new T.PlaneGeometry(2,2),new T.ShaderMaterial({uniforms:u,vertexShader:'void main(){gl_Position=vec4(position.xy,0.,1.);}',fragmentShader:FLOW_FRAG,depthTest:false}));
+      m.frustumCulled=false;scene.add(m);this.upd=t=>{u.t.value=t};
+    }
+    this.base=cam.position.clone();
+  },
+  size(){
+    if(!this.ren||!this.cam)return;this.ren.setPixelRatio(Math.min(devicePixelRatio||1,1.5));this.ren.setSize(innerWidth,innerHeight,false);
+    this.cam.aspect=innerWidth/innerHeight;this.cam.updateProjectionMatrix();
+    if(this.flow)this.ren.getDrawingBufferSize(this.flow.r.value);
+  },
+  frame(dt,t){
+    if(!this.scene)return;this.upd(t,dt);const c=this.cam,b=this.base;
+    c.position.x+=(b.x+this.mx*36-c.position.x)*.05;c.position.y+=(b.y-this.my*24-c.position.y)*.05;c.lookAt(this.look);
+    this.ren.render(this.scene,c);
+  },
+  loop(t){
+    this.raf=requestAnimationFrame(t=>this.loop(t));
+    if(document.hidden||t-this.last<32)return;const dt=Math.min(.1,(t-this.last)/1000);this.last=t;this.frame(dt,t/1000);
+  }
+};
+addEventListener('resize',debounce(()=>{if(fx3.kind!=='none'){fx3.size();fx3.frame(0,performance.now()/1000)}},200));
+addEventListener('pointermove',e=>{fx3.mx=e.clientX/innerWidth*2-1;fx3.my=e.clientY/innerHeight*2-1},{passive:true});
+
 /* ═════════ 14. settings ═════════ */
 let sTab='themes',sQuery='',previews=[];
 const TABS=[['themes','Themes'],['custom','Customise'],['layout','Layout'],['widgets','Widgets'],['search','Search'],['general','General'],['data','Backup and import'],['help','Help']];
@@ -1694,8 +1989,8 @@ const PANELS={
         liveOut(opt('Blur',null,{type:'range',min:0,max:30,step:1},bg.blur,v=>setLook({bg:{blur:v}})))],
       liveOut(opt('Wash','Fades the background towards the page colour so text stays readable.',{type:'range',min:0,max:.9,step:.05},bg.dim,v=>setLook({bg:{dim:v}}))),
       opt('Pattern',null,{type:'select',opts:[['none','None'],['grid','Grid'],['dots','Dots'],['ruled','Ruled paper']]},bg.pattern,v=>setLook({bg:{pattern:v}})),
-      opt('Live effect','Drawn on a canvas at a low frame rate. Stops while the tab is hidden and stays still if your system asks for reduced motion.',
-        {type:'select',opts:[['none','None'],['stars','Starfield'],['fireflies','Fireflies'],['rain','Rain'],['snow','Snow'],['aurora','Aurora'],['waves','Waves']]},bg.effect,v=>setLook({bg:{effect:v}}))]);
+      opt('Live effect','Runs at a capped frame rate, stops while the tab is hidden and stays still if your system asks for reduced motion. The 3D effects use three.js, which is downloaded only when one of them is chosen.',
+        {type:'select',opts:[['none','None'],['stars','Starfield'],['fireflies','Fireflies'],['rain','Rain'],['snow','Snow'],['aurora','Aurora'],['waves','Waves'],['warp','3D: Warp stars'],['galaxy','3D: Galaxy'],['terrain','3D: Wire terrain'],['shapes','3D: Drifting shapes'],['flow','3D: Flowing colour']]},bg.effect,v=>setLook({bg:{effect:v}}))]);
   },
   layout(b){
     const G=state.grid,ap=()=>applyTheme();
@@ -1767,6 +2062,10 @@ const PANELS={
       opt('Sound when a timer ends',null,{type:'check'},P.sound,v=>{P.sound=v}),
       row('Desktop notification when a timer ends',np==='granted'?'Allowed. Shown when this tab is in the background.':np==='denied'?'Blocked in the browser\'s site settings.':np==='unsupported'?'This browser does not support notifications.':'Asks the browser for permission.',
         np==='default'&&h('button',{class:'btn',type:'button',onclick(){Notification.requestPermission().then(()=>renderSettings(true))}},'Allow')),
+      head('Links placed on the screen','Any bookmark can leave the widget and sit anywhere on the screen. Press E, then drag a pinned icon out of the bookmarks widget, or tick “Place freely” when editing a link. Arrow keys move a focused icon; Delete returns it.'),
+      liveOut(opt('Icon size',null,{type:'range',min:20,max:120,step:2},P.floatSize,v=>{P.floatSize=v;renderFloat()})),
+      opt('Show names under the icons',null,{type:'check'},P.floatLabels,v=>{P.floatLabels=v;renderFloat()}),
+      row('Return every placed link to the bookmarks widget',null,h('button',{class:'btn',type:'button',onclick(){snap();allLinks().forEach(l=>{delete l.fx;delete l.fy});save();redrawType('bookmarks');toast('Links returned',{action:'Undo',fn:undo})}},'Return all')),
       head('Privacy and outside services','The page itself sends nothing. These options decide which outside sites are contacted for extras.'),
       opt('Site icons for bookmarks','“From each site” asks only the site you bookmarked. The icon service is more reliable but sees the site names.',
         {type:'select',opts:[['site','From each site'],['ddg','DuckDuckGo icon service'],['off','Letters only, no requests']]},P.favicons,v=>{P.favicons=v;renderGrid()}),
@@ -1775,7 +2074,7 @@ const PANELS={
   },
   data(b){managerPanel(b)},
   help(b){
-    const keys=[['/','Jump to the search box'],['E','Arrange widgets (edit layout)'],['A','Open the widget library'],[',','Open settings'],['1 to 9','Switch layout'],['Ctrl or ⌘ + Z','Undo the last change'],['Alt + ↑ ↓','In the search box: change engine'],['!key words','In the search box: search another engine once'],['Esc','Close a menu or dialog, leave edit mode'],['?','Open this page']];
+    const keys=[['/','Jump to the search box'],['E','Arrange widgets and placed links'],['A','Open the widget library'],[',','Open settings'],['1 to 9','Switch layout'],['Ctrl or ⌘ + Z','Undo the last change'],['Alt + ↑ ↓','In the search box: change engine'],['!key words','In the search box: search another engine once'],['Esc','Close a menu or dialog, leave edit mode'],['?','Open this page']];
     add(b,[head('Keyboard'),h('table',{class:'tbl'},h('tbody',{},keys.map(k=>h('tr',{},h('td',{style:{width:'11rem'}},h('kbd',{text:k[0]})),h('td',{text:k[1]}))))),
       head('Where your data lives'),
       h('p',{style:{maxWidth:'65ch',marginTop:'6px'}},'Everything you set up is stored by this browser, for this site address, on this device. There is no account and no server copy. That also means: clearing the browser\'s site data or cookies for this address erases it, private windows forget it when closed, and other browsers or devices do not see it. To move or protect a setup, export a file under Backup and import.'),
