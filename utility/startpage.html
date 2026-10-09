@@ -43,7 +43,8 @@
   --hover:color-mix(in srgb,var(--ink) 8%,transparent);
   --panel:color-mix(in srgb,var(--surface) calc(var(--alpha)*100%),transparent);
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;scrollbar-width:none}
+*::-webkit-scrollbar{display:none}   /* no scroll bars anywhere; wheel, touch and keys still scroll */
 html{font-size:calc(16px*var(--scale));overflow-x:clip}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:400 .9375rem/1.45 var(--font);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
@@ -170,6 +171,7 @@ dialog::backdrop{background:rgb(0 0 0/.38)}
 .fld>label,.fld>.lab{font-size:.8125rem;font-weight:600}
 .fld.inline{flex-direction:row;align-items:center;gap:8px}.fld.inline>label{font-weight:400;font-size:inherit}
 .fld .help{font-size:.78rem;color:var(--muted)}
+.dlg-top{border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
 .dlg-f{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
 .dlg-f .left{margin-right:auto}
 .alert{color:var(--danger);font-size:.875rem}
@@ -242,7 +244,7 @@ dialog::backdrop{background:rgb(0 0 0/.38)}
 .bm-links.tiles{display:flex;flex-wrap:wrap}
 .bm-links.manage{grid-template-columns:1fr}
 .bm-row{display:flex;align-items:center;gap:2px;min-width:0}.bm-row .lk{flex:1}
-.bm-foot{display:flex;gap:14px;margin-top:6px;opacity:0;transition:opacity .12s}
+.bm-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;opacity:0;transition:opacity .12s}
 .w:hover .bm-foot,.w:focus-within .bm-foot,.bm-foot.on{opacity:1}
 @media (hover:none){.bm-foot{opacity:1}}
 .addrow{display:flex;gap:6px;margin-bottom:8px}.addrow select,.addrow .btn{flex:none}.addrow input{flex:1}
@@ -284,7 +286,7 @@ dialog::backdrop{background:rgb(0 0 0/.38)}
 .news li{padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
 .news a{text-decoration:none}.news a:hover{text-decoration:underline}
 .embed{width:100%;border:1px solid var(--line);border-radius:var(--radius);background:#fff;display:block}
-.hab{display:grid;grid-template-columns:1fr repeat(7,22px) auto;gap:4px 3px;align-items:center}
+.hab{display:grid;grid-template-columns:1fr repeat(7,22px);gap:4px 3px;align-items:center}
 .hab .dh{font-size:.68rem;color:var(--muted);text-align:center}
 .hab button.d{width:22px;height:22px;border:1.5px solid var(--line);border-radius:4px;background:none;padding:0}
 .hab button.d[aria-pressed=true]{background:var(--accent);border-color:var(--accent)}
@@ -492,14 +494,14 @@ function control(f,val,onInput){
     value:val??'',oninput:fire,autocomplete:'off',spellcheck:t==='text'?null:'false'});
   return {id,el:c,read};
 }
-function formDialog({title,note,fields=[],values={},ok='Save',danger,onOk,validate,extra}){
+function formDialog({title,note,fields=[],values={},ok='Save',danger,onOk,validate,extra,top}){
   const ctl={},err=h('p',{class:'alert',role:'alert'});
   const d=h('dialog',{class:'dlg','aria-label':title});
   const form=h('form',{method:'dialog',onsubmit(e){
     e.preventDefault();const v={};for(const k in ctl)v[k]=ctl[k].read();
     const msg=validate&&validate(v);if(msg){err.textContent=msg;return}
     d.close();onOk&&onOk(v);
-  }},h('h2',{text:title}),note&&h('p',{class:'muted small',text:note}));
+  }},h('h2',{text:title}),note&&h('p',{class:'muted small',text:note}),top&&h('div',{class:'dlg-top'},top(d)));
   for(const f of fields){
     const c=ctl[f.k]=control(f,values[f.k]);
     put(form,h('div',{class:'fld'+(f.type==='check'?' inline':'')},
@@ -926,7 +928,8 @@ function renderBar(){
     ib('layout','Edit layout (E)',()=>setEditing(!editing),{'aria-pressed':String(editing)}),
     ib('sliders','Settings (,)',()=>openSettings()));
   const eb=$('#editbar');eb.hidden=!editing;
-  if(editing)eb.replaceChildren(h('span',{class:'small',text:'Drag the grip to move. Drag a corner to resize.'}),
+  if(editing)eb.replaceChildren(h('span',{class:'small',text:'Drag to move. Double-click empty space to add links.'}),
+    h('button',{class:'btn sm',type:'button',onclick:()=>addLinksDialog({float:true})},'Add links'),
     h('button',{class:'btn sm',type:'button',onclick:()=>openSettings('widgets')},'Add widget'),
     h('button',{class:'btn sm',type:'button',onclick:undo},'Undo'),
     h('button',{class:'btn sm primary',type:'button',onclick:()=>setEditing(false)},'Done'));
@@ -1047,13 +1050,14 @@ function configureWidget(inst){
       {k:'_w',label:'Width',type:'select',opts:Array.from({length:11},(_,n)=>[n+2,`${n+2} of 12 columns`])},
       {k:'_row',label:'Placement',type:'select',opts:[['','Share the row with other widgets'],['start','Own row, left'],['center','Own row, centred'],['end','Own row, right']]},
       {k:'_h',label:'Height in pixels (0 = automatic)',type:'number',min:0,max:1600,step:10}],
-    values:{...def.cfg,...inst.cfg,_title:inst.title,_w:inst.w,_row:inst.row,_h:inst.h},
+    values:{...def.cfg,...inst.cfg,...(def.values?def.values(inst):{}),_title:inst.title,_w:inst.w,_row:inst.row,_h:inst.h},
     validate:def.validate,
+    top:def.actions&&(d=>def.actions(inst,()=>d.close())),
     extra:()=>h('button',{type:'button',class:'link',onclick(e){snap();inst.cfg={};save();renderGrid();e.target.closest('dialog').close();toast('Widget settings reset')}},'Reset'),
     onOk(v){
       snap();inst.title=v._title.trim().slice(0,60);inst.w=clamp(+v._w,2,12);inst.row=v._row;inst.h=v._h?clamp(Math.round(v._h),80,1600):0;
-      for(const f of fields){if(v[f.k]==null)delete inst.cfg[f.k];else inst.cfg[f.k]=v[f.k]}
-      def.onConfig&&def.onConfig(inst);save();renderGrid();
+      for(const f of fields){if(f.data)continue;if(v[f.k]==null)delete inst.cfg[f.k];else inst.cfg[f.k]=v[f.k]}   // fields marked data:true belong to shared data and are handled by onConfig
+      def.onConfig&&def.onConfig(inst,v);save();renderGrid();
     }});
 }
 function addWidget(type){
@@ -1201,6 +1205,11 @@ reg('bookmarks',{name:'Bookmarks',desc:'Pinned links up top, the rest in groups 
     {k:'showPinned',label:'Show pinned links',type:'check'},{k:'showGroups',label:'Show groups',type:'check'},
     {k:'remember',label:'Remember which groups were open',type:'check',help:'Off: groups are folded each time the page loads.'},
     {k:'newTab',label:'Open links in a new tab',type:'check'}],
+  actions:(inst,close)=>h('div',{class:'flex wrap'},
+    h('button',{class:'btn',type:'button',onclick(){close();editLink(null)}},'Add a link'),
+    h('button',{class:'btn',type:'button',onclick(){close();addLinksDialog({})}},'Add several links'),
+    h('button',{class:'btn',type:'button',onclick(){close();editGroup(null)}},'Add a group'),
+    h('button',{class:'btn',type:'button',onclick(){close();bmManage.has(inst.id)?bmManage.delete(inst.id):bmManage.add(inst.id);renderGrid()}},bmManage.has(inst.id)?'Stop organising':'Organise links')),
   render(b,c,x){
     const B=state.data.bookmarks,id=x.inst.id,manage=bmManage.has(id),done=()=>{save();redrawType('bookmarks')};
     const isOpen=g=>c.remember?!!g.open:bmOpen.has(g.id);
@@ -1238,11 +1247,12 @@ reg('bookmarks',{name:'Bookmarks',desc:'Pinned links up top, the rest in groups 
       });
       put(b,wrap);
     }
-    if(!allLinks().length&&!B.groups.length)b.append(h('p',{class:'muted',text:'No bookmarks yet.'}));
-    put(b,h('div',{class:'bm-foot'+(manage||!allLinks().length?' on':'')},
+    if(!allLinks().length&&!manage)put(b,h('p',{class:'muted small',text:'No bookmarks yet. Open this widget\'s menu and choose Configure to add some.'}));
+    if(manage)put(b,h('div',{class:'bm-foot on'},
       h('button',{class:'link',type:'button',onclick:()=>editLink(null)},'Add link'),
-      manage&&h('button',{class:'link',type:'button',onclick:()=>editGroup(null)},'Add group'),
-      h('button',{class:'link',type:'button','aria-pressed':String(manage),onclick(){manage?bmManage.delete(id):bmManage.add(id);x.redraw()}},manage?'Done organising':'Organise')));
+      h('button',{class:'link',type:'button',onclick:()=>addLinksDialog({})},'Add several links'),
+      h('button',{class:'link',type:'button',onclick:()=>editGroup(null)},'Add group'),
+      h('button',{class:'link',type:'button',onclick(){bmManage.delete(id);x.redraw()}},'Done organising')));
   }});
 
 /* ── tasks ── */
@@ -1347,6 +1357,35 @@ reg('calendar',{name:'Calendar',desc:'A month view. Select a day to keep entries
     }
   }});
 
+/* Add many links at once: addresses separated by commas, spaces or new lines. With `float`, they are laid out on the screen from (fx, fy). */
+function siteName(u){const p=host(u).split('.');let n=p.length>2&&/^(co|com|org|net|gov|ac|edu)$/.test(p[p.length-2])?p[p.length-3]:p[p.length-2]||p[0];return n?n.charAt(0).toUpperCase()+n.slice(1):host(u)}
+function addLinksDialog({fx,fy,float}){
+  const B=state.data.bookmarks;if(!B.groups.length)B.groups.push({id:uid(),name:'Links',links:[]});
+  formDialog({title:'Add links',ok:'Add',
+    fields:[{k:'urls',label:'Site addresses',type:'textarea',rows:5,ph:'github.com, youtube.com, mail.google.com',help:'One or many. Separate them with commas, spaces or new lines. Names are taken from the addresses and can be edited later.'},
+      {k:'group',label:'Keep them in group',type:'select',opts:B.groups.map(g=>[g.id,g.name])},
+      {k:'float',label:'Place them freely on the screen',type:'check',help:'They appear in a row; press E and drag each one where you want it.'},
+      {k:'pinned',label:'Pin them above the groups',type:'check'}],
+    values:{urls:'',group:B.groups[0].id,float:!!float,pinned:false},
+    validate:v=>v.urls.split(/[\s,;]+/).some(u=>fixUrl(u))?'':'Enter at least one web address, for example github.com.',
+    onOk(v){
+      snap();const g=B.groups.find(x=>x.id===v.group)||B.groups[0],bad=[],have=new Set(allLinks().map(l=>l.url)),fresh=[];let dup=0;
+      [...new Set(v.urls.split(/[\s,;]+/).filter(Boolean))].forEach(raw=>{const url=fixUrl(raw);if(!url||!host(url).includes('.')){bad.push(raw);return}if(have.has(url)){dup++;return}have.add(url);fresh.push({id:uid(),name:siteName(url),url,icon:'',pinned:v.pinned})});
+      if(v.float&&fresh.length){
+        const sx=(state.prefs.floatSize+56)/innerWidth,sy=(state.prefs.floatSize+52)/innerHeight,cols=Math.max(1,Math.min(fresh.length,Math.floor(.9/sx)));
+        const x0=fx!=null?fx:.5-(cols-1)*sx/2,y0=fy!=null?fy:.5,per=fx!=null?Math.max(1,Math.min(cols,Math.floor((.97-x0)/sx)+1)):cols;
+        fresh.forEach((l,i)=>{l.fx=clamp(x0+(i%per)*sx,.02,.98);l.fy=clamp(y0+Math.floor(i/per)*sy,.03,.97)});
+      }
+      g.links.push(...fresh);save();redrawType('bookmarks');redrawType('search');
+      toast(`Added ${fresh.length} ${fresh.length===1?'link':'links'}`+(dup?`, ${dup} already saved`:'')+(bad.length?`. Not valid addresses: ${bad.slice(0,4).join(', ')}`:''),{action:fresh.length?'Undo':null,fn:undo,ms:7000,err:!!bad.length&&!fresh.length});
+    }});
+}
+/* while arranging: double-click empty space to add links at that spot */
+document.addEventListener('dblclick',e=>{
+  if(!editing||e.target.closest('.w,#float .fl,#editbar,#bar,dialog,.menu,#toasts'))return;
+  addLinksDialog({fx:clamp(e.clientX/innerWidth,.03,.97),fy:clamp(e.clientY/innerHeight,.04,.96),float:true});
+});
+
 /* ═════════ 11. widgets: countdowns, timer, stopwatch, pomodoro, world clocks ═════════ */
 /* Countdowns keep a target instant (epoch ms). What is shown is always target minus now, so sleep, reloads and throttled tabs cannot make it drift. */
 function nextOccurrence(cd,now){
@@ -1372,7 +1411,15 @@ function editCountdown(cd){
     values:{...base,when:epochToWall(base.at,base.tz)},
     validate:v=>!validTz(v.tz||'local')?'That time zone is not recognised.':isNaN(wallToEpoch(v.when,v.tz||'local'))?'Choose a date and time.':'',
     onOk(v){snap();const tz=v.tz.trim()||'local',o={label:v.label.trim().slice(0,80)||'Countdown',at:wallToEpoch(v.when,tz),tz,repeat:v.repeat};
-      cd?Object.assign(cd,o):C.push({id:uid(),...o});save();redrawType('countdown')}});
+      cd?Object.assign(cd,o):C.push({id:uid(),...o});save();redrawType('countdown');redrawType('hero')}});
+}
+function cdManager(close){
+  const C=state.data.countdowns,ul=h('ul',{class:'list'});
+  const draw=()=>{ul.replaceChildren();C.forEach(cd=>put(ul,h('li',{},h('span',{class:'grow'},h('strong',{text:cd.label}),h('span',{class:'small muted',style:{display:'block'},text:fmtDate(new Date(cd.at),'full',cd.tz)+', '+fmtTime(new Date(cd.at),{tz:cd.tz})+(cd.repeat?', repeats':'')})),
+      ib('pencil','Edit '+cd.label,()=>{close();editCountdown(cd)}),ib('trash','Delete '+cd.label,()=>{snap();C.splice(C.indexOf(cd),1);save();redrawType('countdown');redrawType('hero');draw()}))));
+    if(!C.length)put(ul,h('li',{class:'muted small',text:'No dates yet.'}))};
+  draw();
+  return [h('div',{class:'lab',style:{fontWeight:600,fontSize:'.8125rem'},text:'Dates to count down to'}),ul,h('button',{class:'btn',type:'button',style:{marginTop:'6px'},onclick(){close();editCountdown(null)}},'Add a date')];
 }
 reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any number of dates.',cat:'Time',w:4,
   cfg:{style:'digits',format:'full',size:1,order:'soonest',past:'since'},
@@ -1380,6 +1427,7 @@ reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any
     {k:'size',label:'Number size',type:'range',min:.6,max:2.2,step:.1},
     {k:'order',label:'Order',type:'select',opts:[['soonest','Soonest first'],['added','As added']]},
     {k:'past',label:'When a date has passed',type:'select',opts:[['since','Count up from it'],['done','Show “Reached”'],['hide','Hide it']]}],
+  actions:(inst,close)=>cdManager(close),
   render(b,c,x){
     const C=state.data.countdowns,rows=[];
     const box=h('div',{style:{'--cds':c.size}});put(b,box);
@@ -1392,10 +1440,9 @@ reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any
       if(rows.length!==list.length||list.some((o,i)=>rows[i].cd!==o.cd)){
         box.replaceChildren();rows.length=0;
         list.forEach(o=>{const v=h('div',{class:'cd-v',role:'timer'}),sub=h('div',{class:'small muted'});
-          put(box,h('div',{class:'cd'},h('div',{class:'flex'},h('strong',{class:'grow ell',text:o.cd.label}),h('span',{class:'w-a'},ib('pencil','Edit '+o.cd.label,()=>editCountdown(o.cd)),
-            ib('trash','Delete '+o.cd.label,()=>{snap();C.splice(C.indexOf(o.cd),1);save();redrawType('countdown');toast('Countdown deleted',{action:'Undo',fn:undo})}))),v,sub));
+          put(box,h('div',{class:'cd'},h('strong',{class:'ell',style:{display:'block'},text:o.cd.label}),v,sub));
           rows.push({cd:o.cd,v,sub})});
-        if(!list.length)box.append(h('p',{class:'muted small',text:C.length?'Every date has passed.':'No countdowns yet.'}));
+        if(!list.length)box.append(h('p',{class:'muted small',text:C.length?'Every date has passed.':'No dates yet. Open this widget\'s menu and choose Configure to add one.'}));
       }
       list.forEach((o,i)=>{
         const r=rows[i],diff=o.t-now,past=diff<=0,s=Math.floor(Math.abs(diff)/1000),d=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60;
@@ -1408,7 +1455,6 @@ reg('countdown',{name:'Countdowns',desc:'Days, hours, minutes and seconds to any
       });
     };
     paint();x.tick(paint);
-    put(b,h('button',{class:'link',type:'button',style:{marginTop:'6px'},onclick:()=>editCountdown(null)},'Add countdown'));
   }});
 
 const runBtns=(running,onToggle,onReset,extra)=>h('div',{class:'flex wrap'},
@@ -1421,7 +1467,9 @@ function parseDur(str){
 }
 reg('timer',{name:'Timer',desc:'Counts down a set length and sounds when it ends, even after a reload.',cat:'Time',w:3,
   cfg:{presets:'1, 5, 10, 25'},
-  fields:[{k:'presets',label:'Preset lengths in minutes',help:'Separate with commas, for example 1, 5, 10, 25.'}],
+  fields:[{k:'presets',label:'Preset lengths in minutes',help:'Separate with commas, for example 1, 5, 10, 25.'},{k:'label',label:'Label shown above the timer and in the alert',data:true}],
+  values:()=>({label:state.data.timer.label}),
+  onConfig(inst,v){state.data.timer.label=String(v.label||'').trim().slice(0,60)},
   render(b,c,x){
     const T=state.data.timer,out=h('div',{class:'big',role:'timer'}),bar=h('i'),done=()=>{save();redrawType('timer')};
     const left=()=>T.running?Math.max(0,T.endAt-Date.now()):T.left;
@@ -1437,8 +1485,7 @@ reg('timer',{name:'Timer',desc:'Counts down a set length and sounds when it ends
       h('div',{class:'flex wrap',style:{marginTop:'10px'}},
         String(c.presets).split(',').map(s=>parseFloat(s)).filter(n=>n>0&&n<=1440).slice(0,8).map(n=>h('button',{class:'btn sm',type:'button',onclick:()=>setDur(n*60000)},n+' min'))),
       h('form',{class:'flex',style:{marginTop:'8px'},onsubmit(e){e.preventDefault();const ms=parseDur(custom.value);
-        if(!(ms>=1000&&ms<=864e5)){toast('Enter a length such as 12:30 or 15 (minutes), up to 24 hours.',{err:true});return}setDur(ms)}},custom,h('button',{class:'btn sm',type:'submit'},'Set')),
-      h('button',{class:'link',type:'button',style:{marginTop:'8px'},onclick:()=>formDialog({title:'Timer label',fields:[{k:'label',label:'Shown above the timer and in the alert'}],values:T,onOk(v){T.label=v.label.trim().slice(0,60);done()}})},T.label?'Change label':'Add a label'));
+        if(!(ms>=1000&&ms<=864e5)){toast('Enter a length such as 12:30 or 15 (minutes), up to 24 hours.',{err:true});return}setDur(ms)}},custom,h('button',{class:'btn sm',type:'submit'},'Set')));
     paint();x.tick(paint);
   }});
 
@@ -1458,6 +1505,11 @@ reg('stopwatch',{name:'Stopwatch',desc:'Counts up, with laps. Keeps running acro
   }});
 
 reg('pomodoro',{name:'Focus timer',desc:'Work sessions and breaks in a repeating cycle.',cat:'Productivity',w:3,
+  fields:[{k:'focus',label:'Focus, minutes',type:'number',min:1,max:180,data:true},{k:'short',label:'Short break, minutes',type:'number',min:1,max:60,data:true},{k:'long',label:'Long break, minutes',type:'number',min:1,max:120,data:true},
+    {k:'every',label:'Long break after this many focus sessions',type:'number',min:2,max:12,data:true},{k:'auto',label:'Start the next phase automatically',type:'check',data:true},{k:'zero',label:'Set the finished-session count back to 0',type:'check',data:true}],
+  values:()=>({...state.data.pomo,zero:false}),
+  validate:v=>['focus','short','long','every'].some(k=>!(v[k]>=1))?'Every length needs a number of 1 or more.':'',
+  onConfig(inst,v){const P=state.data.pomo,ch=['focus','short','long'].some(k=>P[k]!==v[k]);Object.assign(P,CLEAN.pomo({...P,focus:v.focus,short:v.short,long:v.long,every:v.every,auto:v.auto,n:v.zero?0:P.n}));if(ch){P.running=false;P.endAt=0;P.left=P[P.phase]*60000}},
   render(b,c,x){
     const P=state.data.pomo,out=h('div',{class:'big',role:'timer'}),bar=h('i'),done=()=>{save();redrawType('pomodoro')};
     const names={focus:'Focus',short:'Short break',long:'Long break'},left=()=>P.running?Math.max(0,P.endAt-Date.now()):P.left;
@@ -1467,12 +1519,7 @@ reg('pomodoro',{name:'Focus timer',desc:'Work sessions and breaks in a repeating
       out,h('div',{class:'bar',style:{marginBottom:'10px'}},bar),
       runBtns(P.running,()=>{if(P.running){P.left=left();P.running=false;P.endAt=0}else{if(P.left<=0)P.left=P[P.phase]*60000;P.endAt=Date.now()+P.left;P.running=true;try{actx&&actx.resume()}catch(e){}}done()},
         ()=>setPhase(P.phase),h('button',{class:'btn',type:'button',onclick(){pomoNext(P,Date.now());P.running=false;P.endAt=0;done()}},'Skip')),
-      h('p',{class:'small muted',style:{marginTop:'8px'}},`${P.n} focus ${P.n===1?'session':'sessions'} done. `,
-        h('button',{class:'link',type:'button',onclick:()=>formDialog({title:'Focus timer lengths',
-          fields:[{k:'focus',label:'Focus, minutes',type:'number',min:1,max:180},{k:'short',label:'Short break, minutes',type:'number',min:1,max:60},{k:'long',label:'Long break, minutes',type:'number',min:1,max:120},
-            {k:'every',label:'Long break after this many focus sessions',type:'number',min:2,max:12},{k:'auto',label:'Start the next phase automatically',type:'check'},{k:'zero',label:'Set the finished-session count back to 0',type:'check'}],
-          values:P,validate:v=>['focus','short','long','every'].some(k=>!(v[k]>=1))?'Every length needs a number of 1 or more.':'',
-          onOk(v){Object.assign(P,CLEAN.pomo({...P,...v,n:v.zero?0:P.n,running:false,endAt:0,left:undefined}));P.left=P[P.phase]*60000;done()}})},'Change lengths')));
+      h('p',{class:'small muted',style:{marginTop:'8px'},text:`${P.n} focus ${P.n===1?'session':'sessions'} done.`}));
     paint();x.tick(paint);
   }});
 
@@ -1528,10 +1575,11 @@ function pickPlace(inst){
 reg('weather',{name:'Weather',desc:'Current conditions and a short forecast from Open-Meteo. No key needed.',cat:'Information',net:'open-meteo.com',w:4,
   cfg:{place:'',lat:null,lon:null,unit:'c',days:4},
   fields:[{k:'unit',label:'Units',type:'select',opts:[['c','Celsius, km/h'],['f','Fahrenheit, mph']]},{k:'days',label:'Forecast days',type:'number',min:0,max:7}],
+  actions:(inst,close)=>h('div',{class:'flex wrap'},h('span',{class:'grow',text:inst.cfg.place?'Place: '+inst.cfg.place:'No place chosen yet'}),h('button',{class:'btn',type:'button',onclick(){close();pickPlace(inst)}},inst.cfg.place?'Change place':'Choose a place')),
   render(b,c,x){
-    const box=h('div'),change=h('button',{class:'link',type:'button',onclick:()=>pickPlace(x.inst)},c.place?'Change place':'Choose a place');
-    if(c.lat==null){put(b,h('p',{class:'muted small',style:{marginBottom:'6px'},text:'Weather needs a place. Nothing is requested until you choose one.'}),change);return}
-    put(b,box,change);
+    const box=h('div');
+    if(c.lat==null){put(b,h('p',{class:'muted small',text:'Weather needs a place. Open this widget\'s menu and choose Configure. Nothing is requested until then.'}));return}
+    put(b,box);
     const F=c.unit==='f',days=clamp(c.days|0,0,7);
     netLoad(x,box,`wx:${c.lat},${c.lon},${c.unit}`,30*60000,
       ()=>getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7${F?'&temperature_unit=fahrenheit&wind_speed_unit=mph':''}`),
@@ -1579,18 +1627,19 @@ reg('embed',{name:'Embedded page',desc:'Shows another page in a frame. Many site
 
 /* ═════════ 13. widgets: habits, calculator, progress, random ═════════ */
 reg('habits',{name:'Habits',desc:'Tick off daily habits and watch the streak.',cat:'Productivity',w:4,
+  fields:[{k:'names',label:'Habits, one per line',type:'textarea',rows:5,data:true,help:'Remove a line to delete that habit and its history.'}],
+  values:()=>({names:state.data.habits.map(x=>x.name).join('\n')}),
+  onConfig(inst,v){const old=state.data.habits,seen=new Set();state.data.habits=String(v.names||'').split('\n').map(s=>s.trim().slice(0,60)).filter(n=>n&&!seen.has(n.toLowerCase())&&seen.add(n.toLowerCase())).slice(0,40)
+    .map(n=>old.find(o=>o.name.toLowerCase()===n.toLowerCase())||{id:uid(),name:n,log:{}})},
   render(b,c,x){
     const H=state.data.habits,done=()=>{save();redrawType('habits')},days=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return d});
     const streak=hb=>{let n=0;const d=new Date();if(!hb.log[ymd(d)])d.setDate(d.getDate()-1);while(hb.log[ymd(d)]){n++;d.setDate(d.getDate()-1)}return n};
-    const inp=h('input',{class:'in','aria-label':'New habit',placeholder:'Add a habit',maxlength:60});
     if(H.length){
-      const g=h('div',{class:'hab',role:'table','aria-label':'Last seven days'},h('span'),days.map(d=>h('span',{class:'dh',text:dtf({weekday:'narrow'}).format(d)})),h('span'));
+      const g=h('div',{class:'hab',role:'table','aria-label':'Last seven days'},h('span'),days.map(d=>h('span',{class:'dh',text:dtf({weekday:'narrow'}).format(d)})));
       H.forEach((hb,i)=>put(g,h('span',{class:'ell'},hb.name,' ',h('span',{class:'small muted',text:streak(hb)?streak(hb)+'d':''})),
-        days.map((d,j)=>{const k=ymd(d);return h('button',{type:'button',class:'d'+(j===6?' t':''),'aria-pressed':String(!!hb.log[k]),'aria-label':`${hb.name}, ${fmtDate(d,'long')}`,onclick(){hb.log[k]?delete hb.log[k]:hb.log[k]=1;done()}})}),
-        ib('trash','Delete habit '+hb.name,()=>{snap();H.splice(i,1);done();toast('Habit deleted',{action:'Undo',fn:undo})})));
+        days.map((d,j)=>{const k=ymd(d);return h('button',{type:'button',class:'d'+(j===6?' t':''),'aria-pressed':String(!!hb.log[k]),'aria-label':`${hb.name}, ${fmtDate(d,'long')}`,onclick(){hb.log[k]?delete hb.log[k]:hb.log[k]=1;done()}})})));
       put(b,g);
-    }else put(b,h('p',{class:'muted small',style:{marginBottom:'8px'},text:'No habits yet.'}));
-    put(b,h('form',{class:'addrow',style:{marginTop:'10px',marginBottom:0},onsubmit(e){e.preventDefault();const n=inp.value.trim();if(!n)return;H.push({id:uid(),name:n,log:{}});done()}},inp,h('button',{class:'btn',type:'submit'},'Add')));
+    }else put(b,h('p',{class:'muted small',text:'No habits yet. Open this widget\'s menu and choose Configure to list them.'}));
   }});
 
 /* A small recursive-descent parser. It never calls eval. */
@@ -1715,7 +1764,7 @@ reg('hero',{name:'Big display',desc:'A clock, countdown, timer, stopwatch or foc
   cfg:{source:'countdown',cd:'',style:'flip',fill:92,bleed:true,tall:false,seconds:true,format:'auto',caption:true,controls:true,h12:'auto',tz:'local'},
   fields:()=>[
     {k:'source',label:'Show',type:'select',opts:[['clock','Clock'],['countdown','Countdown to a date'],['timer','Timer'],['stopwatch','Stopwatch'],['pomodoro','Focus timer']]},
-    {k:'cd',label:'Which countdown',type:'select',opts:[['','The soonest one'],...state.data.countdowns.map(c=>[c.id,c.label])],help:'Add or edit countdowns with the button under the display.'},
+    {k:'cd',label:'Which countdown',type:'select',opts:[['','The soonest one'],...state.data.countdowns.map(c=>[c.id,c.label])],help:'Dates are added and edited in the list above.'},
     {k:'style',label:'Style',type:'select',opts:[['flip','Flip clock'],['digits','Plain digits']]},
     {k:'fill',label:'Size: share of the width to fill, in percent',type:'range',min:20,max:100,step:2},
     {k:'bleed',label:'Stretch across the whole screen width',type:'check'},
@@ -1727,6 +1776,7 @@ reg('hero',{name:'Big display',desc:'A clock, countdown, timer, stopwatch or foc
     {k:'caption',label:'Show the label and date lines',type:'check'},
     {k:'controls',label:'Show start, pause and reset buttons',type:'check'}],
   validate:tzCheck,
+  actions:(inst,close)=>cdManager(close),
   render(b,c,x){
     tzDatalist();
     const wEl=b.closest('.w');if(wEl)wEl.toggleAttribute('data-bleed',!!c.bleed&&!wEl.closest('.pv'));
@@ -1741,14 +1791,13 @@ reg('hero',{name:'Big display',desc:'A clock, countdown, timer, stopwatch or foc
         onOk(v){state.data.timer.label=v.label.trim().slice(0,60);timerSet(parseDur(v.len))}})))}
     else if(src==='stopwatch'){run=B('',swToggle,true);isRunning=()=>state.data.stopwatch.running;put(ctl,run,B('Reset',swReset))}
     else if(src==='pomodoro'){run=B('',pomoToggle,true);isRunning=()=>state.data.pomo.running;put(ctl,run,B('Reset',pomoReset),B('Skip',()=>{const P=state.data.pomo;pomoNext(P,Date.now());P.running=false;P.endAt=0;also('pomodoro','hero')}))}
-    else if(src==='countdown')put(ctl,B(state.data.countdowns.length?'Add another date':'Set a date to count down to',()=>editCountdown(null)));
-    ctl.hidden=!c.controls&&!(src==='countdown'&&!state.data.countdowns.length);cap.hidden=sub.hidden=!c.caption;
+    ctl.hidden=!c.controls||!run;cap.hidden=sub.hidden=!c.caption&&!(src==='countdown'&&!state.data.countdowns.length);
     const paint=()=>{
       const now=Date.now();let parts,ct='',st='';
       if(src==='clock'){const n=new Date(now);parts=clockParts(n,{h12,sec:c.seconds,tz:c.tz});st=fmtDate(n,'full',c.tz)+(c.tz&&c.tz!=='local'?', '+c.tz:'')}
       else if(src==='countdown'){
         const C=state.data.countdowns,list=C.map(cd=>({cd,t:nextOccurrence(cd,now)})),pick=list.find(o=>o.cd.id===c.cd)||list.filter(o=>o.t>now).sort((a,z)=>a.t-z.t)[0]||list.sort((a,z)=>z.t-a.t)[0];
-        if(!pick){parts=cdParts(0,'full');ct='No countdown yet'}
+        if(!pick){parts=cdParts(0,'full');ct='No date set';st='Open this widget\'s menu and choose Configure to add one.'}
         else{const diff=pick.t-now,fm=c.format==='auto'?(Math.abs(diff)>=864e5?'full':'hms'):c.format;parts=cdParts(diff,fm,diff<=0);ct=pick.cd.label;
           st=(diff<=0?'since ':'until ')+fmtDate(new Date(pick.t),'full',pick.cd.tz)+', '+fmtTime(new Date(pick.t),{tz:pick.cd.tz})+(pick.cd.tz!=='local'?' ('+pick.cd.tz+')':'')}
       }
