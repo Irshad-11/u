@@ -13,5 +13,10 @@
     "title": "Start Page",
     "description": "Browser Start Page",
     "link": "startpage.html"
-  }
+  },
+  {
+    "title": "Dashboard Scholarship",
+    "description": "Funded Scholarship",
+    "link": "scholarship-dash.html"
+  },
 ]
