@@ -18,5 +18,10 @@
     "title": "Dashboard Scholarship",
     "description": "Funded Scholarship",
     "link": "scholarship-dash.html"
+  },
+  {
+    "title": "Open Challenge Hub",
+    "description": "All in One LIVE Dashboard - Events, Opportunities, Hackathon",
+    "link": "open-challenge-hub.html"
   }
 ]
