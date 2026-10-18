@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<!--
+  ╔════════════════════════════════════════════════════════════════════════════╗
+  ║  OPEN CHALLENGE HUB                                                        ║
+  ║  A static dashboard: nothing is saved in your browser (no localStorage).   ║
+  ╠════════════════════════════════════════════════════════════════════════════╣
+  ║  WHERE YOUR DATA LIVES                                                     ║
+  ║    1. Block "your-data"       CONFIG, MY_EVENTS, TRACKER   (edit me)       ║
+  ║    2. Block "curated-events"  EVENTS, reviewed 18 Oct 2026 (edit me)       ║
+  ║                                                                            ║
+  ║  TO ADD AN EVENT                                                           ║
+  ║    a. Open the page and scroll to “Add an event” (or use the header button)║
+  ║    b. Fill the form. A ready-to-paste line appears on the right.           ║
+  ║    c. Copy it and paste it inside MY_EVENTS below. Save. Refresh.          ║
+  ║                                                                            ║
+  ║  TO CHANGE A STATUS (interested, applied, ...)  edit TRACKER below.        ║
+  ║  The page can also generate the TRACKER text for you after you click.      ║
+  ╚════════════════════════════════════════════════════════════════════════════╝
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Open Challenge Hub: hackathons, competitions, challenges and opportunities</title>
+
+<script>
+/* Collects script errors so the page can tell you if a data edit has a typo. */
+window.__scriptErrors = [];
+window.addEventListener("error", function (e) {
+  window.__scriptErrors.push((e.message || "Script error") + (e.lineno ? " (line " + e.lineno + ")" : ""));
+});
+</script>
+
+<script id="your-data">
+/* =============================================================================
+   YOUR DATA  (static, edit freely)
+   ========================================================================== */
+
+const CONFIG = {
+  // The date you last checked the facts in this file (YYYY-MM-DD). Shown in the
+  // header. If it is older than staleAfterDays the page shows a warning.
+  dataReviewed: "2026-10-18",
+  staleAfterDays: 30,
+
+  // Default theme when the page opens: "auto" (follow the device), "light" or "dark".
+  // The header switch changes it only for the current visit (nothing is stored).
+  defaultTheme: "auto",
+
+  // Optional live check: the page can try to read the official pages and compare
+  // dates. Browsers block most cross-site reads, so public readers are tried in
+  // turn. For better results run the small proxy shown in the “Live check” help
+  // and paste its address below, for example "http://localhost:8787/?url=".
+  liveCheck: {
+    autoRunOnLoad: false,
+    timeoutSeconds: 15,
+    proxy: ""
+  }
+};
+
+/* Events you add. Paste lines from the “Add an event” form here, one per line,
+   each ending with a comma. Delete the // in front of the example to try it. */
+const MY_EVENTS = [
+  // {"id":"my-first-event","name":"My first event","type":"hackathon","links":{"official":"https://example.com"},"deadline":"2026-12-01"},
+];
+
+/* Your own status for an event. Allowed values:
+   interested | applying | applied | submitted | skipped
+   Example:  "nasa-space-apps-2026": "interested",                          */
+const TRACKER = {
+  // "nasa-space-apps-2026": "interested",
+};
+</script>
+<script id="curated-events">
+/* =============================================================================
+   CURATED EVENTS  (reviewed 18 Oct 2026, edit or delete anything you like)
+   -----------------------------------------------------------------------------
+   Fields (only id, name and type are required):
+     id          unique, lowercase letters, numbers and dashes
+     type        hackathon | competition | challenge | opportunity
+     bd          yes | check | no   Can people in Bangladesh take part?
+     opens       when applications open       "YYYY-MM-DD" or ISO date-time
+     deadline    the date to act by           "YYYY-MM-DD" or ISO date-time
+                 (a date-time without an offset is read in the viewer’s time zone)
+     rolling     true for platforms that are always open
+     ended       "YYYY-MM-DD" for one-off events that have already happened
+     next        { label, date, precision: "day"|"month", confidence: "confirmed"|"estimated"|"unknown", note }
+     milestones  [ { date, label, kind: open|deadline|release|event|result|other, approx } ]
+     challenges  [ { title, level, desc, url } ]
+     live        [ { url, defaultYear, table, challengeLink, exclude, follow } ] for the optional live check
+   ========================================================================== */
+const EVENTS = [
+
+/* ─────────────────────────────── HACKATHONS ─────────────────────────────── */
+{
+  id: "nasa-space-apps-2026",
+  name: "NASA Space Apps Challenge 2026",
+  org: "NASA and 17 partner space agencies",
+  type: "hackathon", kind: "Global 48-hour hackathon", mode: "hybrid", region: "Global", bd: "yes",
+  topics: ["space", "open data", "earth science"],
+  summary: "Pick one of 14 NASA challenges and build a solution with open data over a 48-hour weekend.",
+  eligibility: "All ages, free. Teams of up to 6. Join a local event or the virtual Universal Event.",
+  bdNote: "BASIS runs the Bangladesh edition in nine cities; division winners go on to national and global rounds.",
+  prize: "Global awards and NASA recognition",
+  links: { official: "https://www.spaceappschallenge.org/2026/", apply: "https://www.spaceappschallenge.org/2026/", list: "https://www.spaceappschallenge.org/2026/" },
+  opens: "2026-08-26", deadline: "2026-11-15T23:59:00",
+  deadlineNote: "Registration and project submission both close at 23:59 local time on 15 Nov.",
+  next: { label: "Space Apps 2027 registration", date: "2027-08-26", precision: "month", confidence: "estimated", note: "2026 registration opened on 26 Aug. The 2027 date has not been announced." },
+  milestones: [
+    { date: "2026-08-26", label: "Registration and local event selection open", kind: "open" },
+    { date: "2026-09-17", label: "Challenge summaries released, team forming starts", kind: "release" },
+    { date: "2026-10-28", label: "Full challenge statements and datasets released", kind: "release" },
+    { date: "2026-11-02", label: "Space Apps Connect opens", kind: "release" },
+    { date: "2026-11-14", label: "Hackathon begins, submission opens at 09:00 local time", kind: "event" },
+    { date: "2026-11-15T23:59:00", label: "Registration and project submission close", kind: "deadline" },
+    { date: "2026-11-16", label: "Judging begins", kind: "result" },
+    { date: "2026-11-30", label: "Participant survey due", kind: "other" }
+  ],
+  challengesNote: "14 challenges in total. These are the ones named publicly so far; full statements arrive on 28 Oct.",
+  challenges: [
+    { title: "Space Mission Design Game", level: "beginner to intermediate", desc: "A game where users plan and run their own space mission" },
+    { title: "The Earth Information Jukebox", level: "beginner to intermediate", desc: "Turn NASA Earth data and imagery into sound" },
+    { title: "Interplanetary Survival Guide: Martian Map", level: "beginner to intermediate", desc: "An interactive map for getting around Mars" },
+    { title: "Be an Earth System Trend Detective", level: "intermediate to advanced", desc: "Find environmental change in NASA datasets" },
+    { title: "Dancing with the SARs", level: "intermediate to advanced", desc: "Track changes on the ground with NISAR radar data" },
+    { title: "CLPS Lunar Mission Browser", level: "intermediate to advanced", desc: "Compare lunar landing sites and time windows" },
+    { title: "(Title not yet public) Astronaut health monitoring app", desc: "Track physical and behavioural signals during a mission" },
+    { title: "(Title not yet public) Kids’ Moon or Mars base management game" },
+    { title: "(Title not yet public) Documenting equipment left on the Moon and Mars" }
+  ],
+  live: [
+    { url: "https://www.spaceappschallenge.org/resources/participant-faqs/", defaultYear: 2026 },
+    { url: "https://www.spaceappschallenge.org/2026/", defaultYear: 2026, challengeLink: "/challenges/[^/?#]+", follow: "/2026/challenges/?$" }
+  ],
+  sources: [
+    { label: "NASA Space Apps 2026 (official)", url: "https://www.spaceappschallenge.org/2026/" },
+    { label: "Participant FAQ", url: "https://www.spaceappschallenge.org/resources/participant-faqs/" },
+    { label: "The Recursive: the 14 challenges", url: "https://www.therecursive.com/nasa-space-apps-challenge-2026-where-to-join-it-in-cee/" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "basis-nsac-bd",
+  name: "BASIS NASA Space Apps Bangladesh",
+  org: "BASIS and BASIS Students Forum",
+  type: "hackathon", kind: "Bangladesh edition of NASA Space Apps", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["space", "open data"],
+  summary: "Local hackathons in nine cities (Dhaka, Chattogram, Sylhet, Rajshahi, Khulna, Barishal, Rangpur, Mymensingh, Cumilla). Division winners advance nationally; 27 Bangladeshi teams went to NASA in 2024.",
+  eligibility: "Students and young people in Bangladesh. The 2026 local rules and dates were not found.",
+  links: { official: "https://nsac.basis.org.bd/", apply: "https://nsac.basis.org.bd/", list: "https://www.spaceappschallenge.org/2026/" },
+  next: { label: "BASIS local registration", confidence: "unknown", note: "In 2025 BASIS announced it on 20 Feb. Check their site and Facebook page." },
+  milestones: [{ date: "2025-02-20", label: "2025: BASIS press conference and registration link", kind: "other" }],
+  challengesNote: "Challenges come from the NASA list. See the NASA Space Apps row.",
+  live: [{ url: "https://nsac.basis.org.bd/", defaultYear: 2026 }],
+  sources: [
+    { label: "TBS: BASIS 2025 announcement", url: "https://www.tbsnews.net/node/1073796" },
+    { label: "TBS: 2024 Bangladesh results", url: "https://www.tbsnews.net/bangladesh/27-bangladesh-teams-vie-nasa-space-apps-challenges-2024-959676" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "yunet-aignite-2026",
+  name: "Ostad YUNet AIgnite Buildathon 2026",
+  org: "Youth Upskill Network (YUNet), presented by Ostad",
+  type: "hackathon", kind: "Solo AI buildathon for students in Bangladesh", mode: "online", region: "Bangladesh", bd: "yes",
+  topics: ["AI", "web apps", "students"],
+  prize: "BDT 15,000 total (champion BDT 7,000)",
+  summary: "Build a working AI-powered web app for a real consumer problem. Primary round 1 to 5 Nov, then the top 20 pitch at a closing ceremony on 27 Nov.",
+  eligibility: "Open only to students in Bangladesh, from high school to undergraduate. Free and strictly solo.",
+  links: { official: "https://yunet-aignite26.devpost.com/", apply: "https://yunet-aignite26.devpost.com/", list: "https://yunet-aignite26.devpost.com/rules" },
+  deadline: "2026-11-05", deadlineNote: "Primary round submission closes on 5 Nov (build window 1 to 5 Nov). You can join on Devpost now.",
+  next: { label: "Final round and closing ceremony", date: "2026-11-27", precision: "day", confidence: "confirmed", note: "Top 20 participants present to judges." },
+  milestones: [
+    { date: "2026-11-01", label: "Primary round starts", kind: "open" },
+    { date: "2026-11-05", label: "Primary round submission deadline", kind: "deadline" },
+    { date: "2026-11-27", label: "Final round and closing ceremony", kind: "event" }
+  ],
+  challengesNote: "Build a live web app for any B2C problem: education, career, productivity, finance, lifestyle, services or accessibility. Submit a live link, a 5-slide deck and (optional) a demo video.",
+  challenges: [{ title: "B2C problem of your choice", desc: "Judged on problem value, innovation, AI and technical quality, and user experience" }],
+  live: [{ url: "https://yunet-aignite26.devpost.com/", defaultYear: 2026 }],
+  sources: [{ label: "Devpost: YUNet AIgnite Buildathon 2026", url: "https://yunet-aignite26.devpost.com/" }],
+  reviewed: "2026-10-18"
+},
+{
+  id: "amazon-dev-hackathon-2026",
+  name: "Build, Ship, Shape: Amazon Developer Hackathon",
+  org: "Amazon (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["Amazon devices", "apps"], prize: "$138,000 in prizes",
+  summary: "Build across Amazon devices and shape what’s next. More than 56,000 participants had joined at review time.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://amazonappdev2026.devpost.com/", apply: "https://amazonappdev2026.devpost.com/", list: "https://amazonappdev2026.devpost.com/" },
+  deadline: "2026-10-23T15:00:00-04:00", deadlineNote: "Submission deadline, 3:00 pm US Eastern (EDT).",
+  next: { label: "Next Amazon developer contest", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "nebius-nvidia-ai-hackathon",
+  name: "Nebius x NVIDIA Global AI Hackathon",
+  org: "Nebius and NVIDIA (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI", "open infrastructure"], prize: "$50,000 in prizes",
+  summary: "Build the next frontier of AI on open infrastructure. About 24,000 participants at review time.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://nebiusglobalaihackathon.devpost.com/", apply: "https://nebiusglobalaihackathon.devpost.com/", list: "https://nebiusglobalaihackathon.devpost.com/" },
+  deadline: "2026-10-30T13:00:00-04:00", deadlineNote: "Submission deadline, 1:00 pm US Eastern (EDT).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "paypal-ai-hackathon",
+  name: "PayPal AI Hackathon",
+  org: "PayPal (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI", "payments"], prize: "$67,500 in prizes",
+  summary: "Build what’s next with PayPal and AI. More than 16,000 participants at review time.",
+  eligibility: "Check the Devpost rules for eligible countries; payment products can restrict some regions.",
+  links: { official: "https://paypalaihackathon.devpost.com/", apply: "https://paypalaihackathon.devpost.com/", list: "https://paypalaihackathon.devpost.com/" },
+  deadline: "2026-11-12T15:00:00-05:00", deadlineNote: "Submission deadline, 3:00 pm US Eastern (EST).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "kiroween-2026",
+  name: "Kiroween 2026",
+  org: "Kiro (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI coding", "developer tools"], prize: "$100,000 in prizes",
+  summary: "Build something wicked with an AI coding tool. Runs from 30 Oct to 4 Dec.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://kiroween.devpost.com/", apply: "https://kiroween.devpost.com/", list: "https://kiroween.devpost.com/" },
+  opens: "2026-10-30T16:00:00-04:00", deadline: "2026-12-04", deadlineNote: "Final submission date listed on Devpost. Time of day is not shown.",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "gitlab-life-after-code",
+  name: "Life After Code (GitLab Transcend)",
+  org: "GitLab (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["DevOps", "AI agents"], prize: "$45,000 in prizes",
+  summary: "The path to production at the speed of imagination. About 2,500 participants at review time.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://gitlab-transcend.devpost.com/", apply: "https://gitlab-transcend.devpost.com/", list: "https://gitlab-transcend.devpost.com/" },
+  deadline: "2026-10-27T09:00:00-04:00", deadlineNote: "Submission deadline, 9:00 am US Eastern (EDT).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "aws-cds-agentic-hackathon",
+  name: "AWS Communication Developer Services Agentic AI Partner Hackathon",
+  org: "AWS (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI agents", "voice and messaging"], prize: "$40,000 in prizes",
+  summary: "Build the conversational experiences of tomorrow with agentic AI.",
+  eligibility: "The title says “Partner”. Read the Devpost rules to see whether individuals can enter.",
+  links: { official: "https://aws-cds-partner.devpost.com/", apply: "https://aws-cds-partner.devpost.com/", list: "https://aws-cds-partner.devpost.com/" },
+  deadline: "2026-10-28T16:00:00-04:00", deadlineNote: "Submission deadline, 4:00 pm US Eastern (EDT).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "qloo-agentic-hackathon",
+  name: "Qloo Agentic Hackathon",
+  org: "Qloo (on Devpost)",
+  type: "hackathon", kind: "Online hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI agents", "recommendations"], prize: "$25,000 in prizes",
+  summary: "Agents, but with taste: build agents on Qloo’s taste and recommendation API.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://qloo.devpost.com/", apply: "https://qloo.devpost.com/", list: "https://qloo.devpost.com/" },
+  deadline: "2026-10-30T23:45:00-04:00", deadlineNote: "Submission deadline, 11:45 pm US Eastern (EDT).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "hacktoberfest-2026",
+  name: "Hacktoberfest 2026",
+  org: "Major League Hacking and DEV, with DigitalOcean",
+  type: "hackathon", kind: "Open-source event, October", mode: "hybrid", region: "Global", bd: "yes",
+  topics: ["open source", "AI"],
+  summary: "In 2026 the format changed: 300+ one-day community “Fests” plus an online event, all about building with open-source AI. It is no longer the old four-pull-request challenge.",
+  eligibility: "Open to everyone. Fest dates and sign-ups were still being announced at review time.",
+  links: { official: "https://hacktoberfest.com/", apply: "https://hacktoberfest.com/", list: "https://hacktoberfest.com/" },
+  deadline: "2026-10-31", deadlineNote: "Event month ends 31 Oct. Individual Fest dates vary.",
+  next: { label: "Hacktoberfest 2027", date: "2027-10-01", precision: "month", confidence: "estimated", note: "Always runs in October." },
+  live: [{ url: "https://hacktoberfest.com/llms.txt", defaultYear: 2026 }],
+  sources: [{ label: "Hacktoberfest 2026 overview", url: "https://hacktoberfest.com/llms.txt" }], reviewed: "2026-10-18"
+},
+{
+  id: "google-solution-challenge",
+  name: "Google Solution Challenge",
+  org: "Google Developer Groups",
+  type: "hackathon", kind: "Student app challenge on the UN SDGs", mode: "online", region: "Global", bd: "check",
+  topics: ["SDGs", "Google tools", "students"],
+  summary: "Pick one of the 17 UN Sustainable Development Goals and build a solution to a local problem with at least one Google technology. Finalists and winners receive prizes and mentorship.",
+  eligibility: "University students in teams of 1 to 4. One source also requires GDG on Campus membership. A working prototype and a short demo video are expected.",
+  links: { official: "https://goo.gle/SolutionChallenge", apply: "https://goo.gle/SolutionChallenge", list: "https://goo.gle/SolutionChallenge" },
+  opens: "2026-03-06", deadline: "2026-06-30", deadlineNote: "2026 submission window, approximate: the event listing shows 6 Mar to 30 Jun.",
+  next: { label: "Solution Challenge 2027", date: "2027-03-01", precision: "month", confidence: "estimated", note: "2026 started on 6 Mar. 2027 has not been announced." },
+  milestones: [
+    { date: "2026-03-06", label: "2026 edition opens", kind: "open" },
+    { date: "2026-06-30", label: "Submissions close (approximate)", kind: "deadline", approx: true },
+    { date: "2026-08-15", label: "Results announced (August)", kind: "result", approx: true }
+  ],
+  challengesNote: "No fixed problem list. Choose one of the 17 UN Sustainable Development Goals and define your own problem.",
+  challenges: [
+    "No poverty", "Zero hunger", "Good health and well-being", "Quality education", "Gender equality", "Clean water and sanitation",
+    "Affordable and clean energy", "Decent work and economic growth", "Industry, innovation and infrastructure", "Reduced inequalities",
+    "Sustainable cities and communities", "Responsible consumption and production", "Climate action", "Life below water", "Life on land",
+    "Peace, justice and strong institutions", "Partnerships for the goals"
+  ].map((t, i) => ({ title: "SDG " + (i + 1) + ": " + t })),
+  live: [{ url: "https://goo.gle/SolutionChallenge", defaultYear: 2026 }],
+  sources: [
+    { label: "Internshala: 2026 edition summary", url: "https://internshala.com/competitions/solution-challenge-2026/" },
+    { label: "Gulf News: Asia-Pacific 2025 results", url: "https://gulfnews.com/world/asia/pakistan/pakistani-students-win-big-at-google-solution-challenge-2025-1.500184786" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "harvard-hsil-dhaka",
+  name: "Harvard HSIL Hackathon (Dhaka hub)",
+  org: "Harvard T.H. Chan School of Public Health and UIU IRIIC",
+  type: "hackathon", kind: "Health-systems innovation hackathon", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["health", "AI"],
+  summary: "A global health-systems hackathon with a Dhaka hub at United International University. The 2026 edition ran on 10 and 11 April.",
+  eligibility: "Students, researchers, healthcare professionals and early-stage startups. No hackathon experience needed.",
+  links: { official: "https://iriic.uiu.ac.bd/harvard-hsil-hackthon-2026/", apply: "https://iriic.uiu.ac.bd/harvard-hsil-hackthon-2026/", list: "https://iriic.uiu.ac.bd/harvard-hsil-hackthon-2026/" },
+  ended: "2026-04-11",
+  next: { label: "HSIL Hackathon 2027 (Dhaka hub)", date: "2027-03-01", precision: "month", confidence: "estimated", note: "Bangladesh teams had a 21 Mar registration deadline in 2025. 2027 is not announced." },
+  milestones: [{ date: "2026-04-10", label: "2026 hackathon, day 1", kind: "event" }, { date: "2026-04-11", label: "2026 hackathon, day 2", kind: "event" }],
+  live: [{ url: "https://iriic.uiu.ac.bd/harvard-hsil-hackthon-2026/", defaultYear: 2027 }],
+  sources: [
+    { label: "UIU IRIIC: HSIL Hackathon 2026", url: "https://iriic.uiu.ac.bd/harvard-hsil-hackthon-2026/" },
+    { label: "TBS: UIU becomes Bangladesh hub (2025)", url: "https://www.tbsnews.net/economy/corporates/uiu-became-first-ever-bangladesh-hub-harvard-hsil-hackathon-2025-1090151" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "diu-ai-hackathon",
+  name: "DIU AI Hackathon",
+  org: "Daffodil International University and World AI Alliance",
+  type: "hackathon", kind: "National 48-hour AI hackathon", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["AI", "computing"], prize: "BDT 2 lakh total",
+  summary: "A 48-hour AI hackathon for university students across Bangladesh. Teams had 3 students and 1 mentor and submitted a concept note first.",
+  eligibility: "Students of any university in Bangladesh.",
+  links: { official: "https://news.daffodilvarsity.edu.bd/news/daffodil-to-host-ai-hackathon-2026-to-drive-innovation-and-tech-driven-solutions-20260415-162930", apply: "https://news.daffodilvarsity.edu.bd/news/daffodil-to-host-ai-hackathon-2026-to-drive-innovation-and-tech-driven-solutions-20260415-162930", list: "https://news.daffodilvarsity.edu.bd/news/to-build-a-technology-driven-future-daffodil-international-university-hosts-ai-innovation-hackathon-2026-20260727-093411" },
+  ended: "2026-07-25",
+  next: { label: "Next DIU hackathon", confidence: "unknown", note: "Not announced. Note: the April announcement said 11 and 12 July, the results report is dated 25 July." },
+  milestones: [{ date: "2026-07-25", label: "2026 finale and prize ceremony (per the results report)", kind: "event" }],
+  challengesNote: "2026 theme: “AI for Cluster Intelligence: Making Computers Faster, Cheaper, and More Reliable”.",
+  challenges: [{ title: "AI for Cluster Intelligence: Making Computers Faster, Cheaper, and More Reliable" }],
+  sources: [
+    { label: "DIU: announcement", url: "https://news.daffodilvarsity.edu.bd/news/daffodil-to-host-ai-hackathon-2026-to-drive-innovation-and-tech-driven-solutions-20260415-162930" },
+    { label: "DIU: results", url: "https://news.daffodilvarsity.edu.bd/news/to-build-a-technology-driven-future-daffodil-international-university-hosts-ai-innovation-hackathon-2026-20260727-093411" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "impact-dhaka",
+  name: "Impact Dhaka (BUET)",
+  org: "cognisor.ai, BUET ECE and partners",
+  type: "hackathon", kind: "AI for urban transformation", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["AI", "smart city"],
+  summary: "A hackathon on mapping, environment, infrastructure and public services in Dhaka. Winners had a route to SusHi Tech Tokyo 2026.",
+  eligibility: "A coding track and a no-code “Open Innovation” track.",
+  links: { official: "https://luma.com/cnged4tc", apply: "https://luma.com/cnged4tc", list: "https://luma.com/cnged4tc" },
+  ended: "2026-04-10",
+  next: { label: "Next edition", confidence: "unknown", note: "Not announced." },
+  milestones: [{ date: "2026-04-10", label: "2026 edition at BUET, ECE building", kind: "event" }],
+  challengesNote: "Theme: Smart City Intelligence (mobility, environment, infrastructure, public services).",
+  challenges: [{ title: "Smart City Intelligence: AI for Dhaka’s urban problems" }],
+  sources: [{ label: "Luma: Impact Dhaka 2026", url: "https://luma.com/cnged4tc" }], reviewed: "2026-10-18"
+},
+
+/* ────────────────────────────── COMPETITIONS ────────────────────────────── */
+{
+  id: "imagine-cup-2027",
+  name: "Microsoft Imagine Cup 2027",
+  org: "Microsoft",
+  type: "competition", kind: "Student startup competition", mode: "online", region: "Global", bd: "yes",
+  topics: ["startups", "AI", "Azure"],
+  summary: "Student teams build a startup product with Microsoft AI services. Launch and Scale tracks, regional semifinals in spring and a world championship in May 2027.",
+  eligibility: "Students aged 18+, teams of up to 4, each member registers separately. The 2026 FAQ required at least two Microsoft AI services; confirm the 2027 rule.",
+  prize: "Cash prizes and Microsoft support",
+  links: { official: "https://imaginecup.microsoft.com", apply: "https://imaginecup.microsoft.com", list: "https://imaginecup.microsoft.com" },
+  deadline: "2027-01-08", deadlineNote: "Registration and submission deadline. The source gives no time zone, so submit well before the last day.",
+  next: { label: "Imagine Cup 2028", confidence: "unknown", note: "Not announced." },
+  milestones: [
+    { date: "2027-01-08", label: "Registration and submission deadline", kind: "deadline" },
+    { date: "2027-04-15", label: "Regional semifinals and Builder Series (spring 2027)", kind: "event", approx: true },
+    { date: "2027-05-15", label: "World Championship (May 2027)", kind: "event", approx: true }
+  ],
+  challengesNote: "Five impact categories or a self-defined problem. Three are named in the source; the rest are on the site.",
+  challenges: [
+    { title: "Cybersecurity", desc: "Threat prevention, identity protection, Zero Trust, AI-driven defence" },
+    { title: "Education", desc: "Personalised learning, accessibility, adaptive classroom agents" },
+    { title: "Healthcare and Life Sciences", desc: "Diagnostic AI, medical data analytics, clinical efficiency" },
+    { title: "(Two more categories, see the site)" },
+    { title: "A self-defined problem" }
+  ],
+  live: [{ url: "https://imaginecup.microsoft.com", defaultYear: 2027 }],
+  sources: [
+    { label: "Imagine Cup (official)", url: "https://imaginecup.microsoft.com" },
+    { label: "Internshala: 2027 summary and dates", url: "https://internshala.com/competitions/2027-imagine-cup-competition/" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "arc-prize-2026-agi3",
+  name: "ARC Prize 2026: ARC-AGI-3",
+  org: "ARC Prize Foundation (on Kaggle)",
+  type: "competition", kind: "Kaggle code competition", mode: "online", region: "Global", bd: "check",
+  topics: ["AI", "reasoning", "agents"], prize: "Up to $850,000 (Kaggle listing)",
+  summary: "Build an AI agent that handles interactive reasoning tasks it has never seen. Prizes require open-source, reproducible solutions, and no internet is available during evaluation.",
+  eligibility: "Open to teams on Kaggle. Read the rules for country and eligibility limits.",
+  links: { official: "https://arcprize.org/competitions/2026", apply: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3", list: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3" },
+  deadline: "2026-11-02T23:59:00Z", deadlineNote: "Final submission, 23:59 UTC. The team-merger deadline is 26 Oct.",
+  next: { label: "ARC Prize 2027", confidence: "unknown", note: "A new edition has run every year; not announced yet." },
+  milestones: [
+    { date: "2026-10-26T23:59:00Z", label: "Last day to join or merge teams", kind: "deadline" },
+    { date: "2026-11-02T23:59:00Z", label: "Final submission deadline", kind: "deadline" },
+    { date: "2026-12-04", label: "Winners announced", kind: "result" }
+  ],
+  live: [{ url: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3", defaultYear: 2026 }],
+  sources: [
+    { label: "Kaggle: ARC-AGI-3", url: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3" },
+    { label: "ARC Prize 2026 overview", url: "https://arcprize.org/competitions/2026" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "arc-prize-2026-agi2",
+  name: "ARC Prize 2026: ARC-AGI-2",
+  org: "ARC Prize Foundation (on Kaggle)",
+  type: "competition", kind: "Kaggle code competition", mode: "online", region: "Global", bd: "check",
+  topics: ["AI", "reasoning"], prize: "$275,000 Grand Prize (best write-up)",
+  summary: "Create systems that learn and adapt to novel, human-solvable tasks. You must accept the rules before the entry deadline to compete.",
+  eligibility: "Open to teams on Kaggle. Read the rules for eligibility limits.",
+  links: { official: "https://arcprize.org/competitions/2026", apply: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2", list: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2" },
+  deadline: "2026-10-26T23:59:00Z", deadlineNote: "Entry deadline, 23:59 UTC: accept the rules by then. Final submission is 2 Nov.",
+  next: { label: "ARC Prize 2027", confidence: "unknown" },
+  milestones: [
+    { date: "2026-10-26T23:59:00Z", label: "Entry deadline (accept the rules)", kind: "deadline" },
+    { date: "2026-11-02T23:59:00Z", label: "Final submission deadline", kind: "deadline" },
+    { date: "2026-12-04", label: "Winners announced", kind: "result" }
+  ],
+  live: [{ url: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2", defaultYear: 2026 }],
+  sources: [{ label: "Kaggle: ARC-AGI-2", url: "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2" }], reviewed: "2026-10-18"
+},
+{
+  id: "arc-prize-2026-paper",
+  name: "ARC Prize 2026: Paper Track",
+  org: "ARC Prize Foundation (on Kaggle)",
+  type: "competition", kind: "Kaggle write-up hackathon", mode: "online", region: "Global", bd: "check",
+  topics: ["AI", "research"], prize: "$35,000",
+  summary: "Document the approach behind your ARC-AGI-2 or ARC-AGI-3 submission as a Kaggle write-up with a public notebook.",
+  eligibility: "You need a submission to ARC-AGI-2 or ARC-AGI-3. Read the rules.",
+  links: { official: "https://arcprize.org/competitions/2026", apply: "https://www.kaggle.com/competitions/arc-prize-2026-paper-track", list: "https://www.kaggle.com/competitions/arc-prize-2026-paper-track" },
+  deadline: "2026-11-09T23:59:00Z", deadlineNote: "Final submission, 23:59 UTC. Draft write-ups are not judged.",
+  next: { label: "ARC Prize 2027", confidence: "unknown" },
+  live: [{ url: "https://www.kaggle.com/competitions/arc-prize-2026-paper-track", defaultYear: 2026 }],
+  sources: [{ label: "Kaggle: ARC Prize 2026 Paper Track", url: "https://www.kaggle.com/competitions/arc-prize-2026-paper-track" }], reviewed: "2026-10-18"
+},
+{
+  id: "gemma-4-agent-competition",
+  name: "Google Gemma 4 Developer Agent Competition",
+  org: "Google DeepMind (on Kaggle)",
+  type: "competition", kind: "Kaggle competition", mode: "online", region: "Global", bd: "check",
+  topics: ["AI agents", "open models", "coding"], prize: "Prizes and a showcase at a Google-hosted event",
+  summary: "Post-train an open model into a coding agent that navigates real codebases and drafts fixes, running on everyday hardware.",
+  eligibility: "Open to teams on Kaggle. Read the rules for eligibility limits.",
+  links: { official: "https://www.kaggle.com/competitions/gemma-4-developer-agent", apply: "https://www.kaggle.com/competitions/gemma-4-developer-agent", list: "https://www.kaggle.com/competitions/gemma-4-developer-agent" },
+  deadline: "2026-12-02T23:59:00Z", deadlineNote: "Final submission, 23:59 UTC. Check the page for the team-merger date.",
+  next: { label: "Next Gemma challenge", confidence: "unknown" },
+  live: [{ url: "https://www.kaggle.com/competitions/gemma-4-developer-agent", defaultYear: 2026 }],
+  sources: [{ label: "Kaggle: Gemma 4 Developer Agent Competition", url: "https://www.kaggle.com/competitions/gemma-4-developer-agent" }], reviewed: "2026-10-18"
+},
+{
+  id: "meta-vr-start-2026",
+  name: "Meta VR Start Developer Competition 2026",
+  org: "Meta (on Devpost)",
+  type: "competition", kind: "Developer competition", mode: "online", region: "Global", bd: "check",
+  topics: ["VR", "games"], prize: "$1,000,000 in cash prizes",
+  summary: "Accelerate your VR development journey and compete for a share of $1M. More than 3,000 participants at review time.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://start-developer-competition-26.devpost.com/", apply: "https://start-developer-competition-26.devpost.com/", list: "https://start-developer-competition-26.devpost.com/" },
+  deadline: "2026-11-18T15:00:00-05:00", deadlineNote: "Submission deadline, 3:00 pm US Eastern (EST).",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "opencv-ai-competition-2026",
+  name: "OpenCV AI Competition 2026",
+  org: "OpenCV, powered by AWS (on Devpost)",
+  type: "competition", kind: "Computer-vision competition", mode: "online", region: "Global", bd: "check",
+  topics: ["computer vision", "AI"], prize: "$20,250 in prizes",
+  summary: "Build vision systems that see, reason and act with OpenCV 5 and Amazon Web Services. More than 5,000 participants at review time.",
+  eligibility: "Check the Devpost rules for eligible countries.",
+  links: { official: "https://opencv26.devpost.com/", apply: "https://opencv26.devpost.com/", list: "https://opencv26.devpost.com/" },
+  deadline: "2026-10-27T02:45:00-04:00", deadlineNote: "Submission deadline, 2:45 am US Eastern (EDT). That is the morning of 27 Oct in US time.",
+  next: { label: "Next edition", confidence: "unknown" },
+  sources: [{ label: "Devpost AI hackathons listing", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "hult-prize-campus",
+  name: "Hult Prize (campus to global)",
+  org: "Hult Prize Foundation",
+  type: "competition", kind: "Student social-enterprise competition", mode: "hybrid", region: "Global", bd: "yes",
+  topics: ["startups", "SDGs", "social impact"], prize: "$1M seed funding for the global winner",
+  summary: "Student teams pitch a startup tied to the UN SDGs. Campus rounds lead to national rounds, an incubator and global finals.",
+  eligibility: "University students in small teams (2 to 4 on many campuses). If your university has no campus program you can use the Open Application.",
+  bdNote: "Many Bangladeshi universities run campus rounds (for example UIU, Chattogram University, Green University and AUW in 2025-26).",
+  links: { official: "https://www.hultprize.org/", apply: "https://www.hultprize.org/", list: "https://www.hultprize.org/" },
+  next: { label: "2026-27 campus rounds", date: "2026-12-01", precision: "month", confidence: "estimated", note: "In 2025-26 campus rounds ran from December to February and national rounds from March to May. Ask your university’s Hult Prize team." },
+  milestones: [
+    { date: "2026-01-06", label: "2025-26 example: UIU campus semifinal", kind: "event" },
+    { date: "2026-02-16", label: "2025-26 example: Green University final", kind: "event" }
+  ],
+  sources: [
+    { label: "Hult Prize journey (stages)", url: "https://hultprizefoundation.notion.site/The-Hult-Prize-Journey-1ef5dd17a06b812fafbbca193f60e7a2" },
+    { label: "UIU: campus round 2025-26", url: "https://www.uiu.ac.bd/?p=9453" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "icpc-dhaka-regional",
+  name: "ICPC Asia Dhaka Regional",
+  org: "ICPC, hosted by a Bangladeshi university (BUBT in 2025)",
+  type: "competition", kind: "Team programming contest", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["algorithms", "competitive programming"],
+  summary: "The regional round for Bangladesh. Teams of three from the same university solve algorithmic problems in five hours. The 2025 edition drew more than 1,500 registrations.",
+  eligibility: "University teams of exactly three, registered through ICPC and a faculty coach.",
+  links: { official: "https://icpc.bubt.edu.bd/", apply: "https://icpc.bubt.edu.bd/registration.php", list: "https://icpc.bubt.edu.bd/schedule.php" },
+  next: { label: "Next Dhaka regional registration", date: "2026-11-01", precision: "month", confidence: "estimated", note: "Pattern only: the 2025 edition ran registration from 1 Nov to 15 Dec 2024. The 2026 host and dates were not found, so check with your coach." },
+  milestones: [{ date: "2024-12-15", label: "2025 edition: final registration deadline (past reference)", kind: "other" }],
+  sources: [{ label: "ICPC Dhaka 2025 (BUBT)", url: "https://icpc.bubt.edu.bd/registration.php" }], reviewed: "2026-10-18"
+},
+{
+  id: "ideathon-bangladesh-2026",
+  name: "Ideathon Bangladesh 2026",
+  org: "Ideathon Bangladesh (kick-off at Prothom Alo)",
+  type: "competition", kind: "National innovation challenge", mode: "hybrid", region: "Bangladesh", bd: "yes",
+  topics: ["startups", "innovation"], prize: "Up to BDT 5 crore in investment opportunity",
+  summary: "A nationwide, free-to-apply innovation challenge. The top 20 teams pitch to potential investors.",
+  eligibility: "Students, founders, entrepreneurs, professionals, creators, researchers and university teams across Bangladesh.",
+  links: { official: "https://www.ideathonbd.com/", apply: "https://www.ideathonbd.com/", list: "https://www.ideathonbd.com/" },
+  deadline: "2026-10-15", deadlineNote: "Round 1 submissions closed on 15 Oct 2026.",
+  next: { label: "Top 20 investor pitch", confidence: "unknown", note: "Check the site for later rounds and for the 2027 edition." },
+  live: [{ url: "https://www.ideathonbd.com/", defaultYear: 2026 }],
+  sources: [{ label: "Ideathon Bangladesh 2026", url: "https://www.ideathonbd.com/" }], reviewed: "2026-10-18"
+},
+{
+  id: "biin-awards",
+  name: "Bangladesh ICT and Innovation Awards",
+  org: "Bangladesh ICT and Innovation Network (BIIN)",
+  type: "competition", kind: "National awards", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["ICT", "innovation", "APICTA"],
+  summary: "National awards for students, organisations and individuals. Winners represent Bangladesh at APICTA. The 2025 edition received 255 submissions.",
+  eligibility: "A student category exists. The 2026 rules and dates were not found.",
+  bdNote: "2025 student champions included RadSafe (MIST), Brittoo.xyz (RUET), CARE Wheelchair and Safe Step. RadSafe won a Merit award at APICTA 2025.",
+  links: { official: "https://www.google.com/search?q=Bangladesh+ICT+and+Innovation+Awards+2026+BIIN", apply: "https://www.google.com/search?q=Bangladesh+ICT+and+Innovation+Awards+2026+BIIN+submission", list: "https://www.dhakatribune.com/bangladesh/event/394357/bangladesh-ict-and-innovation-network-honors-the" },
+  next: { label: "BIIN Awards 2026 or 2027", confidence: "unknown", note: "In 2025 evaluations were on 9 and 11 Oct and the ceremony on 18 Oct. The official site could not be verified, so the links are search pages." },
+  milestones: [
+    { date: "2025-10-09", label: "2025: first evaluation round", kind: "other" },
+    { date: "2025-10-11", label: "2025: second evaluation round", kind: "other" },
+    { date: "2025-10-18", label: "2025: award ceremony", kind: "result" }
+  ],
+  challengesNote: "Open submissions. Categories seen in 2025 are listed.",
+  challenges: [{ title: "Industrial" }, { title: "Business Services" }, { title: "Inclusion and Community Services" }, { title: "Consumer" }],
+  sources: [
+    { label: "Dhaka Tribune: 2025 results", url: "https://www.dhakatribune.com/bangladesh/event/394357/bangladesh-ict-and-innovation-network-honors-the" },
+    { label: "MIST: RadSafe at APICTA", url: "https://ac.mist.ac.bd/notice/mist-student-secures-merit-award-at-asia-pacific-ict-alliance-awards-2025" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "bd-innovation-fair",
+  name: "Bangladesh Innovation Fair",
+  org: "ICT Division and University Innovation Hubs",
+  type: "competition", kind: "National innovation fair", mode: "in-person", region: "Bangladesh", bd: "yes",
+  topics: ["innovation", "universities"],
+  summary: "The 2026 fair ran from 12 to 14 September in Dhaka (Novo Theatre) under the theme “Innovation Ecosystem Toward Trillion Dollar Economy”. One KU project was picked from 963 and went through a top 50 and top 10 to a national second place.",
+  eligibility: "Entry is usually through your university’s Innovation Hub, which selects, mentors and funds teams. Ask whether yours has one.",
+  links: { official: "https://www.bssnews.net/news/424853/print", apply: "https://www.bssnews.net/news/424853/print", list: "https://www.bssnews.net/news/424853/print" },
+  ended: "2026-09-14",
+  next: { label: "Innovation Fair 2027", date: "2027-09-12", precision: "month", confidence: "estimated", note: "The 2026 fair was held in September." },
+  milestones: [{ date: "2026-09-12", label: "2026 fair opens", kind: "event" }, { date: "2026-09-14", label: "2026 fair closes", kind: "event" }],
+  sources: [{ label: "BSS: Khulna University at the fair", url: "https://www.bssnews.net/news/424853/print" }], reviewed: "2026-10-18"
+},
+
+/* ───────────────────────────── CHALLENGE PLATFORMS ───────────────────────── */
+{
+  id: "kaggle-platform",
+  name: "Kaggle Competitions",
+  org: "Kaggle (Google)",
+  type: "challenge", kind: "Machine-learning competition platform", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["machine learning", "data science"],
+  summary: "Datasets, notebooks and prize competitions that open and close all year. Right now the featured ones include the three ARC Prize 2026 tracks and the Gemma 4 agent competition, which have their own rows.",
+  eligibility: "Each competition has its own rules and eligible countries.",
+  links: { official: "https://www.kaggle.com/", apply: "https://www.kaggle.com/competitions", list: "https://www.kaggle.com/competitions" },
+  next: { label: "New competitions are added continuously", confidence: "confirmed" },
+  challengesNote: "Open the competitions page for the current list. The live check can pull it when your network allows.",
+  live: [{ url: "https://www.kaggle.com/competitions", challengeLink: "kaggle\\.com/competitions/[a-z0-9-]+/?$", exclude: "kaggle\\.com/competitions/?$" }],
+  sources: [{ label: "Kaggle competitions", url: "https://www.kaggle.com/competitions" }], reviewed: "2026-10-18"
+},
+{
+  id: "devpost-platform",
+  name: "Devpost Hackathons",
+  org: "Devpost",
+  type: "challenge", kind: "Hackathon listing platform", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["hackathons", "AI"],
+  summary: "The largest public list of online and in-person hackathons. Each event has its own deadline, prizes and eligible countries. Several of the rows in this dashboard come from its AI listing.",
+  eligibility: "Each hackathon sets its own rules.",
+  links: { official: "https://devpost.com/", apply: "https://devpost.com/hackathons", list: "https://devpost.com/c/artificial-intelligence" },
+  next: { label: "New hackathons are added continuously", confidence: "confirmed" },
+  live: [{ url: "https://devpost.com/c/artificial-intelligence", challengeLink: "https://[a-z0-9-]+\\.devpost\\.com/", exclude: "https://(?:www|info|help|secure|support|blog)\\.devpost\\.com" }],
+  sources: [{ label: "Devpost AI hackathons", url: "https://devpost.com/c/artificial-intelligence" }], reviewed: "2026-10-18"
+},
+{
+  id: "mlh-league",
+  name: "Major League Hacking (MLH) events",
+  org: "Major League Hacking",
+  type: "challenge", kind: "Student hackathon league", mode: "hybrid", region: "Global", bd: "check", rolling: true,
+  topics: ["hackathons", "students"],
+  summary: "MLH powers over 200 weekend hackathons a year as the official student hackathon league, and also runs the MLH Fellowship and Hacktoberfest.",
+  eligibility: "Each event has its own rules; many are for current students.",
+  links: { official: "https://mlh.io/", apply: "https://mlh.io/", list: "https://mlh.io/" },
+  next: { label: "New events are added continuously", confidence: "confirmed" },
+  live: [{ url: "https://mlh.io/", defaultYear: 2026 }],
+  sources: [{ label: "MLH company profile", url: "https://jobs.reachcapital.com/companies/major-league-hacking" }], reviewed: "2026-10-18"
+},
+{
+  id: "herox",
+  name: "HeroX",
+  org: "HeroX, with sponsors including the NASA Tournament Lab",
+  type: "challenge", kind: "Crowdsourced prize challenges", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["engineering", "space", "innovation"],
+  summary: "A marketplace of prize challenges. Anyone can submit a solution, and each challenge runs for a few months.",
+  eligibility: "Each challenge has its own rules. Some are limited to certain countries or to US universities.",
+  links: { official: "https://www.herox.com/", apply: "https://www.herox.com/crowdsourcing-projects", list: "https://www.herox.com/crowdsourcing-projects" },
+  next: { label: "New challenges are added regularly", confidence: "confirmed" },
+  challengesNote: "The challenge below was featured on the listing. Check that it is still open; the live check can refresh the list.",
+  challenges: [{ title: "South Pole Safety: Designing the NASA Lunar Rescue System", desc: "A compact, efficient astronaut-rescue system for the lunar surface (NASA Tournament Lab)", stale: true }],
+  live: [{
+    url: "https://www.herox.com/crowdsourcing-projects",
+    challengeLink: "herox\\.com/[A-Za-z0-9][A-Za-z0-9_-]{3,}/?$",
+    exclude: "herox\\.com/(?:crowdsourcing-projects|about|blog|press|login|signup|pricing|terms|privacy|community|contact|support|results|business|startups|resources|webinars?|forum|prizes|challenges|how-it-works|help|careers|team|sitemap|search|explore|solve)/?$"
+  }],
+  sources: [{ label: "HeroX challenge listing", url: "https://www.herox.com/crowdsourcing-projects" }], reviewed: "2026-10-18"
+},
+{
+  id: "drivendata",
+  name: "DrivenData",
+  org: "DrivenData",
+  type: "challenge", kind: "Data-science for social good", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["machine learning", "social impact"],
+  summary: "Machine-learning competitions on problems from mission-driven organisations. Winning solutions are released as open source.",
+  eligibility: "Each competition has its own rules.",
+  links: { official: "https://www.drivendata.org/", apply: "https://www.drivendata.org/competitions/", list: "https://www.drivendata.org/competitions/" },
+  next: { label: "New competitions are added regularly", confidence: "confirmed" },
+  milestones: [{ date: "2026-07-23", label: "Example: Pale Blue Dot Visualization Challenge closed", kind: "deadline" }],
+  challengesNote: "The example below is closed. The live check can pull the current list.",
+  challenges: [{ title: "Pale Blue Dot: Visualization Challenge", desc: "Submission window closed on 23 Jul 2026", stale: true }],
+  live: [{ url: "https://www.drivendata.org/competitions/", challengeLink: "/competitions/\\d+/", exclude: "/(?:data|submissions|leaderboard|forum)/?$" }],
+  sources: [{ label: "DrivenData competitions", url: "https://www.drivendata.org/competitions/" }], reviewed: "2026-10-18"
+},
+{
+  id: "zindi",
+  name: "Zindi",
+  org: "Zindi (Africa-focused)",
+  type: "challenge", kind: "Data-science competition platform", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["machine learning", "data science"],
+  summary: "Companies and institutions post problems and data; practitioners compete. “Knowledge” challenges never close and are good for practice.",
+  eligibility: "Open to everyone on the platform, but problems and data are mostly African, and prize eligibility is set per competition.",
+  links: { official: "https://zindi.africa/", apply: "https://zindi.africa/competitions", list: "https://zindi.africa/competitions" },
+  next: { label: "New competitions are added regularly", confidence: "confirmed" },
+  challengesNote: "The site relies on JavaScript, so the live check may fail here.",
+  live: [{ url: "https://zindi.africa/competitions", challengeLink: "zindi\\.africa/competitions/[a-z0-9-]+/?$" }],
+  sources: [{ label: "Zindi rules", url: "https://zindi.africa/rules" }], reviewed: "2026-10-18"
+},
+{
+  id: "aicrowd",
+  name: "AIcrowd",
+  org: "AIcrowd",
+  type: "challenge", kind: "Research-style AI challenges", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["AI research", "benchmarks"],
+  summary: "A list of research-flavoured AI challenges. Not individually verified in this review.",
+  eligibility: "Each challenge has its own rules.",
+  links: { official: "https://www.aicrowd.com/", apply: "https://www.aicrowd.com/challenges", list: "https://www.aicrowd.com/challenges" },
+  next: { label: "New challenges are added regularly", confidence: "confirmed" },
+  live: [{ url: "https://www.aicrowd.com/challenges", challengeLink: "aicrowd\\.com/challenges/[a-z0-9-]+" }],
+  sources: [], reviewed: "unverified"
+},
+{
+  id: "xprize-platform",
+  name: "XPRIZE",
+  org: "XPRIZE Foundation",
+  type: "challenge", kind: "Large incentive prizes", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["deep tech", "climate", "health"],
+  summary: "Multi-year incentive competitions with large prizes. Teams of students, startups and researchers all enter through the XPRIZE platform. Open registrations change, so check the current list.",
+  eligibility: "Each prize has its own registration windows and fees. Some close early and allow late registration.",
+  links: { official: "https://www.xprize.org/", apply: "https://www.xprize.org/prizes", list: "https://www.xprize.org/prizes" },
+  next: { label: "New prizes are launched occasionally", confidence: "confirmed" },
+  sources: [{ label: "XPRIZE Healthspan resources (late registration example)", url: "https://community.xprize.org/prizes/healthspan/resources" }], reviewed: "2026-10-18"
+},
+
+/* ─────────────────────────────── OPPORTUNITIES ───────────────────────────── */
+{
+  id: "gsoc",
+  name: "Google Summer of Code",
+  org: "Google, with open-source organizations",
+  type: "opportunity", kind: "Paid open-source mentorship", mode: "online", region: "Global", bd: "yes",
+  topics: ["open source", "mentorship", "stipend"],
+  summary: "Contributors write code for an open-source organization for about 12 weeks (extendable) with a mentor and receive a stipend. 185 organizations took part in 2025.",
+  eligibility: "Aged 18+. Students and non-students can apply as individuals to one organization. Contributors should be new to open source (no more than two earlier acceptances).",
+  prize: "Stipend by country and project size (India: $750, $1,500 or $3,000)",
+  links: { official: "https://summerofcode.withgoogle.com/", apply: "https://summerofcode.withgoogle.com/", list: "https://summerofcode.withgoogle.com/" },
+  opens: "2026-03-16T18:00:00Z", deadline: "2026-03-31T18:00:00Z", deadlineNote: "2026 contributor application deadline, 18:00 UTC (official timeline).",
+  next: { label: "GSoC 2027 contributor applications", date: "2027-03-16", precision: "month", confidence: "estimated", note: "Google had not published 2027 dates at review time. The 2026 window was 16 to 31 March; organizations are announced about a month earlier, which is the time to start talking to them." },
+  milestones: [
+    { date: "2026-01-19T18:00:00Z", label: "2026: organizations can start applying", kind: "release" },
+    { date: "2026-02-19T18:00:00Z", label: "2026: accepted organizations announced, discussion period begins", kind: "release" },
+    { date: "2026-03-16T18:00:00Z", label: "2026: contributor applications open", kind: "open" },
+    { date: "2026-03-31T18:00:00Z", label: "2026: contributor application deadline", kind: "deadline" },
+    { date: "2026-04-30T18:00:00Z", label: "2026: accepted contributors announced", kind: "result" }
+  ],
+  challengesNote: "Every organization publishes its own Ideas List, and you may propose your own idea.",
+  challenges: [{ title: "Organization Ideas Lists (browse by organization)", url: "https://summerofcode.withgoogle.com/" }],
+  live: [{ url: "https://developers.google.com/open-source/gsoc/timeline", defaultYear: 2027, table: true }, { url: "https://summerofcode.withgoogle.com/", defaultYear: 2027 }],
+  sources: [
+    { label: "Official GSoC timeline", url: "https://developers.google.com/open-source/gsoc/timeline" },
+    { label: "GSoC participating organizations (2025: 185)", url: "https://summerofcode.withgoogle.com/programs/2025" },
+    { label: "GSoC 2027 expectations and eligibility", url: "https://leapscholar.com/blog/?p=82099" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "lfx-mentorship",
+  name: "LFX Mentorship",
+  org: "Linux Foundation and CNCF",
+  type: "opportunity", kind: "Open-source mentorship terms", mode: "online", region: "Global", bd: "yes",
+  topics: ["open source", "cloud native", "mentorship"],
+  summary: "Mentorship on Linux Foundation and CNCF projects such as Kubernetes and Prometheus. Several terms a year; many are paid.",
+  eligibility: "A community list marks it as open to all. Pay ranges from unpaid terms to about $6,600 depending on the term.",
+  links: { official: "https://mentorship.lfx.linuxfoundation.org/", apply: "https://mentorship.lfx.linuxfoundation.org/", list: "https://mentorship.lfx.linuxfoundation.org/" },
+  opens: "2026-01-26", deadline: "2026-02-10T11:00:00-08:00", deadlineNote: "2026 Term 1 mentee application deadline, 11:00 US Pacific (PST).",
+  next: { label: "2027 Term 1 (March to May) mentee applications", date: "2027-01-26", precision: "month", confidence: "estimated", note: "2026 Term 1 ran applications from 26 Jan to 10 Feb. Estimate only." },
+  milestones: [
+    { date: "2026-01-07", label: "2026 Term 1: project proposals open (CNCF)", kind: "release" },
+    { date: "2026-01-26", label: "2026 Term 1: mentee applications open", kind: "open" },
+    { date: "2026-02-10T11:00:00-08:00", label: "2026 Term 1: mentee applications close", kind: "deadline" },
+    { date: "2026-02-24T11:00:00-08:00", label: "2026 Term 1: application review ends", kind: "result" }
+  ],
+  challengesNote: "The project list appears on the platform when a term opens.",
+  challenges: [{ title: "Term-by-term project list on the LFX platform", url: "https://mentorship.lfx.linuxfoundation.org/" }],
+  live: [{ url: "https://contribute.cncf.io/blog/tags/lfx/", defaultYear: 2026 }, { url: "https://mentorship.lfx.linuxfoundation.org/", defaultYear: 2027 }],
+  sources: [
+    { label: "CNCF: 2026 Term 1 dates", url: "https://contribute.cncf.io/blog/tags/lfx/" },
+    { label: "Open-source programs list (pay and eligibility)", url: "https://github.com/yashisrani/List-of-OpenSource-Programs" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "outreachy",
+  name: "Outreachy",
+  org: "Software Freedom Conservancy",
+  type: "opportunity", kind: "Paid remote open-source internship", mode: "online", region: "Global", bd: "yes",
+  topics: ["open source", "internship", "diversity"],
+  summary: "Three-month paid, remote internships in open source, twice a year (May to August and December to March). The December 2026 cohort pays $3,000 plus $4,000 in two instalments.",
+  eligibility: "Open worldwide to people who meet Outreachy’s eligibility rules. Students apply by hemisphere of their school: northern-hemisphere students apply to the May cohort, and Bangladesh is in the northern hemisphere.",
+  links: { official: "https://www.outreachy.org/", apply: "https://www.outreachy.org/outreachy-dec-2026-internship-cohort/", list: "https://www.outreachy.org/outreachy-dec-2026-internship-cohort/" },
+  opens: "2026-08-24T16:00:00Z", deadline: "2026-08-31T16:00:00Z", deadlineNote: "December 2026 cohort: initial application deadline (closed). Final applications, for people who passed the initial step, close on 2 Nov.",
+  next: { label: "May 2027 cohort initial applications", date: "2027-02-05", precision: "month", confidence: "estimated", note: "Initial applications for the May 2026 cohort opened on 6 Feb 2026. Estimate only." },
+  milestones: [
+    { date: "2026-08-24T16:00:00Z", label: "Initial applications open", kind: "open" },
+    { date: "2026-08-31T16:00:00Z", label: "Initial application deadline", kind: "deadline" },
+    { date: "2026-09-18", label: "Project list finalized", kind: "release" },
+    { date: "2026-10-05T16:00:00Z", label: "Initial results; contribution period starts", kind: "open" },
+    { date: "2026-11-02T16:00:00Z", label: "Final application deadline (only if you passed the initial step)", kind: "deadline" },
+    { date: "2026-11-30T16:00:00Z", label: "Accepted interns announced", kind: "result" },
+    { date: "2026-12-07", label: "Internship starts", kind: "event" },
+    { date: "2027-03-08", label: "Internship ends", kind: "event" }
+  ],
+  challengesNote: "The project list is linked from the cohort page (“View project list”). Projects belong to participating open-source communities.",
+  challenges: [{ title: "Cohort project list", url: "https://www.outreachy.org/outreachy-dec-2026-internship-cohort/" }],
+  live: [{ url: "https://www.outreachy.org/outreachy-dec-2026-internship-cohort/", table: true }],
+  sources: [
+    { label: "December 2026 cohort timeline", url: "https://www.outreachy.org/outreachy-dec-2026-internship-cohort/" },
+    { label: "May 2026 applications and student rules", url: "https://www.outreachy.org/blog/2026-02-06/may-2026-initial-applications-open/" }
+  ],
+  reviewed: "2026-10-18"
+},
+{
+  id: "mlh-fellowship",
+  name: "MLH Open Source Fellowship",
+  org: "Major League Hacking, with partners such as Meta, GitHub and AWS",
+  type: "opportunity", kind: "Remote 12-week fellowship", mode: "online", region: "Global", bd: "check", rolling: true,
+  topics: ["open source", "internship alternative"], prize: "Stipend",
+  summary: "A fully remote, 12-week software-engineering fellowship that works as an internship alternative. Fellows contribute to widely used open-source projects in small teams with mentors.",
+  eligibility: "Early-career developers with demonstrated programming skill. Applications are processed on a rolling basis for each batch, so check the batch dates.",
+  links: { official: "https://fellowship.mlh.io/", apply: "https://fellowship.mlh.io/", list: "https://fellowship.mlh.io/" },
+  next: { label: "Next batch", confidence: "unknown", note: "Batch dates were not published in the sources found. Check the fellowship site." },
+  sources: [{ label: "MLH company profile", url: "https://jobs.reachcapital.com/companies/major-league-hacking" }, { label: "MLH Fellowship on GitHub", url: "https://github.com/MLH-Fellowship" }],
+  reviewed: "2026-10-18"
+}
+
+];
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#F2F5F3; --paper:#FFFFFF; --paper-2:#F7F9F8; --ink:#14211B; --muted:#4D5E56;
+  --rule:#D8E0DB; --rule-strong:#A9BBB0; --control:#78897F; --hover:#F4F7F5;
+  --green:#006A4E; --green-ink:#00523B; --green-wash:#E1F0E9; --on-green:#FFFFFF;
+  --red:#B3261E; --red-wash:#FCE8E6;
+  --amber:#7A4E00; --amber-wash:#FFF0CC;
+  --blue:#274690; --blue-wash:#E6ECFA;
+  --violet:#55448A; --violet-wash:#ECE8F6;
+  --ash:#56625C; --ash-wash:#E8ECEA;
+  --focus:#1A64D8; --shadow:0 1px 2px rgba(20,33,27,.06);
+  --font-ui:"Hanken Grotesk","Inter","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --font-display:"Newsreader","Iowan Old Style",Georgia,"Times New Roman",serif;
+  --gutter:24px; --maxw:1280px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#101719; --paper:#172125; --paper-2:#1C282D; --ink:#E3EAE6; --muted:#A6B6AE;
+    --rule:#2A3A41; --rule-strong:#44585F; --control:#62797F; --hover:#1B272C;
+    --green:#62C09F; --green-ink:#86D3B6; --green-wash:#163429; --on-green:#07241C;
+    --red:#F19A93; --red-wash:#3A1D1B;
+    --amber:#E9BE6A; --amber-wash:#35290F;
+    --blue:#9DB4F3; --blue-wash:#1C2745;
+    --violet:#BFB0EC; --violet-wash:#2A2442;
+    --ash:#A8B6AF; --ash-wash:#22303A;
+    --focus:#7FAEFF; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101719; --paper:#172125; --paper-2:#1C282D; --ink:#E3EAE6; --muted:#A6B6AE;
+  --rule:#2A3A41; --rule-strong:#44585F; --control:#62797F; --hover:#1B272C;
+  --green:#62C09F; --green-ink:#86D3B6; --green-wash:#163429; --on-green:#07241C;
+  --red:#F19A93; --red-wash:#3A1D1B;
+  --amber:#E9BE6A; --amber-wash:#35290F;
+  --blue:#9DB4F3; --blue-wash:#1C2745;
+  --violet:#BFB0EC; --violet-wash:#2A2442;
+  --ash:#A8B6AF; --ash-wash:#22303A;
+  --focus:#7FAEFF; --shadow:none; color-scheme:dark;
+}
+:root[data-theme="light"]{ color-scheme:light; }
+
+*{box-sizing:border-box}
+html{color-scheme:light dark;-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--fbar-h,0px) + 12px)}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 15px/1.55 var(--font-ui);-webkit-font-smoothing:antialiased}
+a{color:var(--green-ink)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:-999px;top:8px;background:var(--paper);padding:8px 12px;border:1px solid var(--rule-strong);z-index:90;border-radius:6px}
+.skip:focus{left:8px}
+.wrap{width:min(var(--maxw),calc(100% - 2*var(--gutter)));margin-inline:auto}
+.small{font-size:12.5px;color:var(--muted);line-height:1.5}
+.muted{color:var(--muted)}
+.strong{font-weight:600}
+svg.i{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:1px solid var(--control);background:var(--paper);border-radius:6px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;color:var(--ink)}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:600}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn[disabled]{opacity:.65;cursor:progress}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .8s linear infinite;display:none}
+.busy .spin{display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+.seg-switch{display:inline-flex;border:1px solid var(--control);border-radius:6px;overflow:hidden;background:var(--paper)}
+.seg-switch button{border:0;background:transparent;height:34px;padding:0 12px;font-size:13.5px}
+.seg-switch button+button{border-inline-start:1px solid var(--control)}
+.seg-switch button[aria-pressed="true"]{background:var(--green);color:var(--on-green);font-weight:600}
+
+/* ---------- header ---------- */
+.top{padding:26px 0 8px;display:flex;flex-wrap:wrap;gap:14px 24px;justify-content:space-between;align-items:flex-end}
+.top h1{margin:0;font:500 34px/1.15 var(--font-display);letter-spacing:-.01em}
+.lede{margin:6px 0 0;max-width:62ch;color:var(--muted)}
+.lede b{color:var(--ink);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stamp{width:100%;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.fresh{display:inline-flex;align-items:center;gap:6px;padding:1px 10px;border-radius:999px;background:var(--green-wash);color:var(--green-ink);font-weight:600;font-size:12.5px}
+.fresh.stale{background:var(--amber-wash);color:var(--amber)}
+details.menu{position:relative}
+details.menu summary{list-style:none}
+details.menu summary::-webkit-details-marker{display:none}
+details.menu .pop{position:absolute;right:0;top:40px;min-width:210px;background:var(--paper);border:1px solid var(--control);border-radius:8px;padding:6px;z-index:40;display:grid;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+details.menu .pop button{border:0;background:transparent;text-align:left;height:34px;padding:0 10px;border-radius:6px;font-size:14px}
+details.menu .pop button:hover{background:var(--hover)}
+
+/* ---------- banners ---------- */
+.banner{margin:12px 0 0;padding:10px 14px;border-radius:8px;border:1px solid var(--rule-strong);background:var(--paper);display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.banner.warn{background:var(--amber-wash);border-color:var(--amber);color:var(--ink)}
+.banner.bad{background:var(--red-wash);border-color:var(--red)}
+.banner a{font-weight:600}
+
+/* ---------- at a glance ---------- */
+.glance{margin-top:18px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+.glance h2,.panel h2{margin:0 0 10px;font:500 22px/1.25 var(--font-display)}
+.segs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.seg{display:flex;flex-direction:column;gap:6px;text-align:left;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);min-height:132px}
+.seg:hover{border-color:var(--rule-strong)}
+.seg[aria-pressed="true"]{border-color:var(--green);outline:1px solid var(--green)}
+.seg-head{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
+.seg-n{font:500 34px/1 var(--font-display)}
+.seg-n small{font:400 14px var(--font-ui);color:var(--muted);margin-inline-start:6px}
+.seg-meta{font-size:13px;color:var(--muted)}
+.seg-next{font-size:13px;margin-top:auto}
+.seg-next b{font-weight:600}
+.agenda{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.agenda h3{margin:0 0 8px;font-size:15px;font-weight:600}
+.ag-group{margin:0 0 8px}
+.ag-title{font-size:12.5px;font-weight:600;color:var(--muted);margin:8px 0 4px}
+.ag-list{list-style:none;margin:0;padding:0}
+.ag-list li{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:6px 0;border-top:1px solid var(--rule);font-size:13.5px}
+.ag-list li:first-child{border-top:0}
+.ag-when{font-weight:600;white-space:nowrap}
+.ag-what button{all:unset;cursor:pointer;color:var(--green-ink);text-decoration:underline;font-weight:500}
+.ag-what button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ag-what .small{display:block}
+.ag-time{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.bdcard{margin-top:12px;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.bdcard h3{margin:0 0 6px;font-size:15px;font-weight:600}
+
+/* ---------- filter bar ---------- */
+.filterbar{position:sticky;top:0;z-index:30;background:var(--ground);padding:12px 0 10px;margin-top:18px;border-bottom:1px solid var(--rule)}
+.fb-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--control);background:var(--paper);font-size:14px;display:inline-flex;align-items:center;gap:7px}
+.tab .n{font-size:12px;color:var(--muted);font-weight:600}
+.tab[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:600}
+.tab[aria-pressed="true"] .n{color:var(--on-green)}
+.fb-fields{margin-top:8px}
+.fb-fields input[type=search],.fb-fields select{height:36px;border:1px solid var(--control);border-radius:6px;padding:0 10px;background:var(--paper)}
+.fb-fields input[type=search]{min-width:240px;flex:1 1 240px;max-width:380px}
+.check{display:inline-flex;gap:7px;align-items:center;font-size:14px}
+.check input{width:16px;height:16px;accent-color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 10px;border-radius:999px;background:var(--green-wash);color:var(--green-ink);border:1px solid transparent;font-size:13px;font-weight:600}
+.fchip button{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:15px;line-height:1}
+.fchip button:hover{background:rgba(0,0,0,.12)}
+.fchip button:focus-visible{outline:2px solid var(--focus)}
+.linkbtn{all:unset;cursor:pointer;color:var(--green-ink);font-size:13px;text-decoration:underline}
+.linkbtn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.count{margin-inline-start:auto;font-size:13px;color:var(--muted)}
+
+/* ---------- table ---------- */
+.tablewrap{margin-top:12px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);box-shadow:var(--shadow)}
+table.ev{border-collapse:separate;border-spacing:0;width:100%;font-size:14px;table-layout:fixed}
+table.ev thead th{position:sticky;top:var(--fbar-h,0px);z-index:10;background:var(--paper);text-align:left;font-weight:600;font-size:13px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--rule-strong)}
+table.ev thead th:first-child{border-top-left-radius:10px}
+table.ev thead th:last-child{border-top-right-radius:10px}
+.sortbtn{all:unset;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
+.sortbtn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+th[aria-sort="ascending"] .sortbtn::after{content:"\25B2";font-size:9px}
+th[aria-sort="descending"] .sortbtn::after{content:"\25BC";font-size:9px}
+table.ev td{vertical-align:top;padding:14px 12px;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+table.ev tbody tr:last-child td{border-bottom:0}
+tr.main:hover td{background:var(--hover)}
+tr.main.is-open td{background:var(--hover);border-bottom-color:transparent}
+tr.detail td{background:var(--paper-2);padding:18px 20px 22px}
+.c-name{width:22%}.c-status{width:12%}.c-dl{width:16%}.c-int{width:13%}.c-ch{width:15%}.c-lk{width:11%}.c-tr{width:11%}
+.ev-name{font-weight:600;font-size:15.5px;line-height:1.35}
+.ev-org{font-size:13px;color:var(--muted)}
+.ev-sum{font-size:13px;color:var(--muted);margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.typechip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink);border:1px solid var(--rule-strong);border-radius:6px;padding:1px 8px;background:var(--paper-2)}
+.tag{font-size:12px;padding:1px 8px;border:1px solid var(--rule);border-radius:999px;color:var(--muted)}
+.tag.warn{border-color:var(--amber);color:var(--amber)}
+.tag.mine{border-color:var(--green);color:var(--green-ink)}
+.prize{font-size:12.5px;font-weight:600;color:var(--green-ink)}
+
+.badge{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;line-height:1.25;background:var(--ash-wash);color:var(--ash)}
+.badge.open{background:var(--green-wash);color:var(--green-ink)}
+.badge.closing{background:var(--red-wash);color:var(--red)}
+.badge.upcoming{background:var(--blue-wash);color:var(--blue)}
+.badge.rolling{background:var(--violet-wash);color:var(--violet)}
+.badge.check{background:var(--amber-wash);color:var(--amber)}
+.badge.closed{background:var(--ash-wash);color:var(--ash)}
+.livebadge{display:block;margin-top:8px;font-size:12px;line-height:1.4}
+.livebadge.match{color:var(--green-ink)}
+.livebadge.mismatch{color:var(--amber)}
+.livebadge.fail{color:var(--red)}
+.livebadge.nodata,.livebadge.info,.livebadge.none{color:var(--muted)}
+
+.cd{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.count-num{font:500 36px/1 var(--font-display);font-variant-numeric:lining-nums}
+.count-unit{font-size:14px;color:var(--muted)}
+.count-unit.strong{color:var(--ink);font-weight:600}
+.dl-main{font-weight:600}
+.win{height:5px;background:var(--rule);border-radius:3px;margin-top:8px;overflow:hidden}
+.win i{display:block;height:100%;background:var(--green)}
+.win.mid i{background:var(--amber)}
+.win.hot i{background:var(--red)}
+.conf{display:inline-block;margin:4px 0 0;font-size:12px;font-weight:600;padding:0 8px;border-radius:4px}
+.conf.ok{background:var(--green-wash);color:var(--green-ink)}
+.conf.est{background:var(--amber-wash);color:var(--amber)}
+.conf.unk{background:var(--ash-wash);color:var(--ash)}
+
+.chl{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.chl li{font-size:13.5px;line-height:1.4}
+.lvl{font-size:11.5px;color:var(--muted);border:1px solid var(--rule-strong);border-radius:4px;padding:0 5px;margin-inline-start:4px;display:inline-block;white-space:normal}
+.src-live{font-size:11.5px;color:var(--green-ink);border:1px solid var(--green);border-radius:4px;padding:0 5px;margin-inline-start:4px}
+.lks{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.lk{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:4px 10px;border:1px solid var(--control);border-radius:6px;font-size:13px;line-height:1.3;color:var(--ink);text-decoration:none;background:transparent;max-width:100%}
+.lk:hover{background:var(--hover)}
+.lk.apply{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:600}
+.lk.apply.dim{background:transparent;color:var(--muted);border-color:var(--rule-strong);font-weight:500}
+.trk{display:flex;flex-direction:column;gap:6px}
+.trk select{height:32px;border:1px solid var(--control);border-radius:6px;background:var(--paper);padding:0 2px 0 6px;font-size:13px;width:100%;max-width:100%;text-overflow:ellipsis}
+.exp{all:unset;cursor:pointer;color:var(--green-ink);font-size:13px;text-decoration:underline}
+.exp:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.empty h3{margin:0 0 6px;color:var(--ink);font:500 20px var(--font-display)}
+.empty .row{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+
+/* ---------- details ---------- */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px 28px}
+.dgrid h3{margin:0 0 8px;font-size:14px;font-weight:600}
+.dgrid p{margin:0 0 8px}
+.ms{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ms li{display:grid;grid-template-columns:12px 1fr;gap:10px;font-size:13.5px}
+.ms li.past{opacity:.6}
+.ms .dot{width:10px;height:10px;border-radius:50%;margin-top:6px;background:var(--ash)}
+.k-open{background:var(--green)!important}.k-deadline{background:var(--red)!important}.k-release{background:var(--blue)!important}
+.k-event{background:var(--violet)!important}.k-result{background:var(--amber)!important}
+.srclist{margin:0;padding-inline-start:18px;display:grid;gap:4px;font-size:13.5px}
+.srcrow{border-top:1px solid var(--rule);padding:8px 0;font-size:13px}
+.srcrow:first-of-type{border-top:0}
+.srcrow code,.mono{font:12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+.dates{margin:6px 0 0;padding-inline-start:18px;font-size:12.5px;color:var(--muted)}
+details.pv summary{cursor:pointer;color:var(--green-ink);font-size:12.5px}
+details.pv pre{white-space:pre-wrap;font-size:12px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:8px;max-height:140px;overflow:auto}
+.dact{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* ---------- panels ---------- */
+.panel{margin-top:26px}
+.panel .sub{margin:0 0 12px;color:var(--muted);font-size:13.5px;max-width:78ch}
+.tl{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:12px 12px 14px;overflow-x:auto;box-shadow:var(--shadow)}
+.tl-in{min-width:960px}
+.tl-head{display:grid;grid-template-columns:210px 1fr;align-items:end}
+.tl-cols{display:grid;grid-template-columns:repeat(14,minmax(0,1fr))}
+.mo{font-size:12px;text-align:center;padding:4px 0;border-inline-start:1px solid var(--rule);line-height:1.2}
+.mo small{display:block;color:var(--muted);font-size:11px}
+.tl-row{display:grid;grid-template-columns:210px 1fr;align-items:center;border-top:1px solid var(--rule)}
+.tl-name{font-size:13px;padding:6px 10px 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-track{position:relative;height:30px;background-image:linear-gradient(to right,var(--rule) 1px,transparent 1px);background-size:calc(100%/14) 100%}
+.tl-win{position:absolute;top:10px;height:10px;border-radius:5px;background:var(--green);opacity:.9}
+.tl-win.closed{background:var(--ash);opacity:.5}
+.tl-int{position:absolute;top:8px;height:14px;border-radius:3px;border:1px dashed var(--amber);background:repeating-linear-gradient(135deg,var(--amber-wash) 0 4px,transparent 4px 8px)}
+.tl-int.ok{border:1px solid var(--green);background:var(--green-wash)}
+.tl-dot{position:absolute;top:8px;width:14px;height:14px;border-radius:50%;transform:translateX(-7px);background:var(--ash);border:2px solid var(--paper)}
+.tl-roll{position:absolute;left:0;right:0;top:14px;height:2px;background:var(--violet);opacity:.6}
+.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:2}
+.tl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.tl-legend i{display:inline-block;width:12px;height:8px;border-radius:4px;margin-inline-end:5px;vertical-align:middle}
+.tl summary,.panel details>summary{cursor:pointer}
+.panel details>summary{font:500 22px/1.25 var(--font-display);margin:0 0 6px}
+.log{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;max-height:220px;overflow:auto;font-size:12.5px}
+.log div{padding:2px 0;border-bottom:1px dashed var(--rule)}
+.log .ok{color:var(--green-ink)}.log .warn{color:var(--amber)}.log .err{color:var(--red)}
+
+/* ---------- data section ---------- */
+.datapanel{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.steps{margin:0 0 14px;padding-inline-start:20px;display:grid;gap:4px;max-width:80ch}
+.formgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.fform{display:grid;gap:10px;align-content:start}
+.fform label{display:grid;gap:4px;font-size:13.5px;font-weight:600}
+.fform label .hint{font-weight:400;color:var(--muted);font-size:12.5px}
+.fform label.check{display:flex;align-items:center;gap:8px;font-weight:500}
+.fform input[type=text],.fform input[type=url],.fform input[type=date],.fform input[type=time],.fform select,.fform textarea{height:36px;border:1px solid var(--control);border-radius:6px;padding:0 10px;background:var(--paper);font-weight:400;width:100%}
+.fform textarea{height:76px;padding:8px 10px}
+.fform input:invalid:not(:placeholder-shown){border-color:var(--red)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1.2fr 1fr 1.4fr;gap:10px}
+.out{position:sticky;top:12px;align-self:start;display:grid;gap:10px}
+.outbox{position:relative;border:1px solid var(--control);border-radius:8px;background:var(--paper-2)}
+.outbox pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-all;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:240px;overflow:auto}
+.copybtn{min-width:128px;justify-content:center}
+.copybtn.done{background:var(--green-wash);border-color:var(--green);color:var(--green-ink)}
+.copybtn.fail{background:var(--red-wash);border-color:var(--red);color:var(--red)}
+.valid{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:13.5px}
+.valid li{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-radius:6px;background:var(--amber-wash)}
+.valid li.error{background:var(--red-wash)}
+.valid li.ok{background:var(--green-wash)}
+
+footer{margin-top:30px;margin-bottom:56px;color:var(--muted);font-size:13px;max-width:100ch}
+#toast{position:fixed;inset-inline:0;bottom:18px;display:flex;justify-content:center;pointer-events:none;z-index:80}
+#toast span{background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s}
+#toast.show span{opacity:1}
+
+/* ---------- smaller screens: stacked cards instead of a squeezed table ---------- */
+@media (max-width:1180px){
+  .glance{grid-template-columns:1fr}
+  .tablewrap{border:0;background:transparent;box-shadow:none}
+  table.ev,table.ev tbody{display:block;table-layout:auto}
+  table.ev thead{display:none}
+  tr.main{display:block;background:var(--paper);border:1px solid var(--rule);border-radius:10px;margin-top:12px;padding:6px 0;box-shadow:var(--shadow)}
+  tr.main.is-open{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
+  tr.main td{display:block;border:0;padding:10px 14px;width:auto}
+  tr.main td::before{content:attr(data-label);display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  tr.main td.c-name::before{display:none}
+  tr.main:hover td,tr.main.is-open td{background:transparent}
+  tr.detail{display:block;background:var(--paper-2);border:1px solid var(--rule);border-top:0;border-radius:0 0 10px 10px}
+  tr.detail td{display:block;padding:14px;border:0}
+  .lks{flex-direction:row;flex-wrap:wrap}
+  .trk{flex-direction:row;align-items:center;gap:14px}
+  .formgrid{grid-template-columns:1fr}
+  .out{position:static}
+}
+@media (max-width:640px){
+  :root{--gutter:16px}
+  .top h1{font-size:28px}
+  .segs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .glance>div,.agenda{min-width:0}
+  .seg{min-height:0;padding:12px}
+  .tl-in{min-width:860px}
+  .row3{grid-template-columns:1fr}
+  .filterbar{position:static}
+  table.ev thead th{position:static}
+}
+@media (max-width:380px){
+  .segs{grid-template-columns:1fr}
+}
+@media print{
+  .actions,.filterbar,.exp,.lks,.trk select,#toast,.datapanel{display:none!important}
+  body{background:#fff;color:#000}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#table">Skip to the events table</a>
+<noscript><p style="padding:16px">This dashboard needs JavaScript. Please turn it on in your browser.</p></noscript>
+
+<header class="wrap top">
+  <div>
+    <h1>Open Challenge Hub</h1>
+    <p class="lede" id="lede">Loading…</p>
+  </div>
+  <div class="actions">
+    <div class="seg-switch" role="group" aria-label="Colour theme">
+      <button type="button" data-theme-set="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+    <button class="btn" id="btnLive" type="button"><span class="spin" aria-hidden="true"></span><span id="btnLiveTxt">Check live</span></button>
+    <a class="btn primary" id="btnAdd" href="#data">Add an event</a>
+    <details class="menu" id="exportMenu">
+      <summary class="btn">Export</summary>
+      <div class="pop">
+        <button type="button" id="btnCsv">Download table as CSV</button>
+        <button type="button" id="btnIcs">Download calendar file (.ics)</button>
+      </div>
+    </details>
+  </div>
+  <div class="stamp" id="stamp"></div>
+</header>
+
+<div class="wrap" id="banners" aria-live="polite"></div>
+
+<main class="wrap">
+
+  <section class="glance" aria-labelledby="glance-h">
+    <div>
+      <h2 id="glance-h">Tech world at a glance</h2>
+      <div class="segs" id="segs"></div>
+      <div class="bdcard" id="bdcard"></div>
+    </div>
+    <aside class="agenda" aria-labelledby="agenda-h">
+      <h3 id="agenda-h">Next 30 days</h3>
+      <div id="agendaBody"></div>
+    </aside>
+  </section>
+
+  <section id="browse" aria-label="All events">
+    <div class="filterbar" id="filterbar">
+      <div class="fb-row">
+        <div class="tabs" id="tabs" role="group" aria-label="Event type"></div>
+        <span class="count" id="count" aria-live="polite"></span>
+      </div>
+      <div class="fb-row fb-fields">
+        <input type="search" id="q" placeholder="Search events, organizers, topics" aria-label="Search events" autocomplete="off">
+        <select id="fStatus" aria-label="Status">
+          <option value="all">Any status</option>
+          <option value="open">Open now</option>
+          <option value="closing">Closing within 14 days</option>
+          <option value="upcoming">Opens soon</option>
+          <option value="rolling">Always open</option>
+          <option value="closed">Closed or ended</option>
+          <option value="check">Dates unconfirmed</option>
+          <option value="intake">Has a next-intake date</option>
+        </select>
+        <select id="fSort" aria-label="Sort by">
+          <option value="urgency">Sort: most urgent first</option>
+          <option value="deadline">Sort: nearest deadline</option>
+          <option value="intake">Sort: next intake</option>
+          <option value="name">Sort: name A to Z</option>
+        </select>
+        <label class="check"><input type="checkbox" id="fBd"> Open to people in Bangladesh</label>
+        <span class="chips" id="chips"></span>
+      </div>
+    </div>
+
+    <div class="tablewrap" id="table">
+      <table class="ev" role="table" aria-label="Events and deadlines">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader" class="c-name" aria-sort="none"><button type="button" class="sortbtn" data-sort="name">Event</button></th>
+            <th scope="col" role="columnheader" class="c-status" aria-sort="none"><button type="button" class="sortbtn" data-sort="status">Status</button></th>
+            <th scope="col" role="columnheader" class="c-dl" aria-sort="none"><button type="button" class="sortbtn" data-sort="deadline">Deadline</button></th>
+            <th scope="col" role="columnheader" class="c-int" aria-sort="none"><button type="button" class="sortbtn" data-sort="intake">Next intake</button></th>
+            <th scope="col" role="columnheader" class="c-ch">Challenges</th>
+            <th scope="col" role="columnheader" class="c-lk">Links</th>
+            <th scope="col" role="columnheader" class="c-tr">My status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody" role="rowgroup"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Timeline">
+    <details open>
+      <summary>Next 14 months</summary>
+      <p class="sub">Bars show when applications are open. Hatched blocks are the expected next intake (dashed amber means estimated). Dots are milestones and the red line is today.</p>
+      <div class="tl" id="timeline"></div>
+    </details>
+  </section>
+
+  <section class="panel" aria-labelledby="coming-h">
+    <h2 id="coming-h">Coming up in the next 150 days</h2>
+    <p class="sub">Deadlines, releases and expected intakes, grouped by month.</p>
+    <div id="coming"></div>
+  </section>
+
+  <section class="panel" id="data" aria-labelledby="data-h">
+    <h2 id="data-h">Your data</h2>
+    <div class="datapanel">
+      <p class="small" style="margin-top:0;font-size:14px">This page is static. Everything above comes from the data block at the top of this HTML file, and nothing is saved in your browser. Use the form to produce a line you can paste into the file.</p>
+      <ol class="steps">
+        <li>Fill in the form. The line on the right updates as you type.</li>
+        <li>Press <b>Copy line</b>.</li>
+        <li>Open this HTML file, find <span class="mono">MY_EVENTS</span> near the top, and paste the line inside the brackets.</li>
+        <li>Save the file and refresh the page.</li>
+      </ol>
+
+      <h3 style="margin:18px 0 10px;font-size:16px" id="add-h">Add an event</h3>
+      <div class="formgrid">
+        <form class="fform" id="addForm" autocomplete="off" aria-labelledby="add-h" novalidate>
+          <label><span>Name <span class="hint">required</span></span><input type="text" id="aName" maxlength="140" placeholder="Example: Open Source Day 2027"></label>
+          <div class="row2">
+            <label><span>Type <span class="hint">required</span></span>
+              <select id="aType"><option value="hackathon">Hackathon</option><option value="competition">Competition</option><option value="challenge">Challenge</option><option value="opportunity">Opportunity</option></select>
+            </label>
+            <label>Open to people in Bangladesh?
+              <select id="aBd"><option value="check">Check the rules</option><option value="yes">Yes</option><option value="no">No</option></select>
+            </label>
+          </div>
+          <label>Organizer<input type="text" id="aOrg" maxlength="120"></label>
+          <label>Official link<input type="url" id="aOff" placeholder="https://"></label>
+          <div class="row2">
+            <label>Apply or register link<input type="url" id="aApp" placeholder="https://"></label>
+            <label>Challenge list link<input type="url" id="aList" placeholder="https://"></label>
+          </div>
+          <div class="row2">
+            <label>Applications open<input type="date" id="aOpens"></label>
+            <label class="check" style="align-self:end;padding-bottom:8px"><input type="checkbox" id="aRolling"> Always open, no deadline</label>
+          </div>
+          <div class="row3">
+            <label>Deadline date<input type="date" id="aDate"></label>
+            <label><span>Time <span class="hint">optional</span></span><input type="time" id="aTime"></label>
+            <label>Time zone of that time
+              <select id="aTz">
+                <option value="">My local time</option>
+                <option value="Z">UTC</option>
+                <option value="+06:00">Bangladesh (UTC+6)</option>
+                <option value="+05:30">India (UTC+5:30)</option>
+                <option value="+01:00">Central Europe, winter (UTC+1)</option>
+                <option value="+02:00">Central Europe, summer (UTC+2)</option>
+                <option value="-05:00">US Eastern, winter (EST)</option>
+                <option value="-04:00">US Eastern, summer (EDT)</option>
+                <option value="-08:00">US Pacific, winter (PST)</option>
+                <option value="-07:00">US Pacific, summer (PDT)</option>
+              </select>
+            </label>
+          </div>
+          <div class="row2">
+            <label><span>Next intake date <span class="hint">optional</span></span><input type="date" id="aNext"></label>
+            <label>How sure is that date?
+              <select id="aConf"><option value="estimated">Estimated</option><option value="confirmed">Confirmed</option><option value="unknown">Unknown</option></select>
+            </label>
+          </div>
+          <div class="row2">
+            <label>Mode
+              <select id="aMode"><option value="">Not specified</option><option value="online">Online</option><option value="in-person">In person</option><option value="hybrid">Hybrid</option></select>
+            </label>
+            <label><span>Prize or benefit <span class="hint">optional</span></span><input type="text" id="aPrize" maxlength="80" placeholder="$5,000 or paid stipend"></label>
+          </div>
+          <label><span>Topics <span class="hint">separate with commas</span></span><input type="text" id="aTopics" placeholder="AI, open source"></label>
+          <label><span>Summary <span class="hint">one or two sentences</span></span><textarea id="aSummary" maxlength="400"></textarea></label>
+          <div><button type="reset" class="btn" id="btnFormReset">Clear form</button></div>
+        </form>
+
+        <div class="out" aria-labelledby="out-h">
+          <h4 id="out-h" style="margin:0;font-size:14px">Your line for MY_EVENTS</h4>
+          <div class="outbox"><pre id="outLine" tabindex="0" aria-label="Generated line">Fill in a name and a type to generate the line.</pre></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button type="button" class="btn primary copybtn" id="btnCopyLine" disabled>Copy line</button>
+            <button type="button" class="btn copybtn" id="btnCopyPretty" disabled>Copy multi-line</button>
+            <button type="button" class="btn" id="btnPreview" disabled>Preview on this page</button>
+          </div>
+          <p class="small" id="outHelp" style="margin:0">Preview shows the event in the table for this visit only. It disappears when you refresh, so paste the line into the file to keep it.</p>
+          <ul class="valid" id="formCheck" aria-live="polite"></ul>
+        </div>
+      </div>
+
+      <h3 style="margin:26px 0 8px;font-size:16px">Your status changes in this visit</h3>
+      <p class="small" style="margin-top:0;font-size:13.5px">Pick a status in the table’s “My status” column. Changes are not stored. To keep them, copy the text below and use it to replace the <span class="mono">TRACKER</span> block in the file.</p>
+      <div class="outbox"><pre id="trackerOut" tabindex="0" aria-label="Tracker text">No changes yet.</pre></div>
+      <div style="margin-top:8px"><button type="button" class="btn copybtn" id="btnCopyTracker" disabled>Copy tracker text</button></div>
+
+      <h3 style="margin:26px 0 8px;font-size:16px">Data check</h3>
+      <p class="small" style="margin-top:0;font-size:13.5px">The page checks your data for typos, repeated ids, bad dates and broken links every time it loads.</p>
+      <ul class="valid" id="dataCheck"></ul>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Live check">
+    <details>
+      <summary>Live check log and help</summary>
+      <p class="sub">“Check live” tries to read each official page and compare the dates with the saved ones. Browsers block most cross-site reads, so the page tries three public readers in turn (r.jina.ai, allorigins, corsproxy.io). Readers can be slow or fail. For better results run the tiny proxy below and set <span class="mono">CONFIG.liveCheck.proxy</span> at the top of the file. Live results never overwrite your saved dates.</p>
+      <div class="log" id="log" role="log"></div>
+      <details style="margin-top:12px">
+        <summary class="small" style="cursor:pointer;font:inherit">Proxy code (Node 18 or newer)</summary>
+        <div class="outbox" style="margin-top:8px"><pre id="proxyCode" tabindex="0" aria-label="Proxy code"></pre></div>
+        <div style="margin-top:8px"><button type="button" class="btn copybtn" id="btnCopyProxy">Copy code</button></div>
+        <p class="small">Save it as proxy.js, run <span class="mono">node proxy.js</span>, then set the proxy to <span class="mono">http://localhost:8787/?url=</span>.</p>
+      </details>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p id="tzNote"></p>
+  <p>Dates and links were reviewed on the date shown in the header, using the sources listed under each event’s details. “Live” results are only a cross-check and never change the saved data. Always confirm deadlines and eligibility on the official page before you apply.</p>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"><span id="toastTxt"></span></div>
+
+<script id="app">
+(function () {
+'use strict';
+
+/* =====================================================================
+   0. Safety: did the data block load?
+   ===================================================================== */
+var DATA_OK = (typeof CONFIG !== 'undefined' && typeof EVENTS !== 'undefined' && typeof MY_EVENTS !== 'undefined' && typeof TRACKER !== 'undefined');
+if (!DATA_OK) {
+  document.addEventListener('DOMContentLoaded', function () {
+    var errs = (window.__scriptErrors || []).map(function (m) { return '<li>' + String(m).replace(/</g, '&lt;') + '</li>'; }).join('');
+    var host = document.getElementById('banners') || document.body;
+    host.innerHTML = '<div class="banner bad" role="alert"><div><b>The data block at the top of this file could not be read.</b> ' +
+      'This usually means a missing comma, bracket or quote in the part you edited. Undo your last change, or press F12 and open the Console to see the line number.' +
+      (errs ? '<ul>' + errs + '</ul>' : '') + '</div></div>';
+    var l = document.getElementById('lede'); if (l) l.textContent = 'Data could not be loaded.';
+  });
+  return;
+}
+
+/* =====================================================================
+   1. Helpers
+   ===================================================================== */
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var safeUrl = function (u) { try { var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; } catch (e) { return ''; } };
+var pad = function (n) { return String(n).padStart(2, '0'); };
+var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+var MS_DAY = 86400000;
+var NOW = function () { return window.__NOW__ ? new Date(window.__NOW__) : new Date(); };
+var plural = function (n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); };
+
+var LOCALE = 'en-GB';
+var F_DAY = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short', year: 'numeric' });
+var F_DAY_WK = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+var F_MONTH = new Intl.DateTimeFormat(LOCALE, { month: 'long', year: 'numeric' });
+var F_MON = new Intl.DateTimeFormat(LOCALE, { month: 'short' });
+var F_SHORT = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' });
+var F_TIME = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+var F_TZ = new Intl.DateTimeFormat(LOCALE, { timeZoneName: 'short' });
+
+var TYPES = ['hackathon', 'competition', 'challenge', 'opportunity'];
+var TYPE_LABEL = { hackathon: 'Hackathon', competition: 'Competition', challenge: 'Challenge', opportunity: 'Opportunity' };
+var TYPE_PLURAL = { hackathon: 'Hackathons', competition: 'Competitions', challenge: 'Challenges', opportunity: 'Opportunities' };
+var TYPE_BLURB = {
+  hackathon: 'Build something in a weekend or a few weeks',
+  competition: 'Compete on a leaderboard, a pitch or a contest',
+  challenge: 'Prize and open-innovation platforms',
+  opportunity: 'Mentorships, fellowships and internships'
+};
+var TYPE_ICON = {
+  hackathon: '<path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/>',
+  competition: '<path d="M8 4h8v5a4 4 0 0 1-8 0V4zM8 6H4v1a3 3 0 0 0 4 2.8M16 6h4v1a3 3 0 0 1-4 2.8M12 13v4M8 20h8M10 17h4"/>',
+  challenge: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  opportunity: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'
+};
+var STATUS_ICON = {
+  open: '<circle cx="8" cy="8" r="6"/><path d="m5.5 8 1.8 1.8L10.6 6.4"/>',
+  closing: '<path d="M8 2 14.5 13H1.5z"/><path d="M8 6.5v3M8 11.2v.1"/>',
+  upcoming: '<circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.3 1.5"/>',
+  rolling: '<path d="M3 8a5 5 0 0 1 8.6-3.4L13 6M13 2v4H9M13 8a5 5 0 0 1-8.6 3.4L3 10M3 14v-4h4"/>',
+  check: '<circle cx="8" cy="8" r="6"/><path d="M6.4 6.3a1.7 1.7 0 1 1 2.4 1.5c-.5.3-.8.6-.8 1.2M8 11.3v.1"/>',
+  closed: '<circle cx="8" cy="8" r="6"/><path d="m5.8 5.8 4.4 4.4M10.2 5.8l-4.4 4.4"/>'
+};
+var icon = function (paths, vb) { return '<svg class="i" viewBox="' + (vb || '0 0 24 24') + '" aria-hidden="true">' + paths + '</svg>'; };
+var typeIcon = function (t) { return icon(TYPE_ICON[t] || TYPE_ICON.hackathon); };
+var statusIcon = function (k) { return icon(STATUS_ICON[k] || STATUS_ICON.check, '0 0 16 16'); };
+var TRACKER_OPTS = [['', 'No status'], ['interested', 'Interested'], ['applying', 'Applying'], ['applied', 'Applied'], ['submitted', 'Submitted'], ['skipped', 'Skipped']];
+var TRACKER_VALUES = TRACKER_OPTS.map(function (o) { return o[0]; }).filter(Boolean);
+var STATUS_RANK = { closing: 0, open: 1, upcoming: 2, rolling: 3, check: 4, closed: 5 };
+var ALLOWED_KEYS = ['id', 'name', 'org', 'type', 'kind', 'mode', 'region', 'bd', 'bdNote', 'topics', 'summary', 'eligibility', 'prize', 'links', 'opens', 'deadline', 'deadlineNote', 'rolling', 'ended', 'next', 'milestones', 'challenges', 'challengesNote', 'live', 'sources', 'reviewed'];
+
+/* =====================================================================
+   2. Dates
+   ===================================================================== */
+function parseWhen(s, mode) {
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    var p = s.split('-').map(Number);
+    var chk = new Date(p[0], p[1] - 1, p[2], 0, 0, 0);
+    if (chk.getFullYear() !== p[0] || chk.getMonth() !== p[1] - 1 || chk.getDate() !== p[2]) return null;   // reject 2026-13-45 and 2026-02-31
+    return mode === 'start' ? chk : new Date(p[0], p[1] - 1, p[2], 23, 59, 59);
+  }
+  var dt = new Date(s); return isNaN(dt) ? null : dt;
+}
+var startOfDay = function (d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+var dayDiff = function (a, b) { return Math.round((startOfDay(a) - startOfDay(b)) / MS_DAY); };
+var hasTime = function (s) { return /T\d{2}:\d{2}/.test(String(s || '')); };
+var ymd = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+var tzShort = function (d) { var p = F_TZ.formatToParts(d).filter(function (x) { return x.type === 'timeZoneName'; })[0]; return p ? p.value : ''; };
+function dateText(d, o) {
+  o = o || {};
+  if (!d) return '';
+  if (o.month) return F_MONTH.format(d);
+  return (o.weekday ? F_DAY_WK : F_DAY).format(d);
+}
+var timeText = function (d) { return F_TIME.format(d); };
+
+/* Countdown toward a date. approx = the date is an estimate. */
+function countdown(target, now, approx) {
+  var ms = target - now;
+  if (ms <= 0) {
+    var ago = Math.abs(dayDiff(now, target));
+    return { text: ago === 0 ? 'Closed today' : (ago === 1 ? 'Closed yesterday' : 'Closed ' + ago + ' days ago'), days: -ago, past: true };
+  }
+  var dd = dayDiff(target, now);
+  if (approx && dd >= 60) return { text: 'in about ' + Math.round(dd / 30) + ' months', days: dd, past: false };
+  if (dd >= 2) return { text: approx ? 'in about ' + dd + ' days' : dd + ' days left', days: dd, past: false };
+  if (dd === 1) return { text: approx ? 'in about a day' : 'Closes tomorrow', days: 1, past: false };
+  var h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
+  return { text: 'Closes today, ' + h + 'h ' + m + 'm left', days: 0, past: false };
+}
+/* Neutral relative time for milestones ("in 12 days", "3 days ago"). */
+function relTime(target, now, approx) {
+  var dd = dayDiff(target, now);
+  var pre = approx ? 'about ' : '';
+  if (dd === 0) return target >= now ? 'today' : 'earlier today';
+  if (dd === 1) return 'tomorrow';
+  if (dd === -1) return 'yesterday';
+  if (dd > 0) return (approx && dd >= 60) ? 'in about ' + Math.round(dd / 30) + ' months' : 'in ' + pre + dd + ' days';
+  return Math.abs(dd) + ' days ago';
+}
+function ago(ts) {
+  var t = typeof ts === 'number' ? ts : Date.parse(ts);
+  if (!t) return 'never';
+  var m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return plural(m, 'minute') + ' ago';
+  var h = Math.round(m / 60);
+  if (h < 24) return plural(h, 'hour') + ' ago';
+  return plural(Math.round(h / 24), 'day') + ' ago';
+}
+
+/* =====================================================================
+   3. Event data: normalise, validate, status
+   ===================================================================== */
+function normalize(raw, origin) {
+  var e = Object.assign({}, raw);
+  e._raw = raw;
+  e.origin = origin;
+  e.id = String(e.id || '');
+  e.name = String(e.name || '(unnamed)');
+  e.org = e.org || ''; e.kind = e.kind || ''; e.mode = e.mode || ''; e.region = e.region || '';
+  e.type = TYPES.indexOf(e.type) >= 0 ? e.type : 'hackathon';
+  e.bd = ['yes', 'check', 'no'].indexOf(e.bd) >= 0 ? e.bd : 'check';
+  e.topics = Array.isArray(e.topics) ? e.topics : [];
+  e.summary = e.summary || ''; e.eligibility = e.eligibility || ''; e.prize = e.prize || '';
+  e.links = Object.assign({ official: '', apply: '', list: '' }, e.links || {});
+  e.milestones = Array.isArray(e.milestones) ? e.milestones : [];
+  e.challenges = Array.isArray(e.challenges) ? e.challenges.map(function (c) { return typeof c === 'string' ? { title: c } : c; }) : [];
+  e.live = Array.isArray(e.live) ? e.live : [];
+  e.sources = Array.isArray(e.sources) ? e.sources : [];
+  e.rolling = !!e.rolling;
+  e.next = e.next && typeof e.next === 'object' ? e.next : null;
+  return e;
+}
+
+function validateAll() {
+  var issues = [], seen = {};
+  function check(raw, origin, idx) {
+    var where = (origin === 'mine' ? 'MY_EVENTS' : 'EVENTS') + ' #' + (idx + 1) + (raw && raw.id ? ' (' + raw.id + ')' : '');
+    var add = function (level, msg) { issues.push({ level: level, where: where, msg: msg }); };
+    if (!raw || typeof raw !== 'object') { add('error', 'This entry is not an object.'); return; }
+    if (!raw.id || !/^[a-z0-9][a-z0-9-]*$/.test(raw.id)) add('error', 'id is missing, or it is not lowercase letters, numbers and dashes.');
+    else if (seen[raw.id]) add('error', 'id “' + raw.id + '” is already used by ' + seen[raw.id] + '.');
+    else seen[raw.id] = where;
+    if (!raw.name) add('error', 'name is missing.');
+    if (TYPES.indexOf(raw.type) < 0) add('error', 'type must be hackathon, competition, challenge or opportunity.');
+    if (raw.bd && ['yes', 'check', 'no'].indexOf(raw.bd) < 0) add('warn', 'bd should be yes, check or no.');
+    Object.keys(raw).forEach(function (k) { if (ALLOWED_KEYS.indexOf(k) < 0) add('warn', 'Unknown field “' + k + '”. Is it a typo?'); });
+    ['opens', 'deadline', 'ended'].forEach(function (k) { if (raw[k] && !parseWhen(raw[k])) add('error', k + ' is not a valid date: “' + raw[k] + '”. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS.'); });
+    var o = raw.opens && parseWhen(raw.opens, 'start'), d = raw.deadline && parseWhen(raw.deadline);
+    if (o && d && o > d) add('warn', 'opens is later than deadline.');
+    if (raw.rolling && raw.deadline) add('warn', 'rolling is true, so the deadline is ignored.');
+    if (raw.next && raw.next.date && !parseWhen(raw.next.date)) add('error', 'next.date is not a valid date.');
+    (raw.milestones || []).forEach(function (m, i) { if (!m || !parseWhen(m.date)) add('error', 'Milestone ' + (i + 1) + ' has an invalid date.'); });
+    var urls = Object.keys(raw.links || {}).map(function (k) { return ['links.' + k, raw.links[k]]; });
+    (raw.sources || []).forEach(function (s, i) { urls.push(['sources[' + i + ']', s && s.url]); });
+    urls.forEach(function (u) { if (u[1] && !safeUrl(u[1])) add('warn', u[0] + ' is not a valid http or https link.'); });
+  }
+  EVENTS.forEach(function (e, i) { check(e, 'curated', i); });
+  MY_EVENTS.forEach(function (e, i) { check(e, 'mine', i); });
+  Object.keys(TRACKER).forEach(function (id) {
+    if (!seen[id]) issues.push({ level: 'warn', where: 'TRACKER', msg: '“' + id + '” does not match any event id.' });
+    if (TRACKER_VALUES.indexOf(TRACKER[id]) < 0) issues.push({ level: 'warn', where: 'TRACKER', msg: '“' + id + '” has status “' + TRACKER[id] + '”. Use one of: ' + TRACKER_VALUES.join(', ') + '.' });
+  });
+  return issues;
+}
+
+function computeStatus(ev, now) {
+  if (ev.rolling) return { key: 'rolling', label: 'Always open' };
+  var dl = ev.deadline ? parseWhen(ev.deadline) : null;
+  var op = ev.opens ? parseWhen(ev.opens, 'start') : null;
+  var ended = ev.ended ? parseWhen(ev.ended) : null;
+  if (!dl) {
+    if (ended) return now > ended ? { key: 'closed', label: 'Ended' } : { key: 'open', label: 'Happening now' };
+    return { key: 'check', label: 'Check dates' };
+  }
+  if (now > dl) return { key: 'closed', label: 'Closed' };
+  if (op && now < op) return { key: 'upcoming', label: 'Opens soon' };
+  return dayDiff(dl, now) <= 14 ? { key: 'closing', label: 'Closing soon' } : { key: 'open', label: 'Open' };
+}
+var isActive = function (st) { return st.key === 'open' || st.key === 'closing'; };
+var intakeDate = function (ev) { return ev.next && ev.next.date ? parseWhen(ev.next.date, 'start') : null; };
+function urgency(ev, st) {
+  var t = function (d) { return d ? parseWhen(d).getTime() : 9e12; };
+  var ni = intakeDate(ev), nt = ni ? ni.getTime() : 9e12;
+  switch (st.key) {
+    case 'closing': case 'open': return t(ev.deadline) || (ev.ended ? t(ev.ended) : 9e12);
+    case 'upcoming': return 1e13 + (ev.opens ? parseWhen(ev.opens, 'start').getTime() : 9e12);
+    case 'rolling': return 2e13;
+    case 'check': return 3e13 + nt;
+    default: return 4e13 + nt;
+  }
+}
+
+/* =====================================================================
+   4. State (in memory only: nothing is written to the browser)
+   ===================================================================== */
+var S = {
+  all: [], preview: [],
+  filters: { type: 'all', q: '', status: 'all', bd: false },
+  sort: { key: 'urgency', dir: 1 },
+  open: new Set(), moreCh: new Set(),
+  live: {}, log: [], busy: false,
+  tracker: Object.assign({}, TRACKER), trackerChanged: false,
+  theme: (CONFIG && CONFIG.defaultTheme) || 'auto',
+  issues: []
+};
+function rebuild() {
+  S.all = EVENTS.map(function (e) { return normalize(e, 'curated'); })
+    .concat(MY_EVENTS.map(function (e) { return normalize(e, 'mine'); }))
+    .concat(S.preview.map(function (e) { return normalize(e, 'preview'); }));
+}
+var allEvents = function () { return S.all; };
+var cfgLive = function () { return (CONFIG && CONFIG.liveCheck) || {}; };
+
+function logLine(level, msg) {
+  S.log.push({ t: new Date(), level: level, msg: msg });
+  if (S.log.length > 300) S.log.splice(0, S.log.length - 300);
+  if (typeof renderLog === 'function') renderLog();
+}
+
+/* =====================================================================
+   5. Live check (optional). Results live in memory only.
+   It reads the official pages through public readers and compares dates.
+   It never changes the saved data.
+   ===================================================================== */
+var MON = '(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+var MONNUM = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+var RE_MDY = new RegExp(String.raw`\b${MON}\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s*[-–—]\s*(\d{1,2})(?:st|nd|rd|th)?)?,?\s+(20\d{2})\b`, 'gi');
+var RE_DMY = new RegExp(String.raw`\b(\d{1,2})(?:st|nd|rd|th)?(?:\s*[-–—]\s*(\d{1,2})(?:st|nd|rd|th)?)?\s+${MON}\.?,?\s+(20\d{2})\b`, 'gi');
+var RE_ISO = /\b(20\d{2})-(\d{2})-(\d{2})\b/g;
+var RE_MD = new RegExp(String.raw`\b${MON}\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s*[-–—]\s*(\d{1,2})(?:st|nd|rd|th)?)?\b(?!\s*,?\s*\d)`, 'gi');
+var RE_CLOSED = /(registration|applications?|submissions?|entries)\s+(?:is|are|have|has)?\s*(?:now\s+)?closed|no longer accepting|deadline\s+(?:has\s+)?passed/i;
+var RE_OPEN = /(registration|applications?|submissions?)\s+(?:is|are)\s+(?:now\s+)?open|apply\s+now|register\s+(?:now|today)/i;
+
+function classify(ctx) {
+  var c = ctx.toLowerCase();
+  if (/deadline|due |close|closing|last date|final application|submission closes/.test(c)) return 'deadline';
+  if (/open|launch|start|begin|register|registration|apply|application/.test(c)) return 'open';
+  if (/announce|result|winner|notif|accepted/.test(c)) return 'result';
+  return 'date';
+}
+
+function extractDates(text, defaultYear) {
+  var out = [], seen = {}, ranges = [];
+  function push(y, m, d, raw, idx) {
+    y = +y; m = +m; d = +d;
+    if (y < 2024 || y > 2031 || m < 1 || m > 12 || d < 1 || d > 31) return;
+    var iso = y + '-' + pad(m) + '-' + pad(d);
+    if (seen[iso + '|' + raw]) return; seen[iso + '|' + raw] = 1;
+    var a = Math.max(0, idx - 70), b = Math.min(text.length, idx + raw.length + 70);
+    var ctx = text.slice(a, b).replace(/\s+/g, ' ').trim();
+    out.push({ iso: iso, raw: raw.replace(/\s+/g, ' ').trim(), ctx: ctx, kind: classify(ctx) });
+  }
+  var m;
+  for (m of text.matchAll(RE_MDY)) {
+    var mon1 = MONNUM[m[1].toLowerCase().slice(0, 3)];
+    push(m[4], mon1, m[2], m[0], m.index); if (m[3]) push(m[4], mon1, m[3], m[0], m.index);
+    ranges.push([m.index, m.index + m[0].length]);
+  }
+  for (m of text.matchAll(RE_DMY)) {
+    var mon2 = MONNUM[m[3].toLowerCase().slice(0, 3)];
+    push(m[4], mon2, m[1], m[0], m.index); if (m[2]) push(m[4], mon2, m[2], m[0], m.index);
+    ranges.push([m.index, m.index + m[0].length]);
+  }
+  for (m of text.matchAll(RE_ISO)) { push(m[1], m[2], m[3], m[0], m.index); ranges.push([m.index, m.index + m[0].length]); }
+  if (defaultYear) {
+    var chars = text.split('');
+    ranges.forEach(function (r) { for (var i = r[0]; i < r[1]; i++) chars[i] = ' '; });
+    var masked = chars.join('');
+    for (m of masked.matchAll(RE_MD)) {
+      var mon3 = MONNUM[m[1].toLowerCase().slice(0, 3)];
+      push(defaultYear, mon3, m[2], m[0], m.index); if (m[3]) push(defaultYear, mon3, m[3], m[0], m.index);
+    }
+  }
+  return out;
+}
+
+function extractTable(md) {
+  var rows = [];
+  md.split('\n').forEach(function (line) {
+    var t = line.trim();
+    if (!t.startsWith('|') || /^\|\s*:?-{2,}/.test(t)) return;
+    var cells = t.replace(/^\||\|$/g, '').split('|').map(function (s) { return s.trim(); });
+    if (cells.length < 2) return;
+    var ds = extractDates(cells[0]), label;
+    if (ds.length) label = cells.slice(1).join(' ');
+    else { ds = extractDates(cells[cells.length - 1]); label = cells.slice(0, -1).join(' '); }
+    if (!ds.length) return;
+    rows.push({ iso: ds[0].iso, raw: ds[0].raw, label: label.replace(/\s+/g, ' ').slice(0, 160) });
+  });
+  return rows;
+}
+
+function extractLinks(md) {
+  var clean = md.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
+  var out = [], seen = {};
+  var re = /\[([^\]\n]{2,160})\]\(\s*<?(https?:\/\/[^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g;
+  for (var m of clean.matchAll(re)) {
+    var title = m[1].replace(/[*_`#]/g, '').replace(/\s+/g, ' ').trim(), url = m[2];
+    if (!title || /^(read more|learn more|more|register|sign (in|up)|log ?in|apply|home|menu|skip to.*|privacy.*|terms.*|contact.*)$/i.test(title)) continue;
+    if (seen[url]) continue; seen[url] = 1;
+    out.push({ title: title, url: url });
+  }
+  return out;
+}
+
+function pickChallenges(links, src) {
+  if (!src.challengeLink) return [];
+  var inc, exc = null;
+  try { inc = new RegExp(src.challengeLink, 'i'); if (src.exclude) exc = new RegExp(src.exclude, 'i'); } catch (e) { return []; }
+  return links.filter(function (l) { return inc.test(l.url) && !(exc && exc.test(l.url)) && !/\.(png|jpe?g|svg|gif|webp|pdf)(\?|$)/i.test(l.url); }).slice(0, 40);
+}
+
+var looksHtml = function (t) { return /<(?:!doctype|html|body|head|div|a\s)/i.test(String(t).slice(0, 3000)); };
+function htmlToMd(html, base) {
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('script,style,noscript,svg,iframe,template').forEach(function (n) { n.remove(); });
+  doc.querySelectorAll('a[href]').forEach(function (a) {
+    var href = a.getAttribute('href') || '';
+    try { href = new URL(href, base).href; } catch (e) { a.replaceWith(doc.createTextNode(a.textContent || '')); return; }
+    var t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+    a.replaceWith(doc.createTextNode(t ? '[' + t + '](' + href + ')' : ''));
+  });
+  doc.querySelectorAll('tr').forEach(function (tr) {
+    var cells = Array.prototype.map.call(tr.children, function (c) { return (c.textContent || '').replace(/\s+/g, ' ').trim(); });
+    tr.replaceWith(doc.createTextNode('\n| ' + cells.join(' | ') + ' |\n'));
+  });
+  doc.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function (h) { h.insertAdjacentText('beforebegin', '\n\n#### '); h.insertAdjacentText('afterend', '\n'); });
+  doc.querySelectorAll('p,li,div,section,article,br,ul,ol,table').forEach(function (n) { n.insertAdjacentText('afterend', '\n'); });
+  return ((doc.body && doc.body.textContent) || '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+}
+
+/* ---- public readers (browsers block most cross-site reads) ---- */
+function readersFor() {
+  var list = [], p = String(cfgLive().proxy || '').trim();
+  if (p) {
+    if (!/=$/.test(p)) p += (p.indexOf('?') >= 0 ? '&' : '?') + 'url=';
+    list.push({ name: 'your proxy', make: function (u) { return p + encodeURIComponent(u); }, kind: 'text' });
+  }
+  list.push({ name: 'r.jina.ai', make: function (u) { return 'https://r.jina.ai/' + u; }, kind: 'text' });
+  list.push({ name: 'allorigins', make: function (u) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, kind: 'json' });
+  list.push({ name: 'corsproxy.io', make: function (u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); }, kind: 'text' });
+  return list;
+}
+var READER_GAP = { 'r.jina.ai': 3200, 'allorigins': 1100, 'corsproxy.io': 1100 };
+var readerLast = {}, readerCool = {};
+async function throttle(name) {
+  var gap = READER_GAP[name] || 0;
+  if (!gap || window.__NOTHROTTLE__) return;
+  var t = Math.max(Date.now(), (readerLast[name] || 0) + gap);
+  readerLast[name] = t;
+  var wait = t - Date.now();
+  if (wait > 0) await sleep(wait);
+}
+async function fetchViaReaders(url) {
+  var lastErr = null;
+  var list = readersFor().filter(function (r) { return !(readerCool[r.name] > Date.now()); });
+  if (!list.length) list = readersFor();
+  for (var i = 0; i < list.length; i++) {
+    var r = list[i];
+    await throttle(r.name);
+    var ctrl = new AbortController();
+    var to = setTimeout(function () { ctrl.abort(); }, Math.max(5, +cfgLive().timeoutSeconds || 15) * 1000);
+    try {
+      var resp = await fetch(r.make(url), { signal: ctrl.signal, credentials: 'omit' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var text;
+      if (r.kind === 'json') { var j = await resp.json(); text = j && j.contents ? String(j.contents) : ''; }
+      else text = await resp.text();
+      if (!text || text.length < 200) throw new Error('the reply was empty or too short');
+      return { text: text, via: r.name };
+    } catch (e) {
+      lastErr = e;
+      if (e && /HTTP 429/.test(String(e.message))) readerCool[r.name] = Date.now() + 30000;
+      logLine('warn', url + ': ' + r.name + ' failed (' + (e && e.name === 'AbortError' ? 'timed out' : (e && e.message) || e) + ')');
+    } finally { clearTimeout(to); }
+  }
+  throw lastErr || new Error('every reader failed');
+}
+
+async function scrapeSource(ev, src) {
+  var t0 = performance.now();
+  var res = { url: src.url, ok: false, via: null, error: null, dates: [], tableRows: [], challenges: [], closedFlag: false, openFlag: false, preview: '', ms: 0, links: [] };
+  try {
+    var got = await fetchViaReaders(src.url);
+    res.via = got.via;
+    var md = looksHtml(got.text) ? htmlToMd(got.text, src.url) : got.text;
+    res.preview = md.replace(/\s+/g, ' ').slice(0, 700);
+    res.dates = extractDates(md, src.defaultYear).slice(0, 24);
+    if (src.table) res.tableRows = extractTable(md).slice(0, 24);
+    res.links = extractLinks(md).slice(0, 300);
+    res.challenges = pickChallenges(res.links, src);
+    res.closedFlag = RE_CLOSED.test(md);
+    res.openFlag = RE_OPEN.test(md);
+    res.ok = true;
+  } catch (e) { res.error = String((e && e.message) || e); }
+  res.ms = Math.round(performance.now() - t0);
+  logLine(res.ok ? 'ok' : 'err', res.ok
+    ? ev.name + ': read ' + src.url + ' via ' + res.via + ' in ' + res.ms + ' ms. Found ' + res.dates.length + ' dates and ' + res.challenges.length + ' challenge links.'
+    : ev.name + ': could not read ' + src.url + ' (' + res.error + ')');
+  return res;
+}
+
+function liveCheck(ev, out) {
+  var ok = out.sources.filter(function (s) { return s.ok; });
+  if (!ok.length) return 'fail';
+  var all = [];
+  ok.forEach(function (s) { s.dates.forEach(function (d) { all.push(d.iso); }); s.tableRows.forEach(function (r) { all.push(r.iso); }); });
+  if (!all.length) return 'nodata';
+  if (!ev.deadline) return 'info';
+  var cands = {}; cands[ev.deadline.slice(0, 10)] = 1;
+  var d = parseWhen(ev.deadline);
+  if (d) {
+    cands[d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())] = 1;
+    cands[d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate())] = 1;
+  }
+  return all.some(function (x) { return cands[x]; }) ? 'match' : 'mismatch';
+}
+
+async function scrapeEvent(ev) {
+  var srcs = (ev.live || []).slice(0, 4);
+  if (!srcs.length) return null;
+  var out = { fetchedAt: new Date().toISOString(), sources: [], challenges: [], check: 'fail' };
+  for (var i = 0; i < srcs.length; i++) {
+    var src = srcs[i];
+    var r = await scrapeSource(ev, src);
+    out.sources.push(r);
+    if (r.ok && src.follow) {
+      var re = null; try { re = new RegExp(src.follow, 'i'); } catch (e) { re = null; }
+      var hit = re ? r.links.filter(function (l) { return re.test(l.url); })[0] : null;
+      if (hit && hit.url !== src.url) out.sources.push(await scrapeSource(ev, Object.assign({}, src, { url: hit.url, follow: null })));
+    }
+  }
+  var seen = {};
+  out.sources.forEach(function (r) {
+    (r.challenges || []).forEach(function (c) { var k = c.url || c.title; if (!seen[k]) { seen[k] = 1; out.challenges.push(c); } });
+    delete r.links;
+  });
+  out.check = liveCheck(ev, out);
+  S.live[ev.id] = out;
+  return out;
+}
+
+async function scrapeAll(force) {
+  if (S.busy) return;
+  var evs = allEvents().filter(function (e) { return (e.live || []).length; });
+  var ttl = 30 * 60 * 1000, nowMs = Date.now();
+  var todo = evs.filter(function (e) { return force || !S.live[e.id] || (nowMs - Date.parse(S.live[e.id].fetchedAt || 0)) > ttl; });
+  if (!todo.length) { toast('Everything was checked less than 30 minutes ago.'); return; }
+  S.busy = true; setBusy(true, 0, todo.length);
+  var done = 0, queue = todo.slice();
+  async function worker() {
+    while (queue.length) {
+      var ev = queue.shift();
+      await sleep(250);
+      try { await scrapeEvent(ev); } catch (e) { logLine('err', ev.name + ': ' + ((e && e.message) || e)); }
+      done++; setBusy(true, done, todo.length); renderAll();
+    }
+  }
+  await Promise.all([worker(), worker()]);
+  S.busy = false; setBusy(false); renderAll();
+  var okc = todo.filter(function (e) { return S.live[e.id] && S.live[e.id].sources.some(function (s) { return s.ok; }); }).length;
+  toast('Live check finished: ' + okc + ' of ' + todo.length + ' events could be read.');
+}
+
+async function refreshOne(ev) {
+  if (S.busy) return;
+  S.busy = true; setBusy(true, 0, 1);
+  try { await scrapeEvent(ev); } catch (e) { logLine('err', ev.name + ': ' + ((e && e.message) || e)); }
+  S.busy = false; setBusy(false); renderAll();
+  toast(ev.name + ': live check finished.');
+}
+
+/* =====================================================================
+   6. Filtering and sorting
+   ===================================================================== */
+function sortValue(ev, key, now) {
+  var st = computeStatus(ev, now);
+  switch (key) {
+    case 'name': return ev.name.toLowerCase();
+    case 'status': return STATUS_RANK[st.key];
+    case 'deadline': return ev.deadline && !ev.rolling ? parseWhen(ev.deadline).getTime() : (ev.rolling ? 8e12 : 9e12);
+    case 'intake': { var d = intakeDate(ev); return d ? d.getTime() : 9e12; }
+    default: return urgency(ev, st);
+  }
+}
+function sorted(list) {
+  var now = NOW(), k = S.sort.key, dir = S.sort.dir;
+  return list.slice().sort(function (a, b) {
+    var va = sortValue(a, k, now), vb = sortValue(b, k, now);
+    return va < vb ? -dir : (va > vb ? dir : 0);
+  });
+}
+
+/* =====================================================================
+   7. At a glance
+   ===================================================================== */
+/* Everything dated that falls within the next N days, soonest first. */
+function upcomingItems(list, now, days) {
+  var limit = now.getTime() + days * MS_DAY, items = [];
+  list.forEach(function (ev) {
+    var dlDays = {};
+    ev.milestones.forEach(function (m) {
+      var d = parseWhen(m.date);
+      if (!d || d < startOfDay(now) || d.getTime() > limit) return;
+      if (m.kind === 'deadline') dlDays[ymd(d)] = 1;
+      items.push({ ev: ev, d: d, label: m.label, kind: m.kind || 'other', approx: !!m.approx, timed: hasTime(m.date) });
+    });
+    if (ev.deadline && !ev.rolling) {
+      var dl = parseWhen(ev.deadline);
+      if (dl && dl >= now && dl.getTime() <= limit && !dlDays[ymd(dl)]) {
+        var note = ev.deadlineNote || '';
+        items.push({ ev: ev, d: dl, label: note ? (/deadline|clos/i.test(note) ? note : 'Deadline. ' + note) : 'Deadline', kind: 'deadline', approx: false, timed: hasTime(ev.deadline) });
+      }
+    }
+    var ni = intakeDate(ev);
+    if (ni && ni >= startOfDay(now) && ni.getTime() <= limit) {
+      items.push({ ev: ev, d: ni, label: 'Next intake: ' + (ev.next.label || ''), kind: 'intake', approx: ev.next.confidence !== 'confirmed', timed: false });
+    }
+  });
+  items.sort(function (a, b) { return a.d - b.d; });
+  return items;
+}
+
+function renderGlance() {
+  var now = NOW(), all = allEvents();
+  $('#segs').innerHTML = TYPES.map(function (t) {
+    var list = all.filter(function (e) { return e.type === t; });
+    var act = 0, clo = 0, rol = 0, nxt = null, nint = null;
+    list.forEach(function (ev) {
+      var st = computeStatus(ev, now);
+      if (isActive(st)) { act++; if (st.key === 'closing') clo++; if (ev.deadline) { var d = parseWhen(ev.deadline); if (!nxt || d < nxt.d) nxt = { ev: ev, d: d }; } }
+      if (st.key === 'rolling') rol++;
+      var ni = intakeDate(ev);
+      if (ni && ni > now && !isActive(st) && st.key !== 'rolling' && (!nint || ni < nint.d)) nint = { ev: ev, d: ni };
+    });
+    var meta = (clo ? clo + (clo === 1 ? ' closes' : ' close') + ' within 14 days' : 'None closing within 14 days') + (rol ? '. ' + rol + ' always open' : '');
+    var next;
+    if (nxt) next = 'Next deadline: <b>' + esc(nxt.ev.name) + '</b>, ' + esc(relTime(nxt.d, now));
+    else if (nint) { var est = nint.ev.next.confidence !== 'confirmed'; next = 'Next intake: <b>' + esc(nint.ev.name) + '</b>, ' + esc(relTime(nint.d, now, est)) + (est ? ' (estimated)' : ''); }
+    else next = esc(TYPE_BLURB[t]);
+    return '<button type="button" class="seg" data-seg="' + t + '" aria-pressed="' + (S.filters.type === t) + '">' +
+      '<span class="seg-head">' + typeIcon(t) + esc(TYPE_PLURAL[t]) + '</span>' +
+      '<span class="seg-n">' + (act + rol) + '<small>open now</small></span>' +
+      '<span class="seg-meta">' + esc(meta) + '</span>' +
+      '<span class="seg-next">' + next + '</span></button>';
+  }).join('');
+
+  var bd = all.filter(function (e) { return e.bd === 'yes' && e.deadline && isActive(computeStatus(e, now)); })
+    .sort(function (a, b) { return parseWhen(a.deadline) - parseWhen(b.deadline); }).slice(0, 4);
+  $('#bdcard').innerHTML = '<h3>Open to people in Bangladesh</h3>' + (bd.length
+    ? '<ul class="ag-list">' + bd.map(function (e) {
+        var d = parseWhen(e.deadline);
+        return '<li><span class="ag-when">' + esc(F_SHORT.format(d)) + '</span><span class="ag-what"><button type="button" data-goto="' + esc(e.id) + '">' + esc(e.name) + '</button><span class="small">' + esc(TYPE_LABEL[e.type]) + ', closes ' + esc(relTime(d, now)) + '</span></span></li>';
+      }).join('') + '</ul><p class="small" style="margin:8px 0 0"><button type="button" class="linkbtn" data-bdfilter="1">Show all of them in the table</button></p>'
+    : '<p class="small">No dated deadline is open right now.</p>');
+
+  var cap = window.innerWidth <= 640 ? 5 : 9;
+  var items = upcomingItems(all, now, 30).filter(function (i) { return i.kind !== 'other'; });
+  var groups = [['Today', function (i) { return dayDiff(i.d, now) === 0; }], ['This week', function (i) { var n = dayDiff(i.d, now); return n >= 1 && n <= 7; }], ['Later this month', function (i) { return dayDiff(i.d, now) >= 8; }]];
+  var html = '', shown = 0;
+  groups.forEach(function (g) {
+    var part = items.filter(g[1]).slice(0, Math.max(0, cap - shown));
+    if (!part.length) return;
+    shown += part.length;
+    html += '<div class="ag-group"><div class="ag-title">' + g[0] + '</div><ul class="ag-list">' + part.map(function (i) {
+      return '<li><span class="ag-when">' + esc(F_SHORT.format(i.d)) + (i.timed ? '<span class="ag-time">' + esc(timeText(i.d)) + '</span>' : '') + '</span><span class="ag-what"><button type="button" data-goto="' + esc(i.ev.id) + '">' + esc(i.ev.name) + '</button>' +
+        '<span class="small">' + esc(i.label) + (i.approx ? ' (estimated)' : '') + '</span></span></li>';
+    }).join('') + '</ul></div>';
+  });
+  $('#agendaBody').innerHTML = html || '<p class="small">Nothing dated in the next 30 days. See “Coming up” below.</p>';
+  if (items.length > shown) $('#agendaBody').insertAdjacentHTML('beforeend', '<p class="small" style="margin:6px 0 0">' + (items.length - shown) + ' more in <a href="#coming-h">Coming up</a>.</p>');
+}
+
+/* =====================================================================
+   8. Table cells
+   ===================================================================== */
+var EXT_ICON = '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 6 10M11 13H3V5"/></svg>';
+var lk = function (url, label, cls, extra) { return '<a class="lk ' + (cls || '') + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer"' + (extra || '') + '>' + esc(label) + EXT_ICON + '<span class="sr-only"> (opens in a new tab)</span></a>'; };
+
+function windowBar(ev, now) {
+  if (!(ev.opens && ev.deadline)) return '';
+  var s = parseWhen(ev.opens, 'start').getTime(), e = parseWhen(ev.deadline).getTime();
+  if (!(e > s)) return '';
+  var p = Math.max(0, Math.min(1, (now.getTime() - s) / (e - s)));
+  var cls = p >= 0.9 ? 'hot' : (p >= 0.7 ? 'mid' : '');
+  return '<div class="win ' + cls + '" role="img" aria-label="' + Math.round(p * 100) + ' percent of the application window has passed"><i style="width:' + (p * 100).toFixed(1) + '%"></i></div>';
+}
+function deadlineCell(ev, now) {
+  if (ev.rolling) return '<div class="dl-main">Always open</div><div class="small">' + esc(ev.deadlineNote || 'Each listing has its own deadline. Open the list to see it.') + '</div>';
+  if (!ev.deadline) {
+    if (ev.ended) { var ed = parseWhen(ev.ended); return '<div class="dl-main">' + esc(dateText(ed)) + '</div><div class="small">Event ' + (ed > now ? 'ends today' : 'ended ' + relTime(ed, now)) + '</div>'; }
+    return '<div class="dl-main muted">No deadline listed</div><div class="small">Check the official page.</div>';
+  }
+  var d = parseWhen(ev.deadline), c = countdown(d, now);
+  var big = (!c.past && c.days >= 2)
+    ? '<span class="count-num">' + c.days + '</span> <span class="count-unit">days left</span>'
+    : '<span class="count-unit strong">' + esc(c.text) + '</span>';
+  var when = dateText(d, { weekday: true }) + (hasTime(ev.deadline) ? ', ' + timeText(d) + ' ' + tzShort(d) : '');
+  return '<div class="cd">' + big + '</div><div class="dl-main" title="Saved as ' + esc(ev.deadline) + '">' + esc(when) + '</div>' +
+    (ev.deadlineNote ? '<div class="small">' + esc(ev.deadlineNote) + '</div>' : '') + windowBar(ev, now);
+}
+function intakeCell(ev, now) {
+  var ni = ev.next; if (!ni) return '<span class="muted">Not listed</span>';
+  if (!intakeDate(ev) && (ni.confidence || 'unknown') === 'unknown') {
+    var why = [ni.label, ni.note].filter(Boolean).join('. ');
+    return '<div class="dl-main muted">Not announced yet</div>' + (why ? '<div class="small">' + esc(why) + '</div>' : '');
+  }
+  var conf = { confirmed: ['Confirmed', 'ok'], estimated: ['Estimated', 'est'], unknown: ['Unknown', 'unk'] }[ni.confidence || 'unknown'] || ['Unknown', 'unk'];
+  var when = '', cd = '', d = intakeDate(ev);
+  if (d) {
+    when = ni.precision === 'month' ? dateText(d, { month: true }) : dateText(d, { weekday: true });
+    if (d > now) cd = '<div class="small">' + esc(relTime(d, now, ni.confidence !== 'confirmed')) + '</div>';
+  }
+  return '<div class="dl-main">' + esc(ni.label || '') + '</div>' + (when ? '<div>' + esc(when) + '</div>' : '') + cd +
+    '<span class="conf ' + conf[1] + '">' + conf[0] + '</span>' + (ni.note ? '<div class="small">' + esc(ni.note) + '</div>' : '');
+}
+var normTitle = function (t) { return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
+function challengeItems(ev) {
+  var lv = S.live[ev.id], live = [], seenLive = {};
+  ((lv && lv.challenges) || []).forEach(function (c) { var k = normTitle(c.title); if (k && !seenLive[k]) { seenLive[k] = 1; live.push({ k: k, c: c, used: false }); } });
+  function findLive(k) {
+    var hit = live.filter(function (x) { return x.k === k; })[0];
+    if (!hit && k.length >= 6) hit = live.filter(function (x) { return x.k.length >= 6 && (x.k.indexOf(k) >= 0 || k.indexOf(x.k) >= 0); })[0];
+    return hit || null;
+  }
+  var seen = {}, out = [];
+  ev.challenges.forEach(function (c) {
+    var k = normTitle(c.title); if (!k || seen[k]) return; seen[k] = 1;
+    var m = findLive(k); if (m) m.used = true;
+    out.push(Object.assign({}, c, { url: c.url || (m && m.c.url) || '', src: 'saved', confirmed: !!m }));
+  });
+  live.forEach(function (x) { if (!x.used && !seen[x.k]) { seen[x.k] = 1; out.push(Object.assign({}, x.c, { src: 'live' })); } });
+  return out;
+}
+function chItemHtml(c) {
+  var u = c.url ? safeUrl(c.url) : '';
+  var t = u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(c.title) + '</a>' : esc(c.title);
+  return '<li>' + t + (c.level ? '<span class="lvl">' + esc(c.level) + '</span>' : '') + (c.stale ? '<span class="lvl">verify</span>' : '') +
+    (c.confirmed ? '<span class="src-live">confirmed live</span>' : '') + (c.src === 'live' ? '<span class="src-live">live</span>' : '') + '</li>';
+}
+function challengeCell(ev) {
+  var items = challengeItems(ev), lv = S.live[ev.id];
+  if (!items.length) {
+    var msg = ev.live.length ? (lv ? 'No challenge list found live.' : 'Run “Check live” to look for a list.') : 'No fixed challenge list.';
+    return '<span class="muted">' + msg + '</span>' + (ev.challengesNote ? '<div class="small">' + esc(ev.challengesNote) + '</div>' : '');
+  }
+  var exp = S.moreCh.has(ev.id), shown = exp ? items : items.slice(0, 3), more = items.length - 3;
+  return '<ul class="chl">' + shown.map(chItemHtml).join('') + '</ul>' +
+    (more > 0 ? '<button type="button" class="linkbtn" data-act="more" data-id="' + esc(ev.id) + '" aria-expanded="' + exp + '">' + (exp ? 'Show fewer' : 'Show ' + more + ' more') + '</button>' : '') +
+    '<div class="small" style="margin-top:6px">' + plural(items.length, 'item') + '</div>';
+}
+function linksCell(ev, st) {
+  var u = ev.links, off = safeUrl(u.official), ap = safeUrl(u.apply), ch = safeUrl(u.list), closed = st.key === 'closed';
+  var parts = [];
+  if (ap) parts.push(lk(ap, closed ? 'Apply page' : 'Apply', 'apply' + (closed ? ' dim' : ''), closed ? ' title="This round is closed. Watch the next intake."' : ' title="Apply or register"'));
+  if (off && off !== ap) parts.push(lk(off, 'Website'));
+  if (ch && ch !== ap && ch !== off) parts.push(lk(ch, 'Challenges'));
+  return '<div class="lks">' + parts.join('') + '</div>';
+}
+function liveBadge(ev) {
+  if (!ev.live.length) return '';
+  var lv = S.live[ev.id];
+  if (!lv) return '<span class="livebadge none">Not checked live yet</span>';
+  var map = {
+    match: ['match', 'Live page shows the same date'],
+    mismatch: ['mismatch', 'Live page shows other dates. Verify.'],
+    nodata: ['nodata', 'No dates found on the live page'],
+    info: ['info', 'Live page has dates for reference'],
+    fail: ['fail', 'Live page could not be read. Showing saved data.']
+  };
+  var m = map[lv.check] || map.nodata;
+  return '<span class="livebadge ' + m[0] + '" title="Checked ' + esc(ago(lv.fetchedAt)) + '">' + m[1] + '</span>';
+}
+function bdTag(ev) {
+  if (ev.bd === 'yes') return '<span class="tag">Open to Bangladesh</span>';
+  if (ev.bd === 'no') return '<span class="tag warn">Not open to Bangladesh</span>';
+  return '<span class="tag warn">Check Bangladesh eligibility</span>';
+}
+function rowHtml(ev, now) {
+  var st = computeStatus(ev, now), open = S.open.has(ev.id), id = esc(ev.id), tv = S.tracker[ev.id] || '';
+  var meta = '<span class="typechip">' + typeIcon(ev.type) + esc(TYPE_LABEL[ev.type]) + '</span>' +
+    (ev.mode ? '<span class="tag">' + esc(ev.mode) + '</span>' : '') + bdTag(ev) +
+    (ev.origin === 'mine' ? '<span class="tag mine">Added by you</span>' : '') + (ev.origin === 'preview' ? '<span class="tag mine">Preview only</span>' : '') +
+    (ev.reviewed === 'unverified' ? '<span class="tag warn">Not verified</span>' : '');
+  return '<tr class="main' + (open ? ' is-open' : '') + '" id="row-' + id + '" role="row">' +
+    '<td class="c-name" role="cell" data-label="Event"><div class="ev-name">' + esc(ev.name) + '</div><div class="ev-org">' + esc(ev.org) + '</div>' +
+      '<div class="ev-sum">' + esc(ev.summary) + '</div><div class="meta">' + meta + (ev.prize ? '<span class="prize">' + esc(ev.prize) + '</span>' : '') + '</div></td>' +
+    '<td class="c-status" role="cell" data-label="Status"><span class="badge ' + st.key + '">' + statusIcon(st.key) + esc(st.label) + '</span>' + liveBadge(ev) + '</td>' +
+    '<td class="c-dl" role="cell" data-label="Deadline">' + deadlineCell(ev, now) + '</td>' +
+    '<td class="c-int" role="cell" data-label="Next intake">' + intakeCell(ev, now) + '</td>' +
+    '<td class="c-ch" role="cell" data-label="Challenges">' + challengeCell(ev) + '</td>' +
+    '<td class="c-lk" role="cell" data-label="Links">' + linksCell(ev, st) + '</td>' +
+    '<td class="c-tr" role="cell" data-label="My status"><div class="trk"><select class="trk-select" data-id="' + id + '" aria-label="My status for ' + esc(ev.name) + '">' +
+      TRACKER_OPTS.map(function (o) { return '<option value="' + o[0] + '"' + (tv === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
+      '<button type="button" class="exp" data-act="toggle" data-id="' + id + '" aria-expanded="' + open + '" aria-controls="det-' + id + '">' + (open ? 'Hide details' : 'Show details') + '</button></div></td></tr>';
+}
+
+/* =====================================================================
+   9. Detail panel
+   ===================================================================== */
+function srcRow(s) {
+  var head = s.ok ? '<span class="strong" style="color:var(--green-ink)">Read</span> via ' + esc(s.via) + ' in ' + s.ms + ' ms' : '<span class="strong" style="color:var(--red)">Could not read</span>. ' + esc(s.error || '') + ' Try again later, or set a proxy in CONFIG.';
+  var body = '';
+  if (s.ok) {
+    var flags = [];
+    if (s.closedFlag) flags.push('the page contains wording like “closed”');
+    if (s.openFlag) flags.push('the page contains wording like “register now”');
+    body += '<div class="small">' + plural(s.dates.length, 'date') + ', ' + plural(s.tableRows.length, 'table row') + ', ' + plural(s.challenges.length, 'challenge link') + (flags.length ? '. Note: ' + flags.join('; ') : '') + '</div>';
+    if (s.tableRows.length) body += '<ul class="dates">' + s.tableRows.slice(0, 12).map(function (r) { return '<li><b>' + esc(r.raw) + '</b>: ' + esc(r.label) + '</li>'; }).join('') + '</ul>';
+    else if (s.dates.length) body += '<ul class="dates">' + s.dates.slice(0, 8).map(function (d) { return '<li><b>' + esc(d.raw) + '</b> <span title="' + esc(d.ctx) + '">' + esc(d.ctx.slice(0, 110)) + '</span></li>'; }).join('') + '</ul>';
+    if (s.preview) body += '<details class="pv"><summary>Show the start of the page text</summary><pre>' + esc(s.preview) + '</pre></details>';
+  }
+  return '<div class="srcrow"><a href="' + esc(safeUrl(s.url) || '#') + '" target="_blank" rel="noopener noreferrer"><code>' + esc(s.url) + '</code></a><div>' + head + '</div>' + body + '</div>';
+}
+function detailHtml(ev, now) {
+  var lv = S.live[ev.id];
+  var ms = ev.milestones.map(function (m) { return { m: m, d: parseWhen(m.date) }; }).filter(function (x) { return x.d; }).sort(function (a, b) { return a.d - b.d; });
+  var msHtml = ms.length ? '<ul class="ms">' + ms.map(function (x) {
+    var past = x.d < now;
+    return '<li class="' + (past ? 'past' : '') + '"><span class="dot k-' + esc(x.m.kind || 'other') + '"></span><div><b>' + (x.m.approx ? 'About ' : '') + esc(dateText(x.d, { weekday: true })) + (hasTime(x.m.date) ? ', ' + esc(timeText(x.d)) : '') + '</b> ' + esc(x.m.label) + ' <span class="small">(' + esc(relTime(x.d, now, x.m.approx)) + ')</span></div></li>';
+  }).join('') + '</ul>' : '<p class="small">No milestones saved.</p>';
+  var items = challengeItems(ev);
+  var chHtml = items.length ? '<ul class="chl">' + items.map(function (c) { return chItemHtml(c).replace('</li>', c.desc ? '<div class="small">' + esc(c.desc) + '</div></li>' : '</li>'); }).join('') + '</ul>' : '<p class="small">No list saved.</p>';
+  var liveHtml;
+  if (!ev.live.length) liveHtml = '<p class="small">No live source is set for this event (news-based or already finished).</p>';
+  else if (!lv) liveHtml = '<p class="small">Not checked yet. Use “Check live” in the header or the button on the left.</p>';
+  else liveHtml = '<p class="small">Last check: ' + esc(ago(lv.fetchedAt)) + '</p>' + lv.sources.map(srcRow).join('');
+  var srcs = ev.sources.map(function (s) { var u = safeUrl(s.url); return u ? '<li><a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(s.label || u) + '</a></li>' : ''; }).join('');
+  return '<div class="dgrid">' +
+    '<div><h3>About</h3><p>' + esc(ev.summary) + '</p>' + (ev.eligibility ? '<p><b>Who can join:</b> ' + esc(ev.eligibility) + '</p>' : '') +
+      (ev.bdNote ? '<p><b>For Bangladesh:</b> ' + esc(ev.bdNote) + '</p>' : '') +
+      '<p class="small">Reviewed: ' + esc(ev.reviewed || 'not recorded') + (ev.region ? '. Region: ' + esc(ev.region) : '') + '</p>' +
+      '<div class="dact"><button type="button" class="btn sm" data-act="refresh1" data-id="' + esc(ev.id) + '">Check this one live</button>' +
+      '<button type="button" class="btn sm" data-act="ics1" data-id="' + esc(ev.id) + '">Add to calendar (.ics)</button>' +
+      '<button type="button" class="btn sm" data-act="copyline" data-id="' + esc(ev.id) + '">Copy as data line</button></div></div>' +
+    '<div><h3>Milestones</h3>' + msHtml + '</div>' +
+    '<div><h3>Challenge list</h3>' + (ev.challengesNote ? '<p class="small">' + esc(ev.challengesNote) + '</p>' : '') + chHtml + '</div>' +
+    '<div><h3>Live check</h3>' + liveHtml + '</div>' +
+    '<div><h3>Sources</h3>' + (srcs ? '<ul class="srclist">' + srcs + '</ul>' : '<p class="small">No sources saved for this entry.</p>') + '</div>' +
+  '</div>';
+}
+
+/* =====================================================================
+   10. Filter bar, table, timeline, lists
+   ===================================================================== */
+function matches(ev, f, now) {
+  if (f.type !== 'all' && ev.type !== f.type) return false;
+  var st = computeStatus(ev, now);
+  if (f.status === 'open') { if (!isActive(st)) return false; }
+  else if (f.status === 'intake') { if (!intakeDate(ev)) return false; }
+  else if (f.status !== 'all' && st.key !== f.status) return false;
+  if (f.bd && ev.bd !== 'yes') return false;
+  var toks = f.q.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  if (toks.length) {
+    var words = [ev.name, ev.org, ev.kind, ev.summary, ev.region, ev.prize, ev.topics.join(' ')]
+      .concat(ev.challenges.map(function (c) { return c.title + ' ' + (c.desc || ''); })).join(' ').toLowerCase().split(/[^a-z0-9]+/);
+    /* every typed word must match the start of a word, so “arc” finds ARC but not “research” */
+    if (!toks.every(function (t) { return words.some(function (w) { return w.indexOf(t) === 0; }); })) return false;
+  }
+  return true;
+}
+function filtered() { var now = NOW(); return allEvents().filter(function (e) { return matches(e, S.filters, now); }); }
+
+var STATUS_FILTER_LABEL = { open: 'Open now', closing: 'Closing within 14 days', upcoming: 'Opens soon', rolling: 'Always open', closed: 'Closed or ended', check: 'Dates unconfirmed', intake: 'Has a next-intake date' };
+function activeFilters() {
+  var f = S.filters, out = [];
+  if (f.type !== 'all') out.push({ key: 'type', label: 'Type: ' + TYPE_PLURAL[f.type] });
+  if (f.q.trim()) out.push({ key: 'q', label: 'Search: “' + f.q.trim() + '”' });
+  if (f.status !== 'all') out.push({ key: 'status', label: 'Status: ' + STATUS_FILTER_LABEL[f.status] });
+  if (f.bd) out.push({ key: 'bd', label: 'Open to Bangladesh' });
+  return out;
+}
+function renderTabs() {
+  var now = NOW(), f = Object.assign({}, S.filters, { type: 'all' });
+  var base = allEvents().filter(function (e) { return matches(e, f, now); });
+  var counts = {}; TYPES.forEach(function (t) { counts[t] = base.filter(function (e) { return e.type === t; }).length; });
+  var tabs = [['all', 'All', base.length]].concat(TYPES.map(function (t) { return [t, TYPE_PLURAL[t], counts[t]]; }));
+  $('#tabs').innerHTML = tabs.map(function (t) {
+    return '<button type="button" class="tab" data-tab="' + t[0] + '" aria-pressed="' + (S.filters.type === t[0]) + '">' + esc(t[1]) + ' <span class="n">' + t[2] + '</span></button>';
+  }).join('');
+}
+function renderChips(shown, total) {
+  var af = activeFilters();
+  $('#chips').innerHTML = af.map(function (a) {
+    return '<span class="fchip">' + esc(a.label) + '<button type="button" data-clear="' + a.key + '" aria-label="Remove filter: ' + esc(a.label) + '">&times;</button></span>';
+  }).join('') + (af.length ? '<button type="button" class="linkbtn" data-clear="all">Clear all filters</button>' : '');
+  $('#count').textContent = 'Showing ' + shown + ' of ' + total + ' events';
+}
+function renderTable(list) {
+  var now = NOW(), rows = sorted(list), tb = $('#tbody');
+  if (!rows.length) {
+    var af = activeFilters();
+    tb.innerHTML = '<tr role="row"><td colspan="7" role="cell"><div class="empty"><h3>No events match</h3><p>' +
+      (af.length ? 'Nothing fits ' + af.map(function (a) { return esc(a.label); }).join(' + ') + '.' : 'There are no events yet.') +
+      '</p><div class="row">' + (af.length ? '<button type="button" class="btn" data-clear="all">Clear all filters</button>' : '') +
+      '<a class="btn primary" href="#data">Add an event</a></div></div></td></tr>';
+  } else {
+    tb.innerHTML = rows.map(function (ev) {
+      return rowHtml(ev, now) + (S.open.has(ev.id) ? '<tr class="detail" id="det-' + esc(ev.id) + '" role="row"><td colspan="7" role="cell">' + detailHtml(ev, now) + '</td></tr>' : '');
+    }).join('');
+  }
+  $$('thead th').forEach(function (th) {
+    var b = $('button[data-sort]', th); if (!b) return;
+    th.setAttribute('aria-sort', S.sort.key === b.dataset.sort ? (S.sort.dir === 1 ? 'ascending' : 'descending') : 'none');
+  });
+  $('#fSort').value = ['urgency', 'deadline', 'intake', 'name'].indexOf(S.sort.key) >= 0 ? S.sort.key : 'urgency';
+}
+
+function renderTimeline(list) {
+  var root = $('#timeline'); if (!root) return;
+  var now = NOW(), N = 14;
+  var start = new Date(now.getFullYear(), now.getMonth(), 1), end = new Date(start.getFullYear(), start.getMonth() + N, 1);
+  var span = end - start, pct = function (d) { return Math.max(0, Math.min(100, (d - start) / span * 100)); };
+  var mon = '';
+  for (var k = 0; k < N; k++) {
+    var d0 = new Date(start.getFullYear(), start.getMonth() + k, 1);
+    mon += '<div class="mo">' + F_MON.format(d0) + ((k === 0 || d0.getMonth() === 0) ? '<small>' + d0.getFullYear() + '</small>' : '') + '</div>';
+  }
+  var rows = sorted(list).map(function (ev) {
+    var parts = [];
+    if (ev.rolling) parts.push('<div class="tl-roll" title="Always open"></div>');
+    var op = ev.opens ? parseWhen(ev.opens, 'start') : null, dl = ev.deadline && !ev.rolling ? parseWhen(ev.deadline) : null;
+    if (dl && dl >= start) {
+      var a = new Date(Math.max((op || now).getTime(), start.getTime()));
+      if (a <= dl) { var l = pct(a), r = pct(dl); parts.push('<div class="tl-win' + (dl < now ? ' closed' : '') + '" style="left:' + l + '%;width:' + Math.max(1.2, r - l) + '%" title="' + esc(ev.name + ': deadline ' + dateText(dl)) + '"></div>'); }
+    }
+    ev.milestones.forEach(function (m) {
+      var d = parseWhen(m.date); if (!d || d < start || d >= end) return;
+      parts.push('<span class="tl-dot k-' + esc(m.kind || 'other') + '" style="left:' + pct(d) + '%" title="' + esc(dateText(d) + ': ' + m.label) + '"></span>');
+    });
+    var ni = intakeDate(ev);
+    if (ni && ni >= start && ni < end) {
+      var x, y;
+      if (ev.next.precision === 'month') { x = new Date(ni.getFullYear(), ni.getMonth(), 1); y = new Date(ni.getFullYear(), ni.getMonth() + 1, 1); }
+      else { x = new Date(ni.getTime() - 5 * MS_DAY); y = new Date(ni.getTime() + 5 * MS_DAY); }
+      var sure = ev.next.confidence === 'confirmed';
+      parts.push('<div class="tl-int' + (sure ? ' ok' : '') + '" style="left:' + pct(x) + '%;width:' + Math.max(1.2, pct(y) - pct(x)) + '%" title="' + esc('Next intake (' + (sure ? 'confirmed' : 'estimated') + '): ' + dateText(ni, { month: ev.next.precision === 'month' })) + '"></div>');
+    }
+    parts.push('<div class="tl-today" style="left:' + pct(now) + '%"></div>');
+    return '<div class="tl-row"><div class="tl-name" title="' + esc(ev.name) + '">' + esc(ev.name) + '</div><div class="tl-track">' + parts.join('') + '</div></div>';
+  }).join('');
+  root.innerHTML = '<div class="tl-in"><div class="tl-head"><div></div><div class="tl-cols">' + mon + '</div></div>' + (rows || '<p class="small" style="padding:12px">No events match the current filters.</p>') +
+    '<div class="tl-legend"><span><i style="background:var(--green)"></i>Applications open</span><span><i style="background:var(--ash);opacity:.5"></i>Window closed</span>' +
+    '<span><i style="border:1px dashed var(--amber);background:var(--amber-wash)"></i>Estimated next intake</span><span><i style="border:1px solid var(--green);background:var(--green-wash)"></i>Confirmed intake</span>' +
+    '<span><i class="k-deadline" style="width:8px;height:8px;border-radius:50%"></i>Deadline</span><span><i class="k-open" style="width:8px;height:8px;border-radius:50%"></i>Opens</span>' +
+    '<span><i class="k-release" style="width:8px;height:8px;border-radius:50%"></i>Release</span><span><i class="k-event" style="width:8px;height:8px;border-radius:50%"></i>Event</span>' +
+    '<span><i style="background:var(--red);width:3px;height:12px"></i>Today</span></div></div>';
+}
+
+function renderComing(list) {
+  var now = NOW(), items = upcomingItems(list, now, 150).filter(function (i) { return i.kind !== 'other'; });
+  var host = $('#coming');
+  if (!items.length) { host.innerHTML = '<p class="small">Nothing dated in the next 150 days for the current filters.</p>'; return; }
+  var groups = {}, order = [];
+  items.slice(0, 60).forEach(function (i) { var k = i.d.getFullYear() * 100 + i.d.getMonth(); if (!groups[k]) { groups[k] = []; order.push(k); } groups[k].push(i); });
+  host.innerHTML = order.map(function (k) {
+    var first = groups[k][0].d;
+    return '<div class="ag-group"><div class="ag-title" style="font-size:14px">' + esc(F_MONTH.format(first)) + '</div><ul class="ag-list" style="background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:2px 14px">' +
+      groups[k].map(function (i) {
+        return '<li><span class="ag-when">' + esc(F_SHORT.format(i.d)) + (i.timed ? ', ' + esc(timeText(i.d)) : '') + '</span><span class="ag-what"><button type="button" data-goto="' + esc(i.ev.id) + '">' + esc(i.ev.name) + '</button>' +
+          '<span class="small">' + esc(i.label) + (i.approx ? ' (estimated)' : '') + '. ' + esc(relTime(i.d, now, i.approx)) + '</span></span></li>';
+      }).join('') + '</ul></div>';
+  }).join('');
+}
+
+/* =====================================================================
+   11. Header text, banners, data check, tracker text, log
+   ===================================================================== */
+function renderHeader() {
+  var now = NOW(), next = null;
+  allEvents().forEach(function (ev) {
+    var st = computeStatus(ev, now);
+    if (isActive(st) && ev.deadline) { var d = parseWhen(ev.deadline); if (!next || d < next.d) next = { ev: ev, d: d }; }
+  });
+  $('#lede').innerHTML = 'Hackathons, competitions, challenges and opportunities for people building in tech, with deadlines and next intakes in one place. ' +
+    (next ? 'The next deadline is <b>' + esc(next.ev.name) + '</b>, ' + esc(relTime(next.d, now)) + '.' : 'No dated deadline is open right now.');
+  var rev = CONFIG.dataReviewed ? parseWhen(CONFIG.dataReviewed, 'start') : null;
+  var age = rev ? dayDiff(now, rev) : null, stale = age != null && age > (CONFIG.staleAfterDays || 30);
+  var tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone + ', ' + tzShort(now); } catch (e) { tz = ''; }
+  var latest = 0; Object.keys(S.live).forEach(function (id) { var t = Date.parse(S.live[id].fetchedAt || 0); if (t > latest) latest = t; });
+  $('#stamp').innerHTML = (rev ? '<span class="fresh' + (stale ? ' stale' : '') + '">Data reviewed ' + esc(dateText(rev)) + ' (' + (age <= 0 ? 'today' : plural(age, 'day') + ' ago') + ')</span>' : '<span class="fresh stale">Review date not set</span>') +
+    '<span>' + (latest ? 'Live check ran ' + esc(ago(latest)) + '.' : 'Live check has not run in this visit.') + '</span>' +
+    (tz ? '<span>Times are shown in your time zone (' + esc(tz) + ').</span>' : '');
+  $('#tzNote').textContent = tz ? 'All dates and times are converted to your time zone (' + tz + '). Date-only deadlines are treated as the end of that day.' : '';
+}
+function renderBanners() {
+  var now = NOW(), host = $('#banners'), html = '';
+  var rev = CONFIG.dataReviewed ? parseWhen(CONFIG.dataReviewed, 'start') : null;
+  if (rev && dayDiff(now, rev) > (CONFIG.staleAfterDays || 30)) {
+    html += '<div class="banner warn" role="status"><div><b>This data is ' + plural(dayDiff(now, rev), 'day') + ' old.</b> Deadlines may have changed. Use “Check live”, confirm on each official page, then update <span class="mono">CONFIG.dataReviewed</span>.</div></div>';
+  }
+  var errs = S.issues.filter(function (i) { return i.level === 'error'; }).length, warns = S.issues.filter(function (i) { return i.level === 'warn'; }).length;
+  if (errs || warns) {
+    html += '<div class="banner ' + (errs ? 'bad' : 'warn') + '" role="status"><div><b>The data check found ' + (errs ? plural(errs, 'error') : '') + (errs && warns ? ' and ' : '') + (warns ? plural(warns, 'warning') : '') + '.</b> <a href="#dataCheck">See what to fix</a>.</div></div>';
+  }
+  host.innerHTML = html;
+}
+function renderDataCheck() {
+  var ul = $('#dataCheck');
+  if (!S.issues.length) { ul.innerHTML = '<li class="ok">All good. ' + (EVENTS.length + MY_EVENTS.length) + ' events were checked and no problems were found.</li>'; return; }
+  ul.innerHTML = S.issues.map(function (i) { return '<li class="' + i.level + '"><span><b>' + (i.level === 'error' ? 'Error' : 'Warning') + '.</b> ' + esc(i.where) + ': ' + esc(i.msg) + '</span></li>'; }).join('');
+}
+function trackerText() {
+  var ids = Object.keys(S.tracker).filter(function (id) { return S.tracker[id]; }).sort();
+  return 'const TRACKER = {\n' + ids.map(function (id) { return '  ' + JSON.stringify(id) + ': ' + JSON.stringify(S.tracker[id]) + ','; }).join('\n') + (ids.length ? '\n' : '') + '};';
+}
+function renderTrackerOut() {
+  $('#trackerOut').textContent = S.trackerChanged ? trackerText() : 'No changes yet.';
+  $('#btnCopyTracker').disabled = !S.trackerChanged;
+}
+function renderLog() {
+  var el = $('#log'); if (!el) return;
+  if (!S.log.length) { el.innerHTML = '<div class="muted">Nothing has run yet.</div>'; return; }
+  el.innerHTML = S.log.slice(-80).reverse().map(function (l) {
+    return '<div class="' + esc(l.level) + '">' + pad(l.t.getHours()) + ':' + pad(l.t.getMinutes()) + ':' + pad(l.t.getSeconds()) + ' ' + esc(l.msg) + '</div>';
+  }).join('');
+}
+
+function renderAll() {
+  var list = filtered();
+  renderHeader(); renderGlance(); renderTabs(); renderTable(list); renderChips(list.length, allEvents().length);
+  renderTimeline(list); renderComing(list); renderTrackerOut(); renderLog();
+  updateFbarHeight();
+  writeHash();
+}
+function updateFbarHeight() {
+  var fb = $('#filterbar');
+  if (fb) document.documentElement.style.setProperty('--fbar-h', (window.innerWidth > 1180 ? fb.offsetHeight : 0) + 'px');
+}
+
+/* =====================================================================
+   12. Small UI helpers
+   ===================================================================== */
+var toastTimer = null;
+function toast(msg) {
+  var t = $('#toast'); if (!t) return;
+  $('#toastTxt').textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
+}
+function setBusy(flag, done, total) {
+  var b = $('#btnLive'); if (!b) return;
+  b.classList.toggle('busy', !!flag); b.disabled = !!flag;
+  $('#btnLiveTxt').textContent = flag ? 'Checking ' + (done || 0) + ' of ' + (total || 0) : 'Check live';
+}
+function applyTheme() {
+  var r = document.documentElement;
+  if (S.theme === 'light' || S.theme === 'dark') r.setAttribute('data-theme', S.theme); else r.removeAttribute('data-theme');
+  $$('[data-theme-set]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.themeSet === S.theme ? 'true' : 'false'); });
+}
+function download(name, text, mime) {
+  var blob = new Blob([text], { type: mime }), url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+}
+/* Copy with visible and spoken confirmation, and a fallback for pages opened from a file. */
+function copyText(text, btn) {
+  function done(ok) {
+    if (btn) {
+      if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+      btn.textContent = ok ? 'Copied' : 'Copy failed';
+      btn.classList.toggle('done', ok); btn.classList.toggle('fail', !ok);
+      clearTimeout(btn._t); btn._t = setTimeout(function () { btn.textContent = btn.dataset.label; btn.classList.remove('done', 'fail'); }, 2200);
+    }
+    toast(ok ? 'Copied to the clipboard.' : 'Could not copy. Select the text and press Ctrl+C.');
+  }
+  function fallback() {
+    try {
+      var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px'; document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand('copy'); ta.remove(); done(ok);
+    } catch (e) { done(false); }
+  }
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+  else fallback();
+}
+
+/* =====================================================================
+   13. Add an event: build a line to paste into MY_EVENTS
+   ===================================================================== */
+var slug = function (s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'event'; };
+function idTaken(id) { return EVENTS.concat(MY_EVENTS).some(function (e) { return e && e.id === id; }) || S.preview.some(function (e) { return e.id === id; }); }
+function readForm() {
+  var v = function (id) { return ($('#' + id).value || '').trim(); };
+  var name = v('aName'), notes = [];
+  var o = {};
+  var base = slug(name), id = base, n = 2;
+  while (idTaken(id)) id = base + '-' + (n++);
+  o.id = id; o.name = name; o.type = v('aType');
+  if (v('aOrg')) o.org = v('aOrg');
+  o.bd = v('aBd');
+  if (v('aMode')) o.mode = v('aMode');
+  if (v('aPrize')) o.prize = v('aPrize');
+  var topics = v('aTopics').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  if (topics.length) o.topics = topics;
+  if (v('aSummary')) o.summary = v('aSummary');
+  var links = {};
+  [['aOff', 'official', 'Official link'], ['aApp', 'apply', 'Apply link'], ['aList', 'list', 'Challenge list link']].forEach(function (p) {
+    var val = v(p[0]); if (!val) return;
+    if (safeUrl(val)) links[p[1]] = safeUrl(val); else notes.push({ level: 'warn', msg: p[2] + ' must start with http:// or https://. It was left out.' });
+  });
+  if (Object.keys(links).length) o.links = links;
+  if (v('aOpens')) o.opens = v('aOpens');
+  if ($('#aRolling').checked) { o.rolling = true; if (v('aDate')) notes.push({ level: 'warn', msg: 'Always open is ticked, so the deadline date was left out.' }); }
+  else if (v('aDate')) {
+    var t = v('aTime');
+    o.deadline = t ? v('aDate') + 'T' + t + ':00' + v('aTz') : v('aDate');
+    if (!t && v('aTz')) notes.push({ level: 'warn', msg: 'A time zone only applies when you also give a time.' });
+  } else if (v('aTime')) notes.push({ level: 'warn', msg: 'A time needs a deadline date.' });
+  if (v('aNext')) o.next = { label: 'Next intake', date: v('aNext'), precision: 'day', confidence: v('aConf') };
+  if (o.opens && o.deadline && parseWhen(o.opens, 'start') > parseWhen(o.deadline)) notes.push({ level: 'warn', msg: 'Applications open after the deadline. Check the dates.' });
+  if (id !== base) notes.push({ level: 'ok', msg: 'That name was already used, so the id is “' + id + '”.' });
+  o.reviewed = ymd(NOW());
+  return { obj: o, notes: notes, ready: !!name };
+}
+function renderForm() {
+  var r = readForm(), out = $('#outLine');
+  var line = r.ready ? JSON.stringify(r.obj) + ',' : '';
+  out.textContent = r.ready ? line : 'Fill in a name and a type to generate the line.';
+  ['btnCopyLine', 'btnCopyPretty', 'btnPreview'].forEach(function (id) { $('#' + id).disabled = !r.ready; });
+  var li = r.notes.map(function (n) { return '<li class="' + n.level + '">' + esc(n.msg) + '</li>'; });
+  if (r.ready && !r.notes.length) li.push('<li class="ok">Ready. Press “Copy line”, then paste it inside MY_EVENTS in the file.</li>');
+  $('#formCheck').innerHTML = li.join('');
+}
+function prettyLine(obj) { return JSON.stringify(obj, null, 2).split('\n').map(function (l) { return '  ' + l; }).join('\n') + ','; }
+
+/* =====================================================================
+   14. Export: CSV and calendar
+   ===================================================================== */
+var csvCell = function (s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; };
+function buildCsv(list) {
+  var now = NOW();
+  var head = ['id', 'name', 'type', 'organizer', 'status', 'deadline', 'days left', 'next intake', 'intake confidence', 'prize', 'open to Bangladesh', 'website', 'apply link', 'challenge list', 'my status'];
+  var lines = [head.map(csvCell).join(',')];
+  list.forEach(function (ev) {
+    var st = computeStatus(ev, now), dl = ev.deadline && !ev.rolling ? parseWhen(ev.deadline) : null, tv = S.tracker[ev.id] || '';
+    lines.push([ev.id, ev.name, ev.type, ev.org, st.label, ev.deadline || '', dl ? dayDiff(dl, now) : '', ev.next && ev.next.date || '', ev.next && ev.next.confidence || '', ev.prize, ev.bd, ev.links.official, ev.links.apply, ev.links.list, tv].map(csvCell).join(','));
+  });
+  return lines.join('\r\n');
+}
+function exportCsv() { download('open-challenge-hub-' + ymd(NOW()) + '.csv', '\uFEFF' + buildCsv(sorted(filtered())), 'text/csv;charset=utf-8'); toast('CSV downloaded.'); }
+
+var icsEsc = function (s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); };
+function foldLine(line) {
+  var enc = new TextEncoder(), out = '', cur = '', bytes = 0;
+  for (var ch of line) {
+    var b = enc.encode(ch).length;
+    if (bytes + b > 73) { out += cur + '\r\n '; cur = ch; bytes = b + 1; } else { cur += ch; bytes += b; }
+  }
+  return out + cur;
+}
+var icsStamp = function (d) { return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z'; };
+function buildIcs(events) {
+  var now = NOW(), today = startOfDay(now), n = 0;
+  var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Open Challenge Hub//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Open Challenge Hub'];
+  function add(ev, date, str, label, alarm) {
+    n++;
+    var u = safeUrl(ev.links.official || ev.links.apply || '');
+    L.push('BEGIN:VEVENT', 'UID:' + ev.id + '-' + n + '@open-challenge-hub', 'DTSTAMP:' + icsStamp(now));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      var nx = new Date(Date.UTC(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(8, 10) + 1));
+      L.push('DTSTART;VALUE=DATE:' + str.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + nx.getUTCFullYear() + pad(nx.getUTCMonth() + 1) + pad(nx.getUTCDate()));
+    } else {
+      L.push('DTSTART:' + icsStamp(date), 'DTEND:' + icsStamp(new Date(date.getTime() + 3600000)));
+    }
+    L.push('SUMMARY:' + icsEsc(ev.name + ': ' + label));
+    L.push('DESCRIPTION:' + icsEsc((ev.summary || '') + (u ? '\n' + u : '')));
+    if (u) L.push('URL:' + u);
+    if (alarm) L.push('BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('Tomorrow: ' + ev.name), 'END:VALARM');
+    L.push('END:VEVENT');
+  }
+  events.forEach(function (ev) {
+    var dlDays = {};
+    ev.milestones.forEach(function (m) {
+      var d = parseWhen(m.date); if (!d || d < today) return;
+      if (m.kind === 'deadline') dlDays[ymd(d)] = 1;
+      add(ev, d, m.date, (m.approx ? '(estimated) ' : '') + m.label, m.kind === 'deadline');
+    });
+    if (ev.deadline && !ev.rolling) {
+      var dl = parseWhen(ev.deadline);
+      if (dl && dl >= today && !dlDays[ymd(dl)]) add(ev, dl, ev.deadline, 'Deadline', true);
+    }
+    var ni = intakeDate(ev);
+    if (ni && ni >= today) add(ev, ni, ev.next.date, (ev.next.confidence === 'confirmed' ? '' : '(estimated) ') + 'Next intake: ' + (ev.next.label || ''), false);
+  });
+  L.push('END:VCALENDAR');
+  return L.map(foldLine).join('\r\n') + '\r\n';
+}
+function exportIcs(events) {
+  var txt = buildIcs(events);
+  if (!/BEGIN:VEVENT/.test(txt)) { toast('There are no upcoming dates to add.'); return; }
+  download('open-challenge-hub.ics', txt, 'text/calendar;charset=utf-8');
+  toast('Calendar file downloaded. Import it into Google Calendar, Outlook or Apple Calendar.');
+}
+
+/* =====================================================================
+   15. URL state (filters live in the address, so a view can be shared)
+   ===================================================================== */
+function writeHash() {
+  var f = S.filters, p = [];
+  if (f.type !== 'all') p.push('type=' + encodeURIComponent(f.type));
+  if (f.q.trim()) p.push('q=' + encodeURIComponent(f.q.trim()));
+  if (f.status !== 'all') p.push('status=' + encodeURIComponent(f.status));
+  if (f.bd) p.push('bd=1');
+  if (S.sort.key !== 'urgency' || S.sort.dir !== 1) p.push('sort=' + S.sort.key + (S.sort.dir === -1 ? '&desc=1' : ''));
+  var h = p.join('&'), cur = location.hash.replace(/^#/, '');
+  if (!h && cur.indexOf('=') < 0) return;
+  try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (e) { /* some browsers block this on file pages */ }
+}
+function readHash() {
+  var h = location.hash.replace(/^#/, ''); if (h.indexOf('=') < 0) return;
+  var p = new URLSearchParams(h), f = S.filters;
+  if (TYPES.indexOf(p.get('type')) >= 0) f.type = p.get('type');
+  if (p.get('q')) f.q = p.get('q');
+  if (Object.keys(STATUS_FILTER_LABEL).indexOf(p.get('status')) >= 0) f.status = p.get('status');
+  if (p.get('bd') === '1') f.bd = true;
+  if (['urgency', 'deadline', 'intake', 'name', 'status'].indexOf(p.get('sort')) >= 0) { S.sort.key = p.get('sort'); S.sort.dir = p.get('desc') === '1' ? -1 : 1; }
+  $('#q').value = f.q; $('#fStatus').value = f.status; $('#fBd').checked = f.bd;
+}
+
+/* =====================================================================
+   16. Events and start-up
+   ===================================================================== */
+function resetFilters() { S.filters = { type: 'all', q: '', status: 'all', bd: false }; $('#q').value = ''; $('#fStatus').value = 'all'; $('#fBd').checked = false; }
+function gotoRow(id) {
+  if (!filtered().some(function (e) { return e.id === id; })) { resetFilters(); }
+  S.open.add(id); renderAll();
+  var el = document.getElementById('row-' + id);
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (el && el.scrollIntoView) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+}
+function onTableClick(e) {
+  var b = e.target.closest('[data-act]'); if (!b) return;
+  var id = b.dataset.id, act = b.dataset.act, ev = allEvents().filter(function (x) { return x.id === id; })[0];
+  if (act === 'toggle') { if (S.open.has(id)) S.open.delete(id); else S.open.add(id); }
+  else if (act === 'more') { if (S.moreCh.has(id)) S.moreCh.delete(id); else S.moreCh.add(id); }
+  else if (act === 'refresh1') { if (ev) refreshOne(ev); return; }
+  else if (act === 'ics1') { if (ev) exportIcs([ev]); return; }
+  else if (act === 'copyline') { if (ev) copyText(JSON.stringify(ev._raw || {}) + ',', b); return; }
+  renderAll();
+  var sel = (window.CSS && window.CSS.escape) ? window.CSS.escape(id) : id;
+  var nb = document.querySelector('[data-act="' + act + '"][data-id="' + sel + '"]'); if (nb) nb.focus();
+}
+function bind() {
+  $('#btnLive').addEventListener('click', function () { scrapeAll(true); });
+  $('#btnCsv').addEventListener('click', function () { exportCsv(); $('#exportMenu').open = false; });
+  $('#btnIcs').addEventListener('click', function () { exportIcs(sorted(filtered())); $('#exportMenu').open = false; });
+  $('#btnAdd').addEventListener('click', function () { setTimeout(function () { $('#aName').focus({ preventScroll: true }); }, 350); });
+  $$('[data-theme-set]').forEach(function (b) { b.addEventListener('click', function () { S.theme = b.dataset.themeSet; applyTheme(); }); });
+
+  $('#q').addEventListener('input', function (e) { S.filters.q = e.target.value; renderAll(); });
+  $('#fStatus').addEventListener('change', function (e) { S.filters.status = e.target.value; renderAll(); });
+  $('#fSort').addEventListener('change', function (e) { S.sort = { key: e.target.value, dir: 1 }; renderAll(); });
+  $('#fBd').addEventListener('change', function (e) { S.filters.bd = e.target.checked; renderAll(); });
+  $('#tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-tab]'); if (!b) return; S.filters.type = b.dataset.tab; renderAll(); var nb = document.querySelector('[data-tab="' + b.dataset.tab + '"]'); if (nb) nb.focus(); });
+  $('#segs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-seg]'); if (!b) return;
+    S.filters.type = S.filters.type === b.dataset.seg ? 'all' : b.dataset.seg; renderAll();
+    var t = document.getElementById('browse'); if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-clear]');
+    if (c) {
+      var k = c.dataset.clear;
+      if (k === 'all') resetFilters();
+      else if (k === 'type') S.filters.type = 'all';
+      else if (k === 'q') { S.filters.q = ''; $('#q').value = ''; }
+      else if (k === 'status') { S.filters.status = 'all'; $('#fStatus').value = 'all'; }
+      else if (k === 'bd') { S.filters.bd = false; $('#fBd').checked = false; }
+      renderAll(); return;
+    }
+    var g = e.target.closest('[data-goto]'); if (g) { gotoRow(g.dataset.goto); return; }
+    if (e.target.closest('[data-bdfilter]')) {
+      S.filters.bd = true; S.filters.type = 'all'; $('#fBd').checked = true; renderAll();
+      var br = document.getElementById('browse'); if (br && br.scrollIntoView) br.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    var m = $('#exportMenu'); if (m && m.open && !m.contains(e.target)) m.open = false;
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var m = $('#exportMenu'); if (m && m.open) { m.open = false; var s = m.querySelector('summary'); if (s) s.focus(); } } });
+  $('thead').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-sort]'); if (!b) return;
+    var k = b.dataset.sort;
+    if (S.sort.key === k) S.sort.dir *= -1; else S.sort = { key: k, dir: 1 };
+    renderAll();
+  });
+  $('#tbody').addEventListener('click', onTableClick);
+  $('#tbody').addEventListener('change', function (e) {
+    var t = e.target; if (!t.classList.contains('trk-select')) return;
+    S.tracker[t.dataset.id] = t.value; S.trackerChanged = true; renderTrackerOut();
+    toast('Status changed for this visit only. Copy it from “Your data” to keep it.');
+  });
+
+  $('#addForm').addEventListener('input', renderForm);
+  $('#addForm').addEventListener('change', renderForm);
+  $('#addForm').addEventListener('submit', function (e) { e.preventDefault(); });
+  $('#addForm').addEventListener('reset', function () { setTimeout(renderForm, 0); });
+  $('#btnCopyLine').addEventListener('click', function (e) { var r = readForm(); if (r.ready) copyText(JSON.stringify(r.obj) + ',', e.currentTarget); });
+  $('#btnCopyPretty').addEventListener('click', function (e) { var r = readForm(); if (r.ready) copyText(prettyLine(r.obj), e.currentTarget); });
+  $('#btnPreview').addEventListener('click', function () {
+    var r = readForm(); if (!r.ready) return;
+    S.preview.push(r.obj); rebuild(); S.issues = validateAll(); renderBanners(); renderDataCheck();
+    resetFilters(); S.open.add(r.obj.id); renderAll();
+    toast('Previewing “' + r.obj.name + '”. It will disappear on refresh. Paste the line into the file to keep it.');
+  });
+  $('#btnCopyTracker').addEventListener('click', function (e) { copyText(trackerText(), e.currentTarget); });
+  $('#btnCopyProxy').addEventListener('click', function (e) { copyText(PROXY_CODE, e.currentTarget); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    var a = document.activeElement, tag = a && a.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (a && a.isContentEditable)) return;
+    e.preventDefault(); $('#q').focus();
+  });
+  window.addEventListener('resize', updateFbarHeight);
+  window.addEventListener('hashchange', function () { if (location.hash.indexOf('=') >= 0) { resetFilters(); readHash(); renderAll(); } });
+}
+
+var PROXY_CODE = [
+  '// proxy.js. Needs Node 18 or newer. Run it with: node proxy.js',
+  "const http = require('http');",
+  'http.createServer(async (req, res) => {',
+  "  res.setHeader('Access-Control-Allow-Origin', '*');",
+  "  const target = new URL(req.url, 'http://localhost').searchParams.get('url');",
+  "  if (!target) { res.statusCode = 400; return res.end('Add ?url=https://...'); }",
+  '  try {',
+  "    const r = await fetch(target, { headers: { 'user-agent': 'Mozilla/5.0 OpenChallengeHub' } });",
+  '    res.statusCode = r.status;',
+  "    res.setHeader('content-type', r.headers.get('content-type') || 'text/plain');",
+  '    res.end(await r.text());',
+  '  } catch (e) { res.statusCode = 502; res.end(String(e)); }',
+  "}).listen(8787, () => console.log('Proxy ready: http://localhost:8787/?url='));"
+].join('\n');
+
+function init() {
+  S.issues = validateAll();
+  rebuild();
+  var q = $('#q'); q.setAttribute('aria-keyshortcuts', '/');
+  readHash();
+  applyTheme();
+  $('#proxyCode').textContent = PROXY_CODE;
+  bind();
+  renderBanners(); renderDataCheck(); renderForm();
+  renderAll();
+  if (cfgLive().autoRunOnLoad && navigator.onLine !== false) setTimeout(function () { scrapeAll(false); }, 700);
+  setInterval(function () {
+    var a = document.activeElement;
+    if (S.busy || (a && /^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName))) return;
+    renderAll();
+  }, 300000);
+}
+
+window.OCH = {
+  S: S, EVENTS: EVENTS, allEvents: allEvents, computeStatus: computeStatus, countdown: countdown, relTime: relTime, parseWhen: parseWhen,
+  extractDates: extractDates, extractTable: extractTable, extractLinks: extractLinks, pickChallenges: pickChallenges, htmlToMd: htmlToMd,
+  scrapeAll: scrapeAll, scrapeEvent: scrapeEvent, filtered: filtered, sorted: sorted, renderAll: renderAll, validateAll: validateAll,
+  buildCsv: buildCsv, buildIcs: buildIcs, readForm: readForm, upcomingItems: upcomingItems, normalize: normalize, rebuild: rebuild
+};
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>
